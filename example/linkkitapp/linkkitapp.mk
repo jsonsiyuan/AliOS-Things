@@ -1,12 +1,12 @@
 NAME := linkkitapp
-$(NAME)_SOURCES :=   app_entry.c
+$(NAME)_SOURCES :=   app_entry.c 
 
 $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/protocol/linkkit/hal \
                       framework/netmgr \
                       framework/common \
                       utility/cjson \
-                      framework/uOTA
+                      framework/uOTA 
 
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE  \
                  -DMQTT_DIRECT \
@@ -41,6 +41,15 @@ $(NAME)_SOURCES += linkkit_example_solo.c
 endif
 endif
 
+$(NAME)_SOURCES +=   ./DOOYA/dooya_led.c      
+$(NAME)_SOURCES +=  ./DOOYA/dooya_flash.c
+$(NAME)_SOURCES +=  ./DOOYA/dooya_dev_info.c
+$(NAME)_SOURCES +=  ./DOOYA/dooya_uart_recv_handle.c 
+$(NAME)_SOURCES +=   ./DOOYA/dooya_uart_send.c
+$(NAME)_SOURCES += ./DOOYA/dooya_uart.c
+$(NAME)_SOURCES +=  ./DOOYA/dooya_wifi_status.c
+
+
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
 no_with_lwip := 0
@@ -57,4 +66,5 @@ else
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
-GLOBAL_INCLUDES += ./
+GLOBAL_INCLUDES += ./ 
+GLOBAL_INCLUDES += ./DOOYA

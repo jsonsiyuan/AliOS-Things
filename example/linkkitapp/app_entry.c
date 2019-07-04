@@ -24,6 +24,12 @@
 #include "ota_service.h"
 #endif
 
+/*@sun change*/
+#include "dooya_led.h"
+#include "dooya_uart.h"
+#include "dooya_flash.h"
+#include "dooya_wifi_status.h"
+
 static char linkkit_started = 0;
 
 #ifdef EN_COMBO_NET
@@ -165,6 +171,11 @@ static void linkkit_event_monitor(int event)
         case IOTX_AWSS_GOT_IP: // AWSS connects destination successfully and got
                                // ip address
             LOG("IOTX_AWSS_GOT_IP");
+            if(awss_running)
+			{
+				awss_running = 0;
+				dooya_set_wifi_STA();
+			}
             // operate led to indicate user
             break;
         case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
@@ -181,6 +192,17 @@ static void linkkit_event_monitor(int event)
                                        // user needs to enable awss again to support get ssid & passwd of router
             LOG("IOTX_AWSS_ENALBE_TIMEOUT");
             // operate led to indicate user
+            awss_running=0;
+            if(netmgr_wifi_check_ssid()==0)
+            {
+                dooya_set_wifi_STA();
+                aos_reboot();
+            }
+            else
+            {
+                
+                dooya_set_led_g_status(LED_TAGGLE,1);
+            }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
             LOG("IOTX_CONN_CLOUD");
@@ -230,14 +252,6 @@ static void stop_netmgr(void *p)
     aos_task_exit(0);
 }
 
-static void start_netmgr(void *p)
-{
-    aos_msleep(2000);
-    iotx_event_regist_cb(linkkit_event_monitor);
-    netmgr_start(true);
-    aos_task_exit(0);
-}
-
 void do_awss_active()
 {
     LOG("do_awss_active %d\n", awss_running);
@@ -247,6 +261,17 @@ void do_awss_active()
     awss_config_press();
     #endif
 }
+
+static void start_netmgr(void *p)
+{
+    aos_msleep(2000);
+    iotx_event_regist_cb(linkkit_event_monitor);
+    do_awss_active();
+    netmgr_start(true);
+    aos_task_exit(0);
+}
+
+
 
 void do_awss_dev_ap()
 {
@@ -291,7 +316,14 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
     if (eventinfo->code == CODE_BOOT) {
         if (eventinfo->value == VALUE_KEY_CLICK) {
 
-            do_awss_active();
+            if(awss_running==0)
+			{
+				dooya_set_led_g_status(LED_TAGGLE,4);
+				dooya_set_wifi_smartconfig();
+
+				aos_msleep(500);
+				aos_reboot();
+			} 
         } else if (eventinfo->value == VALUE_KEY_LTCLICK) {
             do_awss_reset();
         }
@@ -399,13 +431,23 @@ int application_start(int argc, char **argv)
     set_iotx_info();
     extern void LITE_set_loglevel(int);
     LITE_set_loglevel(5);
-
+#if 0
 #ifdef EN_COMBO_NET
     combo_net_init();
 #else
 
     aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
 #endif
+#endif
+    char *A_version="3.0.0";
+    printf("###code## is [%s]\r\n",A_version);
+	iotx_event_regist_cb(linkkit_event_monitor);
+	
+    dooya_create_led_thread();
+	dooya_create_uart_thread();
+
+    dooya_create_wifi_check_thread();
+
     aos_loop_run();
 
     return 0;

@@ -9,13 +9,17 @@
 #include "cJSON.h"
 #include "app_entry.h"
 
+#include "dooya_led.h"
+#include "dooya_dev_info.h"
+#include "dooya_uart_send.h"
+
 #define USE_CUSTOME_DOMAIN      (0)
 
 // for demo only
-#define PRODUCT_KEY      "a1X2bEnP82z"
-#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "test_06"
-#define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
+#define PRODUCT_KEY     "a1uXapRCEMs"
+#define PRODUCT_SECRET  "0mQrM88CLlkrn6nl"
+#define DEVICE_NAME     "device1"
+#define DEVICE_SECRET   "B1kcFwTRNnEd0dxo6hE4N2KQMDf3K9co"
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -60,6 +64,8 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
+    dooya_set_led_g_status(LED_CLOSE,1);
+    dooya_set_wifi_STA();
     return 0;
 }
 
@@ -70,6 +76,7 @@ static int user_disconnected_event_handler(void)
     EXAMPLE_TRACE("Cloud Disconnected");
 
     user_example_ctx->cloud_connected = 0;
+    dooya_set_led_g_status(LED_OPEN,1);
 
     return 0;
 }
@@ -152,6 +159,9 @@ static int user_property_set_event_handler(const int devid, const char *request,
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     EXAMPLE_TRACE("Property Set Received, Devid: %d, Request: %s", devid, request);
 
+    /* Parse Root */
+    dooya_user_property_parse(request);
+
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
@@ -166,7 +176,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
     cJSON *response_root = NULL;
     int index = 0;
     EXAMPLE_TRACE("Property Get Received, Devid: %d, Request: %s", devid, request);
-
+#if 0
     /* Parse Request */
     request_root = cJSON_Parse(request);
     if (request_root == NULL || !cJSON_IsArray(request_root)) {
@@ -277,6 +287,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
     cJSON_Delete(response_root);
     *response_len = strlen(*response);
 
+#endif
     EXAMPLE_TRACE("Property Get Response: %s", *response);
 
     return SUCCESS_RETURN;
@@ -308,7 +319,7 @@ static int user_trigger_event_reply_event_handler(const int devid, const int msg
 static int user_timestamp_reply_event_handler(const char *timestamp)
 {
     EXAMPLE_TRACE("Current Timestamp: %s", timestamp);
-
+    printf("#############sun code timestamp\r\n");
     return 0;
 }
 
@@ -386,6 +397,7 @@ void user_post_property(void)
     static int example_index = 0;
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+    #if 0
     char *property_payload = "NULL";
 
     if (example_index == 0) {
@@ -417,6 +429,11 @@ void user_post_property(void)
         property_payload = "hello world";
         example_index = 0;
     }
+    #endif
+    char property_payload[200]={0};
+    memset(property_payload, 0, sizeof(property_payload));
+    dooya_dev_property_update(property_payload);
+    printf("gg##sun##[%s]\r\n",property_payload);
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)property_payload, strlen(property_payload));
@@ -430,6 +447,7 @@ void user_post_event(void)
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *event_id = "Error";
+    #if 0
     char *event_payload = "NULL";
 
     if (example_index == 0) {
@@ -457,7 +475,9 @@ void user_post_event(void)
         event_payload = "hello world";
         example_index = 0;
     }
-
+    #endif
+    char event_payload [50]={0};
+    dooya_dev_event_update(event_payload);
     res = IOT_Linkkit_TriggerEvent(user_example_ctx->master_devid, event_id, strlen(event_id),
                                    event_payload, strlen(event_payload));
     EXAMPLE_TRACE("Post Event Message ID: %d", res);
@@ -589,6 +609,7 @@ int linkkit_main(void *paras)
         if (user_example_ctx->master_devid < 0) {
             EXAMPLE_TRACE("IOT_Linkkit_Open Failed, retry after 5s...\n");
             HAL_SleepMs(5000);
+            aos_reboot();
         }
     }while(user_example_ctx->master_devid < 0);
         /* Start Connect Aliyun Server */
@@ -597,6 +618,7 @@ int linkkit_main(void *paras)
         if (res < 0) {
             EXAMPLE_TRACE("IOT_Linkkit_Connect Failed, retry after 5s...\n");
             HAL_SleepMs(5000);
+            aos_reboot();
         }
     }while(res < 0);
 
@@ -615,6 +637,18 @@ int linkkit_main(void *paras)
             break;
         }
 
+        /* Post Proprety Example */
+        if (time_now_sec % 60 == 0 && user_master_dev_available()) {
+        user_post_property();
+        }
+        /* Post Event Example */
+        if (time_now_sec % 60 == 0 && user_master_dev_available()) {
+        user_post_event();
+        }
+        if (time_now_sec % 1 == 0 && user_master_dev_available()) {
+        dooya_start_motor_check();
+        }
+        #if 0
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {
             user_post_property();
@@ -639,6 +673,7 @@ int linkkit_main(void *paras)
             user_post_raw_data();
         }
 
+        #endif
         time_prev_sec = time_now_sec;
     }
 

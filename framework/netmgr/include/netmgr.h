@@ -87,6 +87,7 @@ void netmgr_wifi_get_ip(char *ip);
 
 int netmgr_init(void);
 void netmgr_deinit(void);
+int netmgr_wifi_check_ssid(void);
 int netmgr_start(bool autoconfig);
 
 #if defined(__cplusplus)
