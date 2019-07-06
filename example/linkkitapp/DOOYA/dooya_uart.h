@@ -7,8 +7,8 @@
 
 
 
-#define dooya 0xFFFF
-#define timao 0x1804
+#define dooya 0x1804
+//#define timao 0x1804
 
 
 typedef enum 

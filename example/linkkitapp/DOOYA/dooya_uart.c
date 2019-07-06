@@ -4,7 +4,6 @@
 #include "hal/soc/soc.h"
 #include <aos/aos.h>
 
-#define UUID 0x1923
 
 #define UART_PORT_NUM  1
 #define UART_baud_rate 9600
@@ -59,11 +58,17 @@ static void dooya_uart_handle(void *paras)
 				if((ret == 0))
 				{
 					printf("##sun ok\r\n");
+					printf("recv data is ");
+					for (i=0;i<uart_data_buf[4]+7;i++)
+					{
+						printf(" %x ",uart_data_buf[i]);								
+					}
+					printf("\r\n");
 					crc_tmp=qioucrc16(dooya,uart_data_buf, uart_data_buf[4]+5);
-					if((uart_data_buf[uart_data_buf[4]+5]==(crc_tmp/256))
-							&&(uart_data_buf[uart_data_buf[4]+6]==(crc_tmp%256)))
+					if((uart_data_buf[uart_data_buf[4]+5]==(crc_tmp%256))
+							&&(uart_data_buf[uart_data_buf[4]+6]==(crc_tmp/256)))
 						{
-							printf("##sun crc ok\r\n");
+							printf("recive crc is ok\r\n");
 							switch(uart_data_buf[3])
 							{
 								case MOTOR_SEND:

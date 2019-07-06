@@ -48,7 +48,7 @@ static void dooya_check_motor(uint8_t data)
 		case 0x02:/*关闭*/
 			dooya_set_dev_CurtainOperation(0x00);
 		break;
-		case 0x03:/*暂停*/
+		case 0x00:/*暂停*/
 			dooya_set_dev_CurtainOperation(0x02);
 		break;
 		
@@ -94,8 +94,10 @@ void dooya_motor_response_handle(uint8_t *payload_msg,uint8_t msg_len)
 	switch(payload_msg[0])
 	{
 		case MOTOR_RESPONSE_MOTOR_INFO:
-			//dooya_check_motor(payload_msg[1]);
-			//dooya_check_motor_zone_percent(payload_msg[2]);
+			printf("######MOTOR_RESPONSE_MOTOR_INFO\r\n");
+			dooya_check_motor_zone_percent(payload_msg[1]);
+			dooya_check_motor(payload_msg[3]);
+			
 			//dooya_check_motor_run_boundary(payload_msg[4]);
 			/*上报*/
 			

@@ -638,7 +638,7 @@ int linkkit_main(void *paras)
         }
 
         /* Post Proprety Example */
-        if (time_now_sec % 60 == 0 && user_master_dev_available()) {
+        if (time_now_sec % 1 == 0 && user_master_dev_available()) {
         user_post_property();
         }
         /* Post Event Example */
