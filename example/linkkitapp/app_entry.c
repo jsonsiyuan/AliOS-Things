@@ -13,6 +13,7 @@
 #include "iot_export.h"
 #include "iot_import.h"
 #include "app_entry.h"
+#include "dooya_fac.h"
 
 #ifdef CSP_LINUXHOST
 #include <signal.h>
@@ -69,7 +70,11 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         // clear_wifi_ssid();
         return;
     }
-
+    if(dooya_fac_check==1)
+    {
+        dooya_fac_wifi_model_ok();
+        return;
+    }
  #ifdef EN_COMBO_NET
     if (awss_running) {
         awss_success_notify();
@@ -314,6 +319,11 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
     LOG("awss config press %d\n", eventinfo->value);
 
     if (eventinfo->code == CODE_BOOT) {
+        if(dooya_fac_check==1)
+        {
+            dooya_fac_key_led_check();
+            return ;
+        }
         if (eventinfo->value == VALUE_KEY_CLICK) {
 
             if(awss_running==0)

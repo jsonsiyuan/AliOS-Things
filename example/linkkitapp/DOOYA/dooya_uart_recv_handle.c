@@ -1,6 +1,8 @@
 #include "dooya_uart_recv_handle.h"
 #include "dooya_uart.h"
 #include "dooya_dev_info.h"
+#include "dooya_wifi_status.h"
+#include "dooya_fac.h"
 
 
 extern uint8_t start_percent;
@@ -76,6 +78,8 @@ void dooya_motor_send_handle(uint8_t *payload_msg,uint8_t msg_len)
 		case MOTOR_SEND_CHECK_TIME:
 		break;
 		case MOTOR_SEND_FAC:
+			/*FAC FUNCTION*/
+			dooya_fac_set();
 		break;
 		case MOTOR_SEND_MODEL:
 		break;

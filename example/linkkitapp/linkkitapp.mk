@@ -48,6 +48,7 @@ $(NAME)_SOURCES +=  ./DOOYA/dooya_uart_recv_handle.c
 $(NAME)_SOURCES +=   ./DOOYA/dooya_uart_send.c
 $(NAME)_SOURCES += ./DOOYA/dooya_uart.c
 $(NAME)_SOURCES +=  ./DOOYA/dooya_wifi_status.c
+$(NAME)_SOURCES +=  ./DOOYA/dooya_fac.c
 
 
 ifeq ($(LWIP),1)
