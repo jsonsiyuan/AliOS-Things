@@ -70,7 +70,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         // clear_wifi_ssid();
         return;
     }
-    if(dooya_fac_check==1)
+    if(dooya_fac_check()==1)
     {
         dooya_fac_wifi_model_ok();
         return;
@@ -319,7 +319,7 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
     LOG("awss config press %d\n", eventinfo->value);
 
     if (eventinfo->code == CODE_BOOT) {
-        if(dooya_fac_check==1)
+        if(dooya_fac_check()==1)
         {
             dooya_fac_key_led_check();
             return ;

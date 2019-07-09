@@ -4,10 +4,12 @@
 #include "dooya_wifi_status.h"
 #include "dooya_led.h"
 #include "dooya_uart_send.h"
+#include "netmgr.h"
 
+#define FAC_TIME_OUT 60
 static uint8_t dooya_fac_model=0;
 static uint8_t dooya_fac_wifi_model=0;
-
+static uint8_t dooya_fac_led_model=0;
 
 void dooya_fac_set(void)
 {
@@ -23,7 +25,7 @@ uint8_t dooya_fac_check(void)
 void dooya_fac_start(void)
 {
 	dooya_fac_model=1;
-	
+	dooya_set_wifi_STA();
 	dooya_set_led_r_status(LED_CLOSE ,1 );
 	dooya_set_led_g_status(LED_CLOSE ,1);
 }
@@ -41,7 +43,8 @@ uint8_t dooya_fac_wifi_model_check(void)
 
 void dooya_fac_wifi_model_ok(void)
 {
-	 dooya_fac_wifi_model=1;
+	dooya_fac_wifi_model=1;
+	netmgr_clear_ap_config();
 	 
 }
 
@@ -50,7 +53,7 @@ void dooya_fac_key_led_check(void)
 	if(dooya_fac_wifi_model_check()==1)
 	{
 		dooya_set_led_g_status(LED_CLOSE ,1);
-		dooya_fac_stop();
+		dooya_fac_led_model=1;
 	}
 	
 }
@@ -64,17 +67,22 @@ int dooya_fac_handle(void *paras)
 	while(1)
 	{
 
-		if(dooya_fac_wifi_model_check()==1)
+		if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==0))
 		{
 			count_tmp= 0;	
 			dooya_set_led_g_status(LED_TAGGLE ,1);	
 			dooya_response_fac(1);	
 		}
-		else
+		else if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==1))
+		{
+			count_tmp= 0;
+			dooya_set_led_g_status(LED_CLOSE ,1);
+		}
+		else 
 		{
 			count_tmp++;
 		}		
-		if(count_tmp>60)
+		if(count_tmp>FAC_TIME_OUT)
 		{
 			dooya_response_fac(0);
 		}
