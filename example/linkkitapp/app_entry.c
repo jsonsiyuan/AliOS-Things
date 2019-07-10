@@ -15,6 +15,7 @@
 #include "app_entry.h"
 #include "dooya_fac.h"
 
+#include "dooya_wdg.h"
 #ifdef CSP_LINUXHOST
 #include <signal.h>
 #endif
@@ -75,6 +76,9 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         dooya_fac_wifi_model_ok();
         return;
     }
+    /*connect router led change*/
+    printf("###################3wifi_service_event\r\n");
+    dooya_set_led_g_status(LED_OPEN,1);
  #ifdef EN_COMBO_NET
     if (awss_running) {
         awss_success_notify();
@@ -206,7 +210,7 @@ static void linkkit_event_monitor(int event)
             else
             {
                 
-                dooya_set_led_g_status(LED_TAGGLE,1);
+                dooya_set_led_g_status(LED_TAGGLE,2);
             }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
@@ -328,10 +332,9 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 
             if(awss_running==0)
 			{
-				dooya_set_led_g_status(LED_TAGGLE,4);
 				dooya_set_wifi_smartconfig();
 
-				aos_msleep(500);
+				aos_msleep(100);
 				aos_reboot();
 			} 
         } else if (eventinfo->value == VALUE_KEY_LTCLICK) {
@@ -455,7 +458,7 @@ int application_start(int argc, char **argv)
 	
     dooya_create_led_thread();
 	dooya_create_uart_thread();
-
+    dooya_create_wdg_thread();
     dooya_create_wifi_check_thread();
 
     aos_loop_run();

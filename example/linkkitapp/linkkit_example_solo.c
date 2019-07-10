@@ -64,7 +64,9 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
+    printf("#############user_connected_event_handler\r\n");
     dooya_set_led_g_status(LED_CLOSE,1);
+    dooya_set_led_r_status(LED_CLOSE,1);
     dooya_set_wifi_STA();
     return 0;
 }
@@ -76,7 +78,8 @@ static int user_disconnected_event_handler(void)
     EXAMPLE_TRACE("Cloud Disconnected");
 
     user_example_ctx->cloud_connected = 0;
-    dooya_set_led_g_status(LED_OPEN,1);
+    printf("#############user_disconnected_event_handler\r\n");
+    dooya_set_led_r_status(LED_OPEN,1);
 
     return 0;
 }
@@ -645,9 +648,10 @@ int linkkit_main(void *paras)
         if (time_now_sec % 60 == 0 && user_master_dev_available()) {
         user_post_event();
         }
+        /* 
         if (time_now_sec % 1 == 0 && user_master_dev_available()) {
         dooya_start_motor_check();
-        }
+        }*/
         #if 0
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {

@@ -49,6 +49,7 @@ $(NAME)_SOURCES +=   ./DOOYA/dooya_uart_send.c
 $(NAME)_SOURCES += ./DOOYA/dooya_uart.c
 $(NAME)_SOURCES +=  ./DOOYA/dooya_wifi_status.c
 $(NAME)_SOURCES +=  ./DOOYA/dooya_fac.c
+$(NAME)_SOURCES +=  ./DOOYA/dooya_wdg.c
 
 
 ifeq ($(LWIP),1)

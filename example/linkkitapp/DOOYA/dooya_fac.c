@@ -70,7 +70,7 @@ int dooya_fac_handle(void *paras)
 		if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==0))
 		{
 			count_tmp= 0;	
-			dooya_set_led_g_status(LED_TAGGLE ,1);	
+			dooya_set_led_g_status(LED_TAGGLE ,2);	
 			dooya_response_fac(1);	
 		}
 		else if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==1))

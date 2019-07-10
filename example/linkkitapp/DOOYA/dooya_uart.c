@@ -3,7 +3,8 @@
 #include "hal/hal.h"
 #include "hal/soc/soc.h"
 #include <aos/aos.h>
-
+#include "dooya_uart_send.h"
+#include "dooya_led.h"
 
 #define UART_PORT_NUM  1
 #define UART_baud_rate 9600
@@ -11,6 +12,9 @@
 #define UART_BUF_SIZE   10
 #define UART_TX_TIMEOUT 10
 #define UART_RX_TIMEOUT 10
+
+static aos_timer_t uart_timer;
+static uint16_t retry_num=0;
 
 static uart_dev_t uart_use={
 	.port = UART_PORT_NUM,
@@ -22,11 +26,34 @@ static uart_dev_t uart_use={
 	.config.mode         = MODE_TX_RX,
 };
 
+static void uart_timer_handler(void * p_context)
+{
+	printf("uart_timer_handler##\r\n");
+	retry_num++;
+	if(retry_num>5)
+	{
+		printf("UART_ERROR##\r\n");
+		dooya_set_led_g_status(LED_CLOSE,1);
+		dooya_set_led_r_status(LED_TAGGLE,2);
+	}
+	dooya_start_motor_check();
+}
 
+static void dooya_uart_time_init(void)
+{
+
+	aos_timer_new(&uart_timer, uart_timer_handler, NULL, 1000, 1);
+}
+static void dooya_uart_time_start(void)
+{
+	aos_timer_start(&uart_timer);
+}
 
 static void dooya_uart_init(void)
 {
 	hal_uart_init(&uart_use);
+	dooya_uart_time_init();
+	dooya_uart_time_start();
 
 }
 
@@ -69,6 +96,7 @@ static void dooya_uart_handle(void *paras)
 							&&(uart_data_buf[uart_data_buf[4]+6]==(crc_tmp/256)))
 						{
 							printf("recive crc is ok\r\n");
+							retry_num=0;
 							switch(uart_data_buf[3])
 							{
 								case MOTOR_SEND:
