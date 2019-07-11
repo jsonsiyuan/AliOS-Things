@@ -30,7 +30,7 @@ static void uart_timer_handler(void * p_context)
 {
 	printf("uart_timer_handler##\r\n");
 	retry_num++;
-	if(retry_num>5)
+	if(retry_num>25)
 	{
 		printf("UART_ERROR##\r\n");
 		dooya_set_led_g_status(LED_CLOSE,1);
@@ -42,7 +42,7 @@ static void uart_timer_handler(void * p_context)
 static void dooya_uart_time_init(void)
 {
 
-	aos_timer_new(&uart_timer, uart_timer_handler, NULL, 1000, 1);
+	aos_timer_new(&uart_timer, uart_timer_handler, NULL, 200, 1);
 }
 static void dooya_uart_time_start(void)
 {

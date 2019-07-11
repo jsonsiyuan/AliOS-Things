@@ -16,11 +16,32 @@
 #define USE_CUSTOME_DOMAIN      (0)
 
 // for demo only
+/* 
 #define PRODUCT_KEY     "a1uXapRCEMs"
 #define PRODUCT_SECRET  "0mQrM88CLlkrn6nl"
 #define DEVICE_NAME     "device1"
 #define DEVICE_SECRET   "B1kcFwTRNnEd0dxo6hE4N2KQMDf3K9co"
 
+
+uint8_t PRODUCT_KEY[]=  "a1uXapRCEMs";
+uint8_t PRODUCT_SECRET[]=  "0mQrM88CLlkrn6nl";
+uint8_t DEVICE_NAME[]=     "device1";
+uint8_t DEVICE_SECRET[]=   "B1kcFwTRNnEd0dxo6hE4N2KQMDf3K9co";
+*/
+/*sun change */
+#define D_PRODUCT_KEY_LEN          (20 + 1)
+#define D_PRODUCT_SECRET_LEN       (64 + 1)
+#define D_DEVICE_NAME_LEN          (32 + 1)
+#define D_DEVICE_SECRET_LEN        (64 + 1)
+
+
+extern uint8_t PRODUCT_KEY[D_PRODUCT_KEY_LEN];
+extern uint8_t PRODUCT_SECRET[D_PRODUCT_SECRET_LEN];
+extern uint8_t DEVICE_NAME[D_DEVICE_NAME_LEN];
+extern uint8_t DEVICE_SECRET[D_DEVICE_SECRET_LEN];
+
+extern uint8_t dooya_post_flag;
+/*end */
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
     #define CUSTOME_DOMAIN_HTTP     "iot-auth.cn-shanghai.aliyuncs.com"
@@ -532,10 +553,21 @@ static int user_master_dev_available(void)
 
 void set_iotx_info()
 {
+
+    /*sun add*/
+    printf("#############set_iotx_info\r\n");
+
+    dooya_set_three_array_info();
+        
     HAL_SetProductKey(PRODUCT_KEY);
     HAL_SetProductSecret(PRODUCT_SECRET);
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
+	printf("\r\n product_key is [%s]\r\n",PRODUCT_KEY);
+	printf("\r\n product_secret is [%s]\r\n",PRODUCT_SECRET);
+	printf("\r\n device_name is [%s]\r\n",DEVICE_NAME);
+	printf("\r\n device_secret is [%s]\r\n",DEVICE_SECRET);
+
 }
 
 static int max_running_seconds = 0;
@@ -641,6 +673,11 @@ int linkkit_main(void *paras)
         }
 
         /* Post Proprety Example */
+        if(dooya_post_flag)
+        {
+            user_post_property();
+            dooya_post_flag=0;
+        }
         if (time_now_sec % 1 == 0 && user_master_dev_available()) {
         user_post_property();
         }

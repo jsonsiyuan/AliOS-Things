@@ -13,9 +13,7 @@
 #include "iot_export.h"
 #include "iot_import.h"
 #include "app_entry.h"
-#include "dooya_fac.h"
 
-#include "dooya_wdg.h"
 #ifdef CSP_LINUXHOST
 #include <signal.h>
 #endif
@@ -31,6 +29,9 @@
 #include "dooya_uart.h"
 #include "dooya_flash.h"
 #include "dooya_wifi_status.h"
+#include "dooya_fac.h"
+#include "dooya_dev_info.h"
+#include "dooya_wdg.h"
 
 static char linkkit_started = 0;
 
@@ -457,9 +458,12 @@ int application_start(int argc, char **argv)
 	iotx_event_regist_cb(linkkit_event_monitor);
 	
     dooya_create_led_thread();
-	dooya_create_uart_thread();
     dooya_create_wdg_thread();
-    dooya_create_wifi_check_thread();
+    if(0==dooya_show_three_array_info())
+    {
+        dooya_create_uart_thread();
+        dooya_create_wifi_check_thread();
+    }
 
     aos_loop_run();
 
