@@ -5,7 +5,7 @@
 #include "aos/kv.h"
 #include "netmgr.h"
 
-uint8_t dooya_post_flag=0;
+
 user_dev_status_t user_dev_status=
 {
 	.CurtainPosition=0,
@@ -49,40 +49,24 @@ int dooya_get_dev_error(void)
 void dooya_set_dev_CurtainOperation(CurtainOperation_T  data)
 {   
 	user_dev_status_t * dev_tmp=dooya_get_dev_info();
-	if(dev_tmp->CurtainOperation!=data)
-	{
-		dooya_post_flag=1;
-	}
 	dev_tmp->CurtainOperation=data;
 }
 
 void dooya_set_dev_SetDir(SetDir_T data  )
 {
 	user_dev_status_t * dev_tmp=dooya_get_dev_info();
-	if(dev_tmp->SetDir!=data)
-	{
-		dooya_post_flag=1;
-	}
 	dev_tmp->SetDir=data;
 }
 
 void dooya_set_dev_CurtainPosition(int data)
 {
 	user_dev_status_t *dev_tmp=dooya_get_dev_info();
-	if(dev_tmp->CurtainPosition!=data)
-	{
-		dooya_post_flag=1;
-	}
 	dev_tmp->CurtainPosition=data;
 }
 
 void dooya_set_dev_error(int data)
 {
 	user_dev_status_t *dev_tmp=dooya_get_dev_info();
-	if(dev_tmp->Error_status!=data)
-	{
-		dooya_post_flag=1;
-	}
 	dev_tmp->Error_status=data;
 }
 
@@ -117,7 +101,7 @@ void dooya_user_property_parse(char *data)
 	{
 		printf("#######CurtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
 		dooya_control_percent(item_CurtainPosition->valueint); 
-		//dooya_set_dev_CurtainPosition(item_CurtainPosition->valueint);
+		dooya_set_dev_CurtainPosition(item_CurtainPosition->valueint);
 
 	}
 
@@ -125,7 +109,7 @@ void dooya_user_property_parse(char *data)
 	if (item_CurtainOperation != NULL || cJSON_IsNumber(item_CurtainOperation))
 	{
 		printf("##########CurtainOperation is [%d]\r\n",item_CurtainOperation->valueint);
-		//dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
+		dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
 		switch(item_CurtainOperation->valueint)
 		{
 			case MOTOR_CLOSE:

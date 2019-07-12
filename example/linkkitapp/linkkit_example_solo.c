@@ -40,7 +40,7 @@ extern uint8_t PRODUCT_SECRET[D_PRODUCT_SECRET_LEN];
 extern uint8_t DEVICE_NAME[D_DEVICE_NAME_LEN];
 extern uint8_t DEVICE_SECRET[D_DEVICE_SECRET_LEN];
 
-extern uint8_t dooya_post_flag;
+
 /*end */
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -662,7 +662,6 @@ int linkkit_main(void *paras)
     time_begin_sec = user_update_sec();
     while (1) {
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
-
         time_now_sec = user_update_sec();
         if (time_prev_sec == time_now_sec) {
             continue;
@@ -673,11 +672,7 @@ int linkkit_main(void *paras)
         }
 
         /* Post Proprety Example */
-        if(dooya_post_flag)
-        {
-            user_post_property();
-            dooya_post_flag=0;
-        }
+
         if (time_now_sec % 1 == 0 && user_master_dev_available()) {
         user_post_property();
         }

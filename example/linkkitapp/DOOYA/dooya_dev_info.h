@@ -47,3 +47,4 @@ void dooya_user_property_parse(char *data);
 uint8_t dooya_set_three_array_info(void);
 uint8_t dooya_show_three_array_info(void);
 
+

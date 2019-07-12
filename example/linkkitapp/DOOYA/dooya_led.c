@@ -114,13 +114,14 @@ int dooya_led_g_handle(void *paras)
 	{
 		switch(led_g_status.led_status)
 		{
+			
 			case LED_OPEN:
 				dooya_open_led_g();
-				aos_msleep(300);
+				aos_msleep(100);
 			break;
 			case LED_CLOSE:
 				dooya_close_led_g();
-				aos_msleep(300);
+				aos_msleep(100);
 			break;
 			case LED_TAGGLE:
 				dooya_toggle_led_g();

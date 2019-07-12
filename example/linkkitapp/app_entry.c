@@ -172,6 +172,12 @@ static void linkkit_event_monitor(int event)
         case IOTX_AWSS_CONNECT_ROUTER: // AWSS try to connect destination router
             LOG("IOTX_AWSS_CONNECT_ROUTER");
             // operate led to indicate user
+            if(awss_running)
+			{
+				awss_running = 0;
+				dooya_set_wifi_STA();
+                dooya_set_led_g_status(LED_OPEN,1);
+			}
             break;
         case IOTX_AWSS_CONNECT_ROUTER_FAIL: // AWSS fails to connect destination
                                             // router.
@@ -181,11 +187,6 @@ static void linkkit_event_monitor(int event)
         case IOTX_AWSS_GOT_IP: // AWSS connects destination successfully and got
                                // ip address
             LOG("IOTX_AWSS_GOT_IP");
-            if(awss_running)
-			{
-				awss_running = 0;
-				dooya_set_wifi_STA();
-			}
             // operate led to indicate user
             break;
         case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
@@ -453,6 +454,7 @@ int application_start(int argc, char **argv)
     aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
 #endif
 #endif
+    
     char *A_version="3.0.0";
     printf("###code## is [%s]\r\n",A_version);
 	iotx_event_regist_cb(linkkit_event_monitor);
