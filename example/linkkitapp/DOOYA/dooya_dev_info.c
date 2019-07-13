@@ -5,7 +5,7 @@
 #include "aos/kv.h"
 #include "netmgr.h"
 
-
+uint8_t dooya_post_flag=0;
 user_dev_status_t user_dev_status=
 {
 	.CurtainPosition=0,
@@ -49,18 +49,30 @@ int dooya_get_dev_error(void)
 void dooya_set_dev_CurtainOperation(CurtainOperation_T  data)
 {   
 	user_dev_status_t * dev_tmp=dooya_get_dev_info();
+	if(dev_tmp->CurtainOperation!=data)
+	{
+		dooya_post_flag=1;
+	}
 	dev_tmp->CurtainOperation=data;
 }
 
 void dooya_set_dev_SetDir(SetDir_T data  )
 {
 	user_dev_status_t * dev_tmp=dooya_get_dev_info();
+	if(dev_tmp->SetDir!=data)
+	{
+		dooya_post_flag=1;
+	}
 	dev_tmp->SetDir=data;
 }
 
 void dooya_set_dev_CurtainPosition(int data)
 {
 	user_dev_status_t *dev_tmp=dooya_get_dev_info();
+	if(dev_tmp->CurtainPosition!=data)
+	{
+		dooya_post_flag=1;
+	}
 	dev_tmp->CurtainPosition=data;
 }
 

@@ -86,7 +86,7 @@ static void key_poll_func(void *arg)
         aos_post_delayed_action(10, key_poll_func, NULL);
     } else {
         diff = aos_now_ms() - awss_time;
-        if (diff > 6000) { /*long long press */
+        if (diff > 5000) { /*long long press */
             awss_time = 0;
             aos_post_event(EV_KEY, CODE_BOOT, VALUE_KEY_LLTCLICK);
         } else if (diff > 2000) { /* long press */

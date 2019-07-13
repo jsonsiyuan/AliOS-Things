@@ -49,7 +49,7 @@ static void dooya_start_sta(void)
 	}
 	else
 	{
-		dooya_set_led_r_status(LED_OPEN,1);
+		dooya_set_led_g_status(LED_TAGGLE,2);
 		netmgr_reconnect_wifi();
 	}
 }

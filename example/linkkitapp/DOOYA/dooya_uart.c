@@ -30,11 +30,11 @@ static void uart_timer_handler(void * p_context)
 {
 	printf("uart_timer_handler##\r\n");
 	retry_num++;
-	if(retry_num>25)
+	if(retry_num>5)
 	{
 		printf("UART_ERROR##\r\n");
 		dooya_set_led_g_status(LED_CLOSE,1);
-		dooya_set_led_r_status(LED_TAGGLE,2);
+		dooya_set_led_r_status(LED_TAGGLE,10);
 	}
 	dooya_start_motor_check();
 }

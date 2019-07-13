@@ -77,8 +77,6 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         dooya_fac_wifi_model_ok();
         return;
     }
-    /*connect router led change*/
-    printf("###################3wifi_service_event\r\n");
     dooya_set_led_g_status(LED_OPEN,1);
  #ifdef EN_COMBO_NET
     if (awss_running) {
@@ -172,12 +170,7 @@ static void linkkit_event_monitor(int event)
         case IOTX_AWSS_CONNECT_ROUTER: // AWSS try to connect destination router
             LOG("IOTX_AWSS_CONNECT_ROUTER");
             // operate led to indicate user
-            if(awss_running)
-			{
-				awss_running = 0;
-				dooya_set_wifi_STA();
-                dooya_set_led_g_status(LED_OPEN,1);
-			}
+            dooya_set_led_g_status(LED_TAGGLE,2);
             break;
         case IOTX_AWSS_CONNECT_ROUTER_FAIL: // AWSS fails to connect destination
                                             // router.
@@ -188,6 +181,12 @@ static void linkkit_event_monitor(int event)
                                // ip address
             LOG("IOTX_AWSS_GOT_IP");
             // operate led to indicate user
+            if(awss_running)
+			{
+				awss_running = 0;
+				dooya_set_wifi_STA();
+			}
+            dooya_set_led_g_status(LED_OPEN,1);
             break;
         case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
                                    // sucess)
@@ -211,7 +210,6 @@ static void linkkit_event_monitor(int event)
             }
             else
             {
-                
                 dooya_set_led_g_status(LED_TAGGLE,2);
             }
             break;
@@ -223,10 +221,14 @@ static void linkkit_event_monitor(int event)
                                    // net_sockets.h for error code
             LOG("IOTX_CONN_CLOUD_FAIL");
             // operate led to indicate user
+            dooya_set_led_r_status(LED_OPEN,1);
+            dooya_set_led_g_status(LED_CLOSE,1);
             break;
         case IOTX_CONN_CLOUD_SUC: // Device connects cloud successfully
             LOG("IOTX_CONN_CLOUD_SUC");
             // operate led to indicate user
+            dooya_set_led_r_status(LED_CLOSE,1);
+            dooya_set_led_g_status(LED_CLOSE,1);
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
                          // cloud without any other operation)
@@ -339,7 +341,7 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 				aos_msleep(100);
 				aos_reboot();
 			} 
-        } else if (eventinfo->value == VALUE_KEY_LTCLICK) {
+        } else if (eventinfo->value == VALUE_KEY_LLTCLICK) {
             do_awss_reset();
         }
     }
