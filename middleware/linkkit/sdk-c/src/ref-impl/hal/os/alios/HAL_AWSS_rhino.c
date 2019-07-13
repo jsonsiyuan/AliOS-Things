@@ -69,7 +69,7 @@ uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN],
  */
 int HAL_Awss_Get_Timeout_Interval_Ms(void)
 {
-    return 3 * 60 * 1000;
+    return 1 * 60 * 1000;
 }
 
 /*

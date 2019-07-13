@@ -708,14 +708,30 @@ void netmgr_wifi_deinit(void)
     memset(&g_netmgr_cxt, 0, sizeof(g_netmgr_cxt));
 }
 
+int netmgr_wifi_check_ssid(void)
+{
+    stop_mesh();
+	
+
+    if (has_valid_ap() == 1)
+	{
+        //aos_post_event(EV_WIFI, CODE_WIFI_CMD_RECONNECT, 0);
+        return 0;
+    }
+    start_mesh(false);
+
+    return 1;
+}
+
 int netmgr_wifi_start(bool autoconfig)
 {
     stop_mesh();
-
+	#if 0
     if (has_valid_ap() == 1) {
         aos_post_event(EV_WIFI, CODE_WIFI_CMD_RECONNECT, 0);
         return 1;
     }
+	#endif
 #ifdef CONFIG_AOS_NETMGRYTS_NOSMARTCONFIG
     else {
         LOGI("netmgr",

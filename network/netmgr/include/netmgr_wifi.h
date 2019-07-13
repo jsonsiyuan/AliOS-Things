@@ -84,6 +84,7 @@ bool netmgr_get_scan_cb_finished(void);
 bool netmgr_get_ip_state(void);
 void netmgr_reconnect_wifi(void);
 void netmgr_wifi_get_ip(char *ip);
+int netmgr_wifi_check_ssid(void);
 
 int netmgr_wifi_init(void);
 void netmgr_wifi_deinit(void);
