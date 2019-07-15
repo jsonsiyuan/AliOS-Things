@@ -17,6 +17,15 @@
 #include "iot_import.h"
 #include "app_entry.h"
 
+/*@sun change*/
+#include "dooya_led.h"
+#include "dooya_uart.h"
+#include "dooya_flash.h"
+#include "dooya_wifi_status.h"
+#include "dooya_fac.h"
+#include "dooya_dev_info.h"
+#include "dooya_wdg.h"
+
 #ifdef CSP_LINUXHOST
 #include <signal.h>
 #endif
@@ -66,7 +75,12 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         // clear_wifi_ssid();
         return;
     }
-
+    if(dooya_fac_check()==1)
+    {
+        dooya_fac_wifi_model_ok();
+        return;
+    }
+    dooya_set_led_g_status(LED_OPEN,1);
  #ifdef EN_COMBO_NET
     if (awss_running) {
         awss_success_notify();
@@ -160,6 +174,7 @@ static void linkkit_event_monitor(int event)
         case IOTX_AWSS_CONNECT_ROUTER: // AWSS try to connect destination router
             LOG("IOTX_AWSS_CONNECT_ROUTER");
             // operate led to indicate user
+            dooya_set_led_g_status(LED_TAGGLE,2);
             break;
         case IOTX_AWSS_CONNECT_ROUTER_FAIL: // AWSS fails to connect destination
                                             // router.
@@ -170,6 +185,12 @@ static void linkkit_event_monitor(int event)
                                // ip address
             LOG("IOTX_AWSS_GOT_IP");
             // operate led to indicate user
+            if(awss_running)
+			{
+				awss_running = 0;
+				dooya_set_wifi_STA();
+			}
+            dooya_set_led_g_status(LED_OPEN,1);
             break;
         case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
                                    // sucess)
@@ -185,6 +206,16 @@ static void linkkit_event_monitor(int event)
                                        // user needs to enable awss again to support get ssid & passwd of router
             LOG("IOTX_AWSS_ENALBE_TIMEOUT");
             // operate led to indicate user
+            awss_running=0;
+            if(netmgr_wifi_check_ssid()==0)
+            {
+                dooya_set_wifi_STA();
+                aos_reboot();
+            }
+            else
+            {
+                dooya_set_led_g_status(LED_TAGGLE,2);
+            }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
             LOG("IOTX_CONN_CLOUD");
@@ -194,10 +225,14 @@ static void linkkit_event_monitor(int event)
                                    // net_sockets.h for error code
             LOG("IOTX_CONN_CLOUD_FAIL");
             // operate led to indicate user
+            dooya_set_led_r_status(LED_OPEN,1);
+            dooya_set_led_g_status(LED_CLOSE,1);
             break;
         case IOTX_CONN_CLOUD_SUC: // Device connects cloud successfully
             LOG("IOTX_CONN_CLOUD_SUC");
             // operate led to indicate user
+            dooya_set_led_r_status(LED_CLOSE,1);
+            dooya_set_led_g_status(LED_CLOSE,1);
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
                          // cloud without any other operation)
@@ -294,10 +329,21 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
     LOG("awss config press %u\n", eventinfo->value);
 
     if (eventinfo->code == CODE_BOOT) {
+        if(dooya_fac_check()==1)
+        {
+            dooya_fac_key_led_check();
+            return ;
+        }
         if (eventinfo->value == VALUE_KEY_CLICK) {
 
-            do_awss_active();
-        } else if (eventinfo->value == VALUE_KEY_LTCLICK) {
+            if(awss_running==0)
+			{
+				dooya_set_wifi_smartconfig();
+
+				aos_msleep(100);
+				aos_reboot();
+			} 
+        } else if (eventinfo->value == VALUE_KEY_LLTCLICK) {
             do_awss_reset();
         }
     }
@@ -408,6 +454,7 @@ int application_start(int argc, char **argv)
     set_iotx_info();
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
+#if 0
 #ifdef EN_COMBO_NET
     combo_net_init();
 #else
@@ -416,6 +463,20 @@ int application_start(int argc, char **argv)
 #else
     aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
 #endif
+#endif
+    
+#else
+    char *A_version="1.0.0";
+    printf("###code## is [%s]\r\n",A_version);
+	iotx_event_regist_cb(linkkit_event_monitor);
+	
+    dooya_create_led_thread();
+    //dooya_create_wdg_thread();
+    if(0==dooya_show_three_array_info())
+    {
+        dooya_create_uart_thread();
+        dooya_create_wifi_check_thread();
+    }
 #endif
     aos_loop_run();
 

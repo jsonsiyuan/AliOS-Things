@@ -10,25 +10,42 @@
 #include "cJSON.h"
 #include "app_entry.h"
 
+#include "dooya_led.h"
+#include "dooya_dev_info.h"
+#include "dooya_uart_send.h"
+
 #define USE_CUSTOME_DOMAIN      (0)
 
 #ifdef EN_COMBO_NET
 #include "combo_devinfo.h"
 #else
 // for demo only
-#ifndef SUPPORT_DEV_AP
-#define PRODUCT_KEY      "a1X2bEnP82z"
-#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "example1"
-#define DEVICE_SECRET    "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
-#else
-#define PRODUCT_KEY      "a1PcArcq23G"
-#define PRODUCT_SECRET   "0sfrKE4XYeO4yLLa"
-#define DEVICE_NAME      "ada_2nd_test02"
-#define DEVICE_SECRET    "35UOZZWzlBNG3bCm78e9eniAyV0txh4R"
-#endif
-#endif
+/* 
+#define PRODUCT_KEY     "a1uXapRCEMs"
+#define PRODUCT_SECRET  "0mQrM88CLlkrn6nl"
+#define DEVICE_NAME     "device1"
+#define DEVICE_SECRET   "B1kcFwTRNnEd0dxo6hE4N2KQMDf3K9co"
 
+
+uint8_t PRODUCT_KEY[]=  "a1uXapRCEMs";
+uint8_t PRODUCT_SECRET[]=  "0mQrM88CLlkrn6nl";
+uint8_t DEVICE_NAME[]=     "device1";
+uint8_t DEVICE_SECRET[]=   "B1kcFwTRNnEd0dxo6hE4N2KQMDf3K9co";
+*/
+/*sun change */
+#define D_PRODUCT_KEY_LEN          (20 + 1)
+#define D_PRODUCT_SECRET_LEN       (64 + 1)
+#define D_DEVICE_NAME_LEN          (32 + 1)
+#define D_DEVICE_SECRET_LEN        (64 + 1)
+
+
+extern uint8_t PRODUCT_KEY[D_PRODUCT_KEY_LEN];
+extern uint8_t PRODUCT_SECRET[D_PRODUCT_SECRET_LEN];
+extern uint8_t DEVICE_NAME[D_DEVICE_NAME_LEN];
+extern uint8_t DEVICE_SECRET[D_DEVICE_SECRET_LEN];
+
+#endif
+/*end */
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
     #define CUSTOME_DOMAIN_HTTP     "iot-auth.cn-shanghai.aliyuncs.com"
@@ -72,6 +89,10 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
+    printf("#############user_connected_event_handler\r\n");
+    dooya_set_led_g_status(LED_CLOSE,1);
+    dooya_set_led_r_status(LED_CLOSE,1);
+    dooya_set_wifi_STA();
     return 0;
 }
 
@@ -82,7 +103,17 @@ static int user_disconnected_event_handler(void)
     EXAMPLE_TRACE("Cloud Disconnected");
 
     user_example_ctx->cloud_connected = 0;
+    printf("#############user_disconnected_event_handler\r\n");
 
+	if(netmgr_get_ip_state()==1)
+	{
+		dooya_set_led_r_status(LED_OPEN,1);
+		dooya_set_led_g_status(LED_CLOSE,1);
+	}
+	else
+	{
+		aos_reboot();
+	}
     return 0;
 }
 
@@ -164,6 +195,9 @@ static int user_property_set_event_handler(const int devid, const char *request,
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     EXAMPLE_TRACE("Property Set Received, Devid: %d, Request: %s", devid, request);
 
+    /* Parse Root */
+    dooya_user_property_parse(request);
+
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
@@ -178,7 +212,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
     cJSON *response_root = NULL;
     int index = 0;
     EXAMPLE_TRACE("Property Get Received, Devid: %d, Request: %s", devid, request);
-
+#if 0
     /* Parse Request */
     request_root = cJSON_Parse(request);
     if (request_root == NULL || !cJSON_IsArray(request_root)) {
@@ -289,6 +323,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
     cJSON_Delete(response_root);
     *response_len = strlen(*response);
 
+#endif
     EXAMPLE_TRACE("Property Get Response: %s", *response);
 
     return SUCCESS_RETURN;
@@ -367,7 +402,6 @@ static int user_cota_event_handler(int type, const char *config_id, int config_s
     char buffer[128] = {0};
     int buffer_length = 128;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-
     if (type == 0) {
         EXAMPLE_TRACE("New Config ID: %s", config_id);
         EXAMPLE_TRACE("New Config Size: %d", config_size);
@@ -398,6 +432,7 @@ void user_post_property(void)
     static int example_index = 0;
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+    #if 0
     char *property_payload = "NULL";
 
     if (example_index == 0) {
@@ -429,6 +464,11 @@ void user_post_property(void)
         property_payload = "hello world";
         example_index = 0;
     }
+    #endif
+    char property_payload[200]={0};
+    memset(property_payload, 0, sizeof(property_payload));
+    dooya_dev_property_update(property_payload);
+    printf("gg##sun##[%s]\r\n",property_payload);
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)property_payload, strlen(property_payload));
@@ -442,6 +482,7 @@ void user_post_event(void)
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *event_id = "Error";
+    #if 0
     char *event_payload = "NULL";
 
     if (example_index == 0) {
@@ -469,7 +510,9 @@ void user_post_event(void)
         event_payload = "hello world";
         example_index = 0;
     }
-
+    #endif
+    char event_payload [50]={0};
+    dooya_dev_event_update(event_payload);
     res = IOT_Linkkit_TriggerEvent(user_example_ctx->master_devid, event_id, strlen(event_id),
                                    event_payload, strlen(event_payload));
     EXAMPLE_TRACE("Post Event Message ID: %d", res);
@@ -521,12 +564,23 @@ static int user_master_dev_available(void)
 
 void set_iotx_info()
 {
+
+    /*sun add*/
+    printf("#############set_iotx_info\r\n");
+
+    dooya_set_three_array_info();
+        
     HAL_SetProductKey(PRODUCT_KEY);
     HAL_SetProductSecret(PRODUCT_SECRET);
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
-}
+	printf("\r\n product_key is [%s]\r\n",PRODUCT_KEY);
+	printf("\r\n product_secret is [%s]\r\n",PRODUCT_SECRET);
+	printf("\r\n device_name is [%s]\r\n",DEVICE_NAME);
+	printf("\r\n device_secret is [%s]\r\n",DEVICE_SECRET);
 
+}
+extern uint8_t dooya_post_flag;
 static int max_running_seconds = 0;
 int linkkit_main(void *paras)
 {
@@ -595,25 +649,35 @@ int linkkit_main(void *paras)
     int post_event_reply = 0;
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
-    /* Create Master Device Resources */
-    user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
-    if (user_example_ctx->master_devid < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
-        return -1;
-    }
-
-    /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
-    if (res < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
-        return -1;
-    }
+        /* Create Master Device Resources */
+    do{
+        user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
+        if (user_example_ctx->master_devid < 0) {
+            EXAMPLE_TRACE("IOT_Linkkit_Open Failed, retry after 5s...\n");
+            HAL_SleepMs(5000);
+            aos_reboot();
+        }
+    }while(user_example_ctx->master_devid < 0);
+        /* Start Connect Aliyun Server */
+    do{
+        res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
+        if (res < 0) {
+            EXAMPLE_TRACE("IOT_Linkkit_Connect Failed, retry after 5s...\n");
+            HAL_SleepMs(5000);
+            aos_reboot();
+        }
+    }while(res < 0);
 
     time_begin_sec = user_update_sec();
     while (1) {
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
 
         time_now_sec = user_update_sec();
+        if((dooya_post_flag==1)&&(user_master_dev_available()))
+        {
+            user_post_property();
+            dooya_post_flag=0;
+        }
         if (time_prev_sec == time_now_sec) {
             continue;
         }
@@ -622,6 +686,20 @@ int linkkit_main(void *paras)
             break;
         }
 
+        /* Post Proprety Example */
+        
+        if (time_now_sec % 10 == 0 && user_master_dev_available()) {
+        user_post_property();
+        }
+        /* Post Event Example */
+        if (time_now_sec % 60 == 0 && user_master_dev_available()) {
+        user_post_event();
+        }
+        /* 
+        if (time_now_sec % 1 == 0 && user_master_dev_available()) {
+        dooya_start_motor_check();
+        }*/
+        #if 0
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {
             user_post_property();
@@ -646,6 +724,7 @@ int linkkit_main(void *paras)
             user_post_raw_data();
         }
 
+        #endif
         time_prev_sec = time_now_sec;
     }
 

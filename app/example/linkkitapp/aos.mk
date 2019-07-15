@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := linkkitapp
 
-$(NAME)_SOURCES :=   app_entry.c
+$(NAME)_SOURCES :=   app_entry.c ./DOOYA/*.c   
 $(NAME)_COMPONENTS += linkkit_sdk_c
 
 $(NAME)_COMPONENTS += netmgr cjson
@@ -51,6 +51,11 @@ $(NAME)_SOURCES += linkkit_example_sched.c
 endif
 endif
 
+ifeq ($(AOS_BUILD_BOARD),"esp8266")
+$(NAME)_DEFINES += CONFIG_ESP8266
+endif
+
+
 ifeq ($(LINKKITAPP_CONFIG_PRINT_HEAP),y)
 $(NAME)_DEFINES += CONFIG_PRINT_HEAP
 endif
@@ -80,5 +85,4 @@ ble := 1
 endif
 
 
-GLOBAL_INCLUDES += ./
-
+GLOBAL_INCLUDES += ./ ./DOOYA
