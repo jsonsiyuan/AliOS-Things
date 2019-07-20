@@ -57,7 +57,7 @@ uart_tx_one_char(uint8 uart, uint8 TxChar)
     return OK;
 }
 
-LOCAL void
+void
 uart1_write_char(char c)
 {
     if (c == '\n') {
@@ -462,6 +462,10 @@ uart_init_new(uart_dev_t *uart)
         uart_config.UART_InverseMask = UART_None_Inverse;
         UART_ParamConfig(UART0, &uart_config);
 
+        //uart2 setting for log
+        uart_config.baud_rate = BIT_RATE_921600;
+        UART_ParamConfig(UART1, &uart_config);
+
         UART_IntrConfTypeDef uart_intr;
         uart_intr.UART_IntrEnMask = UART_RXFIFO_TOUT_INT_ENA | UART_FRM_ERR_INT_ENA | UART_RXFIFO_FULL_INT_ENA | UART_TXFIFO_EMPTY_INT_ENA;
         uart_intr.UART_RX_FifoFullIntrThresh = 10;
@@ -469,7 +473,7 @@ uart_init_new(uart_dev_t *uart)
         uart_intr.UART_TX_FifoEmptyIntrThresh = 20;
         UART_IntrConfig(UART0, &uart_intr);
 
-        UART_SetPrintPort(UART0);
+        UART_SetPrintPort(UART1);
         UART_intr_handler_register(uart0_rx_isr, NULL);
         ETS_UART_INTR_ENABLE();
     }
