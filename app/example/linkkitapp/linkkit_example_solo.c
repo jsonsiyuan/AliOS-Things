@@ -695,6 +695,10 @@ int linkkit_main(void *paras)
         if (time_now_sec % 60 == 0 && user_master_dev_available()) {
         user_post_event();
         }
+        if(netmgr_get_ip_state()!=1)
+        {
+            aos_reboot();
+        }
         /* 
         if (time_now_sec % 1 == 0 && user_master_dev_available()) {
         dooya_start_motor_check();
