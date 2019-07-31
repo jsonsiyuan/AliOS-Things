@@ -76,13 +76,13 @@ void dooya_toggle_led_g(void)
 
 void dooya_open_led_r(void)
 {
-	hal_gpio_output_low(&led_r);
+	hal_gpio_output_high(&led_r);
 	led_r_status.led_status=LED_OPEN;
 }
 
 void dooya_close_led_r(void)
 {
-	hal_gpio_output_high(&led_r);
+	hal_gpio_output_low(&led_r);
 	led_r_status.led_status=LED_CLOSE;
 }
 

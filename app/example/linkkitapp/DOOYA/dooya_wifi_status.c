@@ -22,7 +22,7 @@ static void dooya_start_smart_config_handle(void *p)
 static void dooya_start_smart_config_start(void)
 {
 	printf("##############3dooya_start_smart_config_start\r\n");
-	dooya_set_led_g_status(LED_TAGGLE,10);
+	dooya_set_led_r_status(LED_TAGGLE,1);
 	aos_task_new("netmgr_start", dooya_start_smart_config_handle, NULL, 4096);
 
 }
@@ -49,7 +49,7 @@ static void dooya_start_sta(void)
 	}
 	else
 	{
-		dooya_set_led_g_status(LED_TAGGLE,2);
+		dooya_set_led_r_status(LED_OPEN,2);
 		netmgr_reconnect_wifi();
 	}
 }

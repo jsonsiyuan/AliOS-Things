@@ -80,7 +80,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         dooya_fac_wifi_model_ok();
         return;
     }
-    dooya_set_led_g_status(LED_OPEN,1);
+    dooya_set_led_r_status(LED_OPEN,1);
  #ifdef EN_COMBO_NET
     if (awss_running) {
         awss_success_notify();
@@ -174,7 +174,6 @@ static void linkkit_event_monitor(int event)
         case IOTX_AWSS_CONNECT_ROUTER: // AWSS try to connect destination router
             LOG("IOTX_AWSS_CONNECT_ROUTER");
             // operate led to indicate user
-            dooya_set_led_g_status(LED_TAGGLE,2);
             break;
         case IOTX_AWSS_CONNECT_ROUTER_FAIL: // AWSS fails to connect destination
                                             // router.
@@ -190,7 +189,6 @@ static void linkkit_event_monitor(int event)
 				awss_running = 0;
 				dooya_set_wifi_STA();
 			}
-            dooya_set_led_g_status(LED_OPEN,1);
             break;
         case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
                                    // sucess)
@@ -214,7 +212,7 @@ static void linkkit_event_monitor(int event)
             }
             else
             {
-                dooya_set_led_g_status(LED_TAGGLE,2);
+                dooya_set_led_r_status(LED_OPEN,1);
             }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
@@ -226,13 +224,11 @@ static void linkkit_event_monitor(int event)
             LOG("IOTX_CONN_CLOUD_FAIL");
             // operate led to indicate user
             dooya_set_led_r_status(LED_OPEN,1);
-            dooya_set_led_g_status(LED_CLOSE,1);
             break;
         case IOTX_CONN_CLOUD_SUC: // Device connects cloud successfully
             LOG("IOTX_CONN_CLOUD_SUC");
             // operate led to indicate user
-            dooya_set_led_r_status(LED_CLOSE,1);
-            dooya_set_led_g_status(LED_CLOSE,1);
+            dooya_set_led_r_status(LED_OPEN,1);
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
                          // cloud without any other operation)
@@ -474,7 +470,7 @@ int application_start(int argc, char **argv)
     dooya_create_wdg_thread();
     if(0==dooya_show_three_array_info())
     {
-        dooya_create_uart_thread();
+        //dooya_create_uart_thread();
         dooya_create_wifi_check_thread();
     }
 #endif
