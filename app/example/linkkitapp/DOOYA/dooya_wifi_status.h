@@ -15,6 +15,12 @@ typedef enum
 	D_WIFI_SOFTAP,
 	D_WIFI_FAC,
 }D_WIFI_STATUS_T;
+typedef struct	
+{
+	D_WIFI_STATUS_T wifi_status;
+	int num_calculation;
+
+}D_WIFI_all_STATUS_T;
 
 uint8_t dooya_create_wifi_check_thread(void);
 void dooya_set_wifi_smartconfig(void);

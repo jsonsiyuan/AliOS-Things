@@ -467,12 +467,12 @@ int application_start(int argc, char **argv)
 	iotx_event_regist_cb(linkkit_event_monitor);
 	
     dooya_create_led_thread();
-    dooya_create_wdg_thread();
     if(0==dooya_show_three_array_info())
     {
         //dooya_create_uart_thread();
         dooya_create_wifi_check_thread();
     }
+	dooya_create_wdg_thread();
 #endif
     aos_loop_run();
 

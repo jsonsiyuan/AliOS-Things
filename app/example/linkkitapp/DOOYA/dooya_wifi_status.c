@@ -9,11 +9,9 @@
 
 
 extern void do_awss_active();
-//extern void linkkit_event_monitor(int event);
 
 static void dooya_start_smart_config_handle(void *p)
 {
-    //iotx_event_regist_cb(linkkit_event_monitor);
     printf("%s\n", __func__);
 	do_awss_active();
     netmgr_start(true);
@@ -42,7 +40,6 @@ static void dooya_start_fac(void)
 }
 static void dooya_start_sta(void)
 {
-	//iotx_event_regist_cb(linkkit_event_monitor);
 	if(netmgr_wifi_check_ssid()==1)
 	{
 		dooya_start_smart_config_start();
@@ -57,29 +54,45 @@ static void dooya_start_sta(void)
 static void dooya_wifi_check_handle(void *paras)
 {	
 	int ret;
-	D_WIFI_STATUS_T d_wifi_status;
-	int tmp=sizeof(D_WIFI_STATUS_T);
+	D_WIFI_all_STATUS_T d_wifi_status;
+	int tmp=sizeof(D_WIFI_all_STATUS_T);
 	ret=aos_kv_get(dooya_wifi_kv, (void *)&d_wifi_status, &tmp);
 	if(0==ret)
 	{	
-		printf("##sun read is ok wifi_status is [%d]\r\n",d_wifi_status);
-		if(d_wifi_status==D_WIFI_FAC)
+		printf("##sun read is ok wifi_status is [%d] num is [%d]\r\n",
+			d_wifi_status.wifi_status,d_wifi_status.num_calculation);
+		d_wifi_status.num_calculation++;
+		if(d_wifi_status.num_calculation>3)
 		{
+			netmgr_clear_ap_config();
+			d_wifi_status.wifi_status=D_WIFI_SMART_CONFIG;
+		}
+		else
+		{
+			aos_kv_set(dooya_wifi_kv, (void *)&d_wifi_status, sizeof(D_WIFI_all_STATUS_T),1);
+			aos_msleep(5000);
+		}
+		
+		if(d_wifi_status.wifi_status==D_WIFI_FAC)
+		{
+			dooya_set_wifi_STA();
 		    dooya_start_fac();
 		}
-		else if(d_wifi_status==D_WIFI_SMART_CONFIG)
+		else if(d_wifi_status.wifi_status==D_WIFI_SMART_CONFIG)
 		{
+			dooya_set_wifi_STA();
 			dooya_start_smart_config_start();
 
 		}
 		else
-		{	
+		{	dooya_set_wifi_STA();
 			dooya_start_sta();
 		}
 		
 	}
 	else
 	{
+		dooya_set_wifi_STA();
 		printf("##sun read is error \r\n");
 		dooya_start_smart_config_start();
 
@@ -96,24 +109,32 @@ uint8_t dooya_create_wifi_check_thread(void)
 
 void dooya_set_wifi_smartconfig(void)
 {
-	D_WIFI_STATUS_T d_wifi_status=D_WIFI_SMART_CONFIG;
-	aos_kv_set(dooya_wifi_kv, (void *)&d_wifi_status, sizeof(D_WIFI_STATUS_T),1);
+	D_WIFI_all_STATUS_T d_wifi_status;
+	d_wifi_status.wifi_status=D_WIFI_SMART_CONFIG;
+	d_wifi_status.num_calculation=0;
+	aos_kv_set(dooya_wifi_kv, (void *)&d_wifi_status, sizeof(D_WIFI_all_STATUS_T),1);
 }
 
 void dooya_set_wifi_STA(void)
 {
-	D_WIFI_STATUS_T d_wifi_status=D_WIFI_STA;
-	aos_kv_set(dooya_wifi_kv, (void *)&d_wifi_status, sizeof(D_WIFI_STATUS_T),1);
+	D_WIFI_all_STATUS_T d_wifi_status;
+	d_wifi_status.wifi_status=D_WIFI_STA;
+	d_wifi_status.num_calculation=0;
+	aos_kv_set(dooya_wifi_kv, (void *)&d_wifi_status, sizeof(D_WIFI_all_STATUS_T),1);
 }
 void dooya_set_wifi_softAP(void)
 {
-	D_WIFI_STATUS_T d_wifi_status=D_WIFI_SOFTAP;
-	aos_kv_set(dooya_wifi_kv, (void *)&d_wifi_status, sizeof(D_WIFI_STATUS_T),1);
+	D_WIFI_all_STATUS_T d_wifi_status;
+	d_wifi_status.wifi_status=D_WIFI_SOFTAP;
+	d_wifi_status.num_calculation=0;
+	aos_kv_set(dooya_wifi_kv, (void *)&d_wifi_status, sizeof(D_WIFI_all_STATUS_T),1);
 }
 void dooya_set_wifi_FAC(void)
 {
-	D_WIFI_STATUS_T d_wifi_status=D_WIFI_FAC;
-	aos_kv_set(dooya_wifi_kv, (void *)&d_wifi_status, sizeof(D_WIFI_STATUS_T),1);
+	D_WIFI_all_STATUS_T d_wifi_status;
+	d_wifi_status.wifi_status=D_WIFI_FAC;
+	d_wifi_status.num_calculation=0;
+	aos_kv_set(dooya_wifi_kv, (void *)&d_wifi_status, sizeof(D_WIFI_all_STATUS_T),1);
 }
 
 
