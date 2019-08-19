@@ -13,6 +13,7 @@
 
 static aos_timer_t uart_timer;
 static uint16_t retry_num=0;
+static uint8_t retry_over_flag=0;
 
 static uart_dev_t uart_use={
 	.port = UART_PORT_NUM,
@@ -33,6 +34,12 @@ static void uart_timer_handler(void * p_context)
 		printf("UART_ERROR##\r\n");
 		dooya_set_led_g_status(LED_CLOSE,1);
 		dooya_set_led_r_status(LED_TAGGLE,10);
+		retry_over_flag=1;
+	}
+	else if(retry_over_flag)
+	{
+		retry_over_flag=0;
+		dooya_set_led_r_status(LED_CLOSE,1);
 	}
 	dooya_start_motor_check();
 }
