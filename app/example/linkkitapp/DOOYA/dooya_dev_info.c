@@ -9,9 +9,9 @@ uint8_t dooya_post_flag=0;
 user_dev_status_t user_dev_status=
 {
 	.CurtainPosition=0,
-	.CurtainOperation=2,
+	.CurtainOperation=MOTOR_STOP,
 	.Error_status=0,
-	.SetDir=0,
+	.SetDir=DIR_POSITIVE,
 };
 
 user_dev_status_t * _g_pDEVMgr = &user_dev_status;
@@ -66,14 +66,39 @@ void dooya_set_dev_SetDir(SetDir_T data  )
 	dev_tmp->SetDir=data;
 }
 
+int CurtainPosition_tmp=0;
+int CurtainPosition_change=0;
+
 void dooya_set_dev_CurtainPosition(int data)
 {
 	user_dev_status_t *dev_tmp=dooya_get_dev_info();
-	if(dev_tmp->CurtainPosition!=data)
+	if(CurtainPosition_change)
+	{
+		CurtainPosition_change=0;
+		CurtainPosition_tmp=0xff;
+	}
+	else if(CurtainPosition_tmp!=data)
+	{
+		CurtainPosition_tmp=data;
+	}
+	else if(dev_tmp->CurtainPosition!=data)
 	{
 		dooya_post_flag=1;
+		dev_tmp->CurtainPosition=data;
+		
 	}
-	dev_tmp->CurtainPosition=data;
+	
+}
+void dooya_set_dev_CurtainPosition_dec(int data)
+{
+	user_dev_status_t *dev_tmp=dooya_get_dev_info();
+	 if(dev_tmp->CurtainPosition!=data)
+	{
+		dooya_post_flag=1;
+		CurtainPosition_change=1;
+		dev_tmp->CurtainPosition=data;
+	}
+	
 }
 
 void dooya_set_dev_error(int data)
@@ -82,12 +107,12 @@ void dooya_set_dev_error(int data)
 	dev_tmp->Error_status=data;
 }
 
-//#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d,\"SetDir\":%d} "
-#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d} "
+#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d,\"SetDir\":%d} "
+//#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d} "
 void dooya_dev_property_update(char *data)
 {
 	sprintf(data,dev_property_json, _g_pDEVMgr->CurtainPosition,
-			_g_pDEVMgr->CurtainOperation,_g_pDEVMgr->Error_status);
+			_g_pDEVMgr->CurtainOperation,_g_pDEVMgr->SetDir);
 }
 
 #define dev_event_json "{\"ErrorCode\":%d}" 
@@ -112,8 +137,9 @@ void dooya_user_property_parse(char *data)
 	if (item_CurtainPosition != NULL || cJSON_IsNumber(item_CurtainPosition))
 	{
 		printf("#######CurtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
-		dooya_control_percent(item_CurtainPosition->valueint); 
-		dooya_set_dev_CurtainPosition(item_CurtainPosition->valueint);
+		dooya_set_dev_CurtainPosition_dec(item_CurtainPosition->valueint);
+		dooya_control_percent(item_CurtainPosition->valueint,0xff); 
+		
 
 	}
 
@@ -121,7 +147,7 @@ void dooya_user_property_parse(char *data)
 	if (item_CurtainOperation != NULL || cJSON_IsNumber(item_CurtainOperation))
 	{
 		printf("##########CurtainOperation is [%d]\r\n",item_CurtainOperation->valueint);
-		dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
+		//dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
 		switch(item_CurtainOperation->valueint)
 		{
 			case MOTOR_CLOSE:
@@ -143,14 +169,14 @@ void dooya_user_property_parse(char *data)
 	if (item_SetDir != NULL || cJSON_IsNumber(item_SetDir))
 	{
 		printf("SetDir is [%d]\r\n",item_SetDir->valueint);
-		dooya_set_dev_SetDir(item_SetDir->valueint);
+		//dooya_set_dev_SetDir(item_SetDir->valueint);
 		switch(item_SetDir->valueint)
 		{
 			case DIR_POSITIVE:
-				//dooya_control_positine_dir();
+				dooya_control_positine_dir();
 			break;
 			case DIR_REVERSE:
-				//dooya_control_reverse_dir();
+				dooya_control_reverse_dir();
 			break;
 			
 		}

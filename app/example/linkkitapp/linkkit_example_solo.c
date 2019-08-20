@@ -107,8 +107,8 @@ static int user_disconnected_event_handler(void)
 
 	if(netmgr_get_ip_state()==1)
 	{
-		dooya_set_led_r_status(LED_OPEN,1);
-		dooya_set_led_g_status(LED_CLOSE,1);
+		dooya_set_led_r_status(LED_CLOSE,1);
+		dooya_set_led_g_status(LED_OPEN,1);
 	}
 	else
 	{
@@ -673,11 +673,7 @@ int linkkit_main(void *paras)
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
 
         time_now_sec = user_update_sec();
-        if((dooya_post_flag==1)&&(user_master_dev_available()))
-        {
-            user_post_property();
-            dooya_post_flag=0;
-        }
+
         if (time_prev_sec == time_now_sec) {
             continue;
         }
@@ -687,8 +683,12 @@ int linkkit_main(void *paras)
         }
 
         /* Post Proprety Example */
-        
-        if (time_now_sec % 10 == 0 && user_master_dev_available()) {
+        if((dooya_post_flag==1)&&(user_master_dev_available()))
+        {
+            user_post_property();
+            dooya_post_flag=0;
+        }
+        else if (time_now_sec % 60 == 0 && user_master_dev_available()) {
         user_post_property();
         }
         /* Post Event Example */

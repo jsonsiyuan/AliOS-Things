@@ -1,19 +1,14 @@
 #include "dooya_uart_recv_handle.h"
 #include "dooya_uart.h"
 #include "dooya_dev_info.h"
-#include "dooya_wifi_status.h"
-#include "dooya_fac.h"
 
 
-extern uint8_t start_percent;
-extern uint8_t start_boundary;
-extern uint8_t motor_status;
 
 
 static void dooya_check_motor_zone_percent(uint8_t data)
 {
 
-	printf("########motor_zone is [%d]\r\n",data);
+	printf("########dooya_check_motor_zone_percent is [%d]\r\n",data);
 
 	if(data!=0xFF)
 	{
@@ -25,16 +20,35 @@ static void dooya_check_motor_zone_percent(uint8_t data)
 
 
 	}
-	start_percent=1;
+
 	
 
 	
 }
 
+static void dooya_check_motor_dir(uint8_t data)
+{
+	printf("########dooya_check_motor_dir is [%d]\r\n",data);
+	switch (data)
+	{
+		case 0x01:/*正*/
+			dooya_set_dev_SetDir(DIR_POSITIVE);
+		break;
+		case 0x02:/*反*/
+			dooya_set_dev_SetDir(DIR_REVERSE);
+		break;
+
+
+	}
+	
+
+}
+
+
 static void dooya_check_motor_run_boundary(uint8_t data)
 {
-	printf("########motor_zone is [%d]\r\n",data);
-	start_boundary=1;
+	printf("########dooya_check_motor_run_boundary is [%d]\r\n",data);
+	
 }
 
 
@@ -45,17 +59,17 @@ static void dooya_check_motor(uint8_t data)
 	switch (data)
 	{
 		case 0x01:/*打开*/
-			dooya_set_dev_CurtainOperation(0x01);
+			dooya_set_dev_CurtainOperation(MOTOR_OPEN);
 		break;
 		case 0x02:/*关闭*/
-			dooya_set_dev_CurtainOperation(0x00);
+			dooya_set_dev_CurtainOperation(MOTOR_CLOSE);
 		break;
-		case 0x00:/*暂停*/
-			dooya_set_dev_CurtainOperation(0x02);
+		case 0x03:/*暂停*/
+			dooya_set_dev_CurtainOperation(MOTOR_STOP);
 		break;
 		
 	}
-	motor_status=1;
+
 }
 
 
@@ -64,61 +78,80 @@ void dooya_control_handle(uint8_t *payload_msg,uint8_t msg_len)
 	
 }
 
-
-void dooya_motor_send_handle(uint8_t *payload_msg,uint8_t msg_len)
+void dooya_check_handle(uint8_t *payload_msg,uint8_t msg_len)
 {
 	switch(payload_msg[0])
 	{
-		case MOTOR_SEND_SMARTCONFIG:
+		case CHECK_MOTOR_INFO:
+			dooya_check_motor(payload_msg[1]);
+			dooya_check_motor_zone_percent(payload_msg[2]);
+			dooya_check_motor_run_boundary(payload_msg[4]);
+			dooya_check_motor_dir(payload_msg[6]);
 		break;
-		case MOTOR_SEND_RESET:
+		case CHECK_MOTOR_STATUS:
+			//dooya_check_motor(payload_msg[1]);
 		break;
-		case MOTOR_SEND_CHECK_NET:
+		case CHECK_MOTOR_ZONE_PERCENT:
+			//dooya_check_motor_zone_percent(payload_msg[1]);
 		break;
-		case MOTOR_SEND_CHECK_TIME:
+		case CHECK_MOTOR_ANGLE:
 		break;
-		case MOTOR_SEND_FAC:
-			/*FAC FUNCTION*/
-			dooya_fac_set();
+		case CHECK_MOTOR_RUN_BOUNDARY:
+			//dooya_check_motor_run_boundary(payload_msg[1]);
 		break;
-		case MOTOR_SEND_MODEL:
+		case CHECK_MOTOR_HAND_ENABLE:
 		break;
-		case MOTOR_SEND_KEY:
+		case CHECK_MOTOR_DIRECTION:
 		break;
-		case MOTOR_SEND_SECRET:
+		case CHECK_LOW_SWITCH:
 		break;
-		case MOTOR_SEND_LED_ENABLE:
+		case CHECK_HIGH_SWITCH:
 		break;
+		case CHECK_OPEN_BOUNDARY:
+		break;
+		case CHECK_CLOSE_BOUNDARY:
+		break;
+		case CHECK_THREE_RUN_BOUNDARY:
+		break;
+		case CHECK_MOTRO_CLASS:
+		break;
+		case CHECK_MOTOR_MODEL:
+		break;
+		case CHECK_MOTOR_VER:
+		break;
+		
+		
+
 		
 	}
 }
 
-void dooya_motor_response_handle(uint8_t *payload_msg,uint8_t msg_len)
+void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 {
 	switch(payload_msg[0])
 	{
-		case MOTOR_RESPONSE_MOTOR_INFO:
-			printf("######MOTOR_RESPONSE_MOTOR_INFO\r\n");
-			dooya_check_motor_zone_percent(payload_msg[1]);
-			dooya_check_motor(payload_msg[3]);
-			
-			//dooya_check_motor_run_boundary(payload_msg[4]);
+		case NOTICE_MOTOR_INFO:
+			dooya_check_motor(payload_msg[1]);
+			dooya_check_motor_zone_percent(payload_msg[2]);
+			dooya_check_motor_run_boundary(payload_msg[4]);
+			dooya_check_motor_dir(payload_msg[6]);
 			/*上报*/
 			
 		break;
-		case MOTOR_RESPONSE_NET_STATUS:
-		break;
-		case MOTOR_RESPONSE_CHECK_SN:
-		break;
-		case MOTOR_RESPONSE_SET_FAC:
-		break;
-		case MOTOR_RESPONSE_SET_UP_WORK:
-		break;
-		case MOTOR_RESPONSE_SET_DOWN_WORK:
-		break;
+
+
 	}
 }
-
+void dooya_ota_handle(uint8_t *payload_msg,uint8_t msg_len)
+{
+	switch(payload_msg[0])
+	{
+		case OTA_START:
+		break;
+		case OTA_END:
+		break;
+	}		
+}
 
 
 

@@ -174,7 +174,6 @@ static void linkkit_event_monitor(int event)
         case IOTX_AWSS_CONNECT_ROUTER: // AWSS try to connect destination router
             LOG("IOTX_AWSS_CONNECT_ROUTER");
             // operate led to indicate user
-            dooya_set_led_g_status(LED_TAGGLE,2);
             break;
         case IOTX_AWSS_CONNECT_ROUTER_FAIL: // AWSS fails to connect destination
                                             // router.
@@ -190,6 +189,7 @@ static void linkkit_event_monitor(int event)
 				awss_running = 0;
 				dooya_set_wifi_STA();
 			}
+			dooya_set_led_r_status(LED_CLOSE,1);
             dooya_set_led_g_status(LED_OPEN,1);
             break;
         case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
@@ -214,7 +214,7 @@ static void linkkit_event_monitor(int event)
             }
             else
             {
-                dooya_set_led_g_status(LED_TAGGLE,2);
+                dooya_set_led_g_status(LED_TAGGLE,1);
             }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
@@ -225,14 +225,14 @@ static void linkkit_event_monitor(int event)
                                    // net_sockets.h for error code
             LOG("IOTX_CONN_CLOUD_FAIL");
             // operate led to indicate user
-            dooya_set_led_r_status(LED_OPEN,1);
-            dooya_set_led_g_status(LED_CLOSE,1);
+			dooya_set_led_r_status(LED_CLOSE,1);
+			dooya_set_led_g_status(LED_OPEN,1);
             break;
         case IOTX_CONN_CLOUD_SUC: // Device connects cloud successfully
             LOG("IOTX_CONN_CLOUD_SUC");
             // operate led to indicate user
-            dooya_set_led_r_status(LED_CLOSE,1);
-            dooya_set_led_g_status(LED_CLOSE,1);
+			dooya_set_led_r_status(LED_CLOSE,1);
+			dooya_set_led_g_status(LED_OPEN,1);
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
                          // cloud without any other operation)

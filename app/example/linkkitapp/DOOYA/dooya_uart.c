@@ -23,7 +23,24 @@ static uart_dev_t uart_use={
 	.config.stop_bits    = STOP_BITS_1,
 	.config.flow_control = FLOW_CONTROL_DISABLED,
 	.config.mode         = MODE_TX_RX,
-};
+};
+
+static aos_mutex_t  dooya_uart_mutex ;
+	
+static int dooya_uart_init_mutex(void)
+{
+	return  aos_mutex_new(&dooya_uart_mutex);
+}
+
+static int dooya_uart_lock_mutex(void)
+{
+	return  aos_mutex_lock(&dooya_uart_mutex, AOS_WAIT_FOREVER);
+}
+
+static int dooya_uart_unlock_mutex(void)
+{
+	return	aos_mutex_unlock(&dooya_uart_mutex);
+}
 
 static void uart_timer_handler(void * p_context)
 {
@@ -57,6 +74,7 @@ static void dooya_uart_time_start(void)
 static void dooya_uart_init(void)
 {
 	hal_uart_init(&uart_use);
+	dooya_uart_init_mutex();
 	dooya_uart_time_init();
 	dooya_uart_time_start();
 
@@ -67,57 +85,56 @@ static void dooya_uart_handle(void *paras)
 {
 	aos_msleep(100);
 	int rx_size ;
-	uint8_t uart_data_tmp;
-	uint8_t f_index=0;
-	uint8_t b_index=0;
 	uint8_t uart_data_buf[256];
 	uint16_t crc_tmp;
 	int32_t ret = -1;
-	uint8_t recv_length;
-	uint8_t i;
-	printf("####sun# dooya_uart_handle start\r\n");
+	printf("####sun# dooya_led_r_handle start\r\n");
 	while(1)
 	{
+		rx_size=0;
+		ret = -1;
 		memset(uart_data_buf,0,sizeof(uart_data_buf));
-		ret=hal_uart_recv_II(&uart_use, uart_data_buf, 5,&rx_size, 100);
+		ret=hal_uart_recv_II(&uart_use, uart_data_buf, 3,&rx_size, 500);
 		if ((ret == 0))
 		{
-			if(uart_data_buf[0]==0x55&&uart_data_buf[1]==0x00&&uart_data_buf[2]==0x00)
+			if(uart_data_buf[0]==0x55&&uart_data_buf[1]==0xAA)
 			{
 				rx_size=0;
 				ret = -1;
-				ret =hal_uart_recv_II(&uart_use, uart_data_buf+5, uart_data_buf[4]+2,&rx_size, 500);
+				ret =hal_uart_recv_II(&uart_use, uart_data_buf+3, uart_data_buf[2],&rx_size, 5*uart_data_buf[2]);
 				if((ret == 0))
 				{
 					printf("##sun ok\r\n");
-					printf("recv data is ");
-					for (i=0;i<uart_data_buf[4]+7;i++)
-					{
-						printf(" %x ",uart_data_buf[i]);								
-					}
-					printf("\r\n");
-					crc_tmp=qioucrc16(dooya,uart_data_buf, uart_data_buf[4]+5);
-					if((uart_data_buf[uart_data_buf[4]+5]==(crc_tmp%256))
-							&&(uart_data_buf[uart_data_buf[4]+6]==(crc_tmp/256)))
+					crc_tmp=CRC16_MODBUS(uart_data_buf, uart_data_buf[2]+1);
+					if((uart_data_buf[uart_data_buf[2]+1]==(crc_tmp/256))
+							&&(uart_data_buf[uart_data_buf[2]+2]==(crc_tmp%256)))
 						{
-							printf("recive crc is ok\r\n");
+							printf("##sun crc ok\r\n");
 							retry_num=0;
 							switch(uart_data_buf[3])
 							{
-								case MOTOR_SEND:
-									dooya_motor_send_handle(uart_data_buf+5,uart_data_buf[4]);
+								case CONTROL_CODE:
 								break;
-								case MOTOR_RESPONSE:
-									dooya_motor_response_handle(uart_data_buf+5,uart_data_buf[4]);
+								case CHECK_CODE:
+									dooya_check_handle(uart_data_buf+4,uart_data_buf[2]-2);
 								break;
-
+								case NOTICE_CODE:
+									dooya_notice_handle(uart_data_buf+4,uart_data_buf[2]-2);
+								break;
+								case OTA:
+								break;
 							}
 
 						}
 
+
+					
 				}
+				
 			}
-		}		
+		}
+		
+		
 	}	
 }
 
@@ -136,45 +153,35 @@ uint8_t dooya_create_uart_thread(void)
 
 void dooya_uart_send( uint8_t *src, uint32_t size)
 {
+	dooya_uart_lock_mutex();
 	hal_uart_send(&uart_use, src, size, 1000);
+	dooya_uart_unlock_mutex();
 }
 
-/*------------------------------------------------
-函数说明：求出数据的CRC校验码crc为初始校验码，*buf为初始地址，x为所求的个数
---------------------------------------------------*/
-unsigned int qioucrc16(unsigned int crc,unsigned char *buf,unsigned int x)
+uint16_t CRC16_MODBUS(uint8_t *puchMsg, uint16_t usDataLen)
 {
-	unsigned char hi,lo;
-	unsigned int i;
-	for (i=0;i<x;i++)
+	uint16_t wCRCin = UUID;
+
+	int16_t wCPoly = 0x8005;
+	uint8_t wChar = 0;
+	uint8_t i = 0;
+	while (usDataLen--)
 	{
-	   crc=calccrc(*buf,crc);
-	   buf++;
+		wChar = *(puchMsg++);
+		wCRCin ^= (wChar << 8);
+		for(i = 0; i < 8; i++)
+		{
+			if(wCRCin & 0x8000)
+			{
+				wCRCin = (wCRCin << 1) ^ wCPoly;
+			}
+			else
+			{
+				wCRCin = wCRCin << 1;
+			}
+		}
 	}
-	hi=crc%256;
-	lo=crc/256;
-	crc=(hi<<8)|lo;
-	return crc;
-}
-/*-------------------------------------------------
-调用方式：unsigned int calccrc(uchar crcbuf,uint crc)
-函数说明：在crc的基础上求出数CRCBUF的CRC码
---------------------------------------------------*/
-unsigned int calccrc(unsigned char crcbuf,unsigned int crc)
-{
-	unsigned char i; 
-	unsigned char chk;
-	crc=crc ^ crcbuf;
-	for(i=0;i<8;i++)
-	{
-	  chk=crc&1;
-	  crc=crc>>1;
-	  crc=crc&0x7fff;
-	  if (chk==1)
-	  crc=crc^0xa001;
-	  crc=crc&0xffff;
-	}
-	return crc; 
+	return (wCRCin);
 }
 
 
