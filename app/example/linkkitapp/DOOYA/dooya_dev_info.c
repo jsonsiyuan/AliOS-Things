@@ -67,6 +67,8 @@ void dooya_set_dev_SetDir(SetDir_T data  )
 }
 
 int CurtainPosition_tmp=0;
+int CurtainPosition_number=0;
+
 int CurtainPosition_change=0;
 
 void dooya_set_dev_CurtainPosition(int data)
@@ -81,11 +83,22 @@ void dooya_set_dev_CurtainPosition(int data)
 	{
 		CurtainPosition_tmp=data;
 	}
-	else if(dev_tmp->CurtainPosition!=data)
+	else if(CurtainPosition_tmp==data)
 	{
-		dooya_post_flag=1;
-		dev_tmp->CurtainPosition=data;
-		
+		CurtainPosition_number++;
+		if(CurtainPosition_number>5)
+		{
+			CurtainPosition_number=0;
+			
+			if(abs(dev_tmp->CurtainPosition-data)>3)
+			{
+				dooya_post_flag=1;
+				dev_tmp->CurtainPosition=data;
+			}
+
+
+			
+		}
 	}
 	
 }

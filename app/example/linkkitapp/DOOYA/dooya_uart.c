@@ -44,27 +44,31 @@ static int dooya_uart_unlock_mutex(void)
 
 static void uart_timer_handler(void * p_context)
 {
-	printf("uart_timer_handler##\r\n");
-	retry_num++;
-	if(retry_num>5)
+	while(1)
 	{
-		printf("UART_ERROR##\r\n");
-		dooya_set_led_g_status(LED_CLOSE,1);
-		dooya_set_led_r_status(LED_TAGGLE,10);
-		retry_over_flag=1;
+		printf("uart_timer_handler##\r\n");
+		retry_num++;
+		if(retry_num>5)
+		{
+			printf("UART_ERROR##\r\n");
+			dooya_set_led_g_status(LED_CLOSE,1);
+			dooya_set_led_r_status(LED_TAGGLE,10);
+			retry_over_flag=1;
+		}
+		else if(retry_over_flag)
+		{
+			retry_over_flag=0;
+			dooya_set_led_r_status(LED_CLOSE,1);
+		}
+		dooya_start_motor_check();
+		aos_msleep(1000);
 	}
-	else if(retry_over_flag)
-	{
-		retry_over_flag=0;
-		dooya_set_led_r_status(LED_CLOSE,1);
-	}
-	dooya_start_motor_check();
 }
 
 static void dooya_uart_time_init(void)
 {
 
-	aos_timer_new(&uart_timer, uart_timer_handler, NULL, 1000, 1);
+	
 }
 static void dooya_uart_time_start(void)
 {
@@ -75,8 +79,6 @@ static void dooya_uart_init(void)
 {
 	hal_uart_init(&uart_use);
 	dooya_uart_init_mutex();
-	dooya_uart_time_init();
-	dooya_uart_time_start();
 
 }
 
@@ -147,6 +149,7 @@ uint8_t dooya_create_uart_thread(void)
 	dooya_uart_init();
 	printf("do dooya_create_uart_thread\r\n");	
 	aos_task_new("uart", (void (*)(void *))dooya_uart_handle, NULL, 1024);
+	aos_task_new("uart_time", (void (*)(void *))uart_timer_handler, NULL, 1024);
 	return 0;
 
 }
