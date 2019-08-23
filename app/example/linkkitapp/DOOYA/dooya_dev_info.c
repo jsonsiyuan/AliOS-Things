@@ -5,7 +5,11 @@
 #include "aos/kv.h"
 #include "netmgr.h"
 
-uint8_t dooya_post_flag=0;
+uint8_t dooya_post_flag=1;
+uint8_t dooya_post_flag_motor_status=0;
+
+uint8_t dooya_CurtainPosition_data=0;
+
 user_dev_status_t user_dev_status=
 {
 	.CurtainPosition=0,
@@ -51,7 +55,17 @@ void dooya_set_dev_CurtainOperation(CurtainOperation_T  data)
 	user_dev_status_t * dev_tmp=dooya_get_dev_info();
 	if(dev_tmp->CurtainOperation!=data)
 	{
-		dooya_post_flag=1;
+		if(data!=MOTOR_STOP)
+		{
+			dooya_post_flag=1;
+		}
+		else
+		
+
+		{
+			dooya_post_flag_motor_status=1;
+		}
+		
 	}
 	dev_tmp->CurtainOperation=data;
 }
@@ -68,32 +82,29 @@ void dooya_set_dev_SetDir(SetDir_T data  )
 
 int CurtainPosition_tmp=0;
 int CurtainPosition_number=0;
-
-int CurtainPosition_change=0;
-
 void dooya_set_dev_CurtainPosition(int data)
 {
 	user_dev_status_t *dev_tmp=dooya_get_dev_info();
-	if(CurtainPosition_change)
-	{
-		CurtainPosition_change=0;
-		CurtainPosition_tmp=0xff;
-	}
-	else if(CurtainPosition_tmp!=data)
+	if(CurtainPosition_tmp!=data)
 	{
 		CurtainPosition_tmp=data;
 	}
 	else if(CurtainPosition_tmp==data)
 	{
 		CurtainPosition_number++;
-		if(CurtainPosition_number>5)
+		if(CurtainPosition_number>1)
 		{
 			CurtainPosition_number=0;
-			
+			//if(dev_tmp->CurtainPosition!=data)
 			if(abs(dev_tmp->CurtainPosition-data)>3)
 			{
 				dooya_post_flag=1;
+				dooya_CurtainPosition_data=0xff;
 				dev_tmp->CurtainPosition=data;
+			}
+			else
+			{
+				dooya_CurtainPosition_data=0xff;
 			}
 
 
@@ -105,10 +116,11 @@ void dooya_set_dev_CurtainPosition(int data)
 void dooya_set_dev_CurtainPosition_dec(int data)
 {
 	user_dev_status_t *dev_tmp=dooya_get_dev_info();
-	 if(dev_tmp->CurtainPosition!=data)
+	if(abs(dev_tmp->CurtainPosition-data)>3)
+	//if(dev_tmp->CurtainPosition!=data)
 	{
 		dooya_post_flag=1;
-		CurtainPosition_change=1;
+		CurtainPosition_tmp=0xff;
 		dev_tmp->CurtainPosition=data;
 	}
 	
@@ -127,6 +139,15 @@ void dooya_dev_property_update(char *data)
 	sprintf(data,dev_property_json, _g_pDEVMgr->CurtainPosition,
 			_g_pDEVMgr->CurtainOperation,_g_pDEVMgr->SetDir);
 }
+
+
+#define dev_property_json "{\"CurtainOperation\":%d} "
+void dooya_dev_property_update_motor_status(char *data)
+{
+	sprintf(data,dev_property_json,
+			_g_pDEVMgr->CurtainOperation);
+}
+
 
 #define dev_event_json "{\"ErrorCode\":%d}" 
 
@@ -153,6 +174,7 @@ void dooya_user_property_parse(char *data)
 		dooya_set_dev_CurtainPosition_dec(item_CurtainPosition->valueint);
 		dooya_control_percent(item_CurtainPosition->valueint,0xff); 
 		
+		dooya_CurtainPosition_data=item_CurtainPosition->valueint;
 
 	}
 
@@ -161,6 +183,9 @@ void dooya_user_property_parse(char *data)
 	{
 		printf("##########CurtainOperation is [%d]\r\n",item_CurtainOperation->valueint);
 		//dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
+		
+		dooya_CurtainPosition_data=0xff;
+
 		switch(item_CurtainOperation->valueint)
 		{
 			case MOTOR_CLOSE:

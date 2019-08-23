@@ -4,6 +4,7 @@
 
 
 
+extern uint8_t dooya_CurtainPosition_data;
 
 static void dooya_check_motor_zone_percent(uint8_t data)
 {
@@ -17,6 +18,26 @@ static void dooya_check_motor_zone_percent(uint8_t data)
 	else
 	{
 		dooya_set_dev_CurtainPosition(0);
+
+
+	}
+
+	
+
+	
+}
+static void dooya_check_motor_zone_percent_dec(uint8_t data)
+{
+
+	printf("########dooya_check_motor_zone_percent_dec is [%d]\r\n",data);
+
+	if(data!=0xFF)
+	{
+		dooya_set_dev_CurtainPosition_dec(data);
+	}
+	else
+	{
+		dooya_set_dev_CurtainPosition_dec(0);
 
 
 	}
@@ -47,7 +68,7 @@ static void dooya_check_motor_dir(uint8_t data)
 
 static void dooya_check_motor_run_boundary(uint8_t data)
 {
-	printf("########dooya_check_motor_run_boundary is [%d]\r\n",data);
+	//printf("########dooya_check_motor_run_boundary is [%d]\r\n",data);
 	
 }
 
@@ -73,9 +94,37 @@ static void dooya_check_motor(uint8_t data)
 }
 
 
+static void dooya_control_motor(uint8_t data)
+{
+	printf("########motor_control is [%d]\r\n",data);
+	switch (data)
+	{
+		case 0x01:/*打开*/
+			dooya_set_dev_CurtainOperation(MOTOR_OPEN);
+			dooya_set_dev_CurtainPosition_dec(100);
+		break;
+		case 0x02:/*关闭*/
+			dooya_set_dev_CurtainOperation(MOTOR_CLOSE);
+			dooya_set_dev_CurtainPosition_dec(0);
+		break;
+		case 0x03:/*暂停*/
+			dooya_set_dev_CurtainOperation(MOTOR_STOP);
+		break;
+		
+	}
+
+}
+
+
 void dooya_control_handle(uint8_t *payload_msg,uint8_t msg_len)
 {
-	
+	switch(payload_msg[0])
+	{
+		case CONTROL_MOTOR_STATUS:
+			dooya_control_motor(payload_msg[1]);
+		break;
+		
+	}
 }
 
 void dooya_check_handle(uint8_t *payload_msg,uint8_t msg_len)
@@ -131,11 +180,27 @@ void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 	switch(payload_msg[0])
 	{
 		case NOTICE_MOTOR_INFO:
+			
 			dooya_check_motor(payload_msg[1]);
-			dooya_check_motor_zone_percent(payload_msg[2]);
-			dooya_check_motor_run_boundary(payload_msg[4]);
+			if(payload_msg[1]==0x03)
+			{
+				if(dooya_CurtainPosition_data!=0xff)
+				{
+					if(abs(dooya_CurtainPosition_data-payload_msg[2])<3)
+					{
+						dooya_check_motor_zone_percent_dec(payload_msg[2]);
+					}
+					
+				}
+				else
+				{
+					dooya_check_motor_zone_percent_dec(payload_msg[2]);
+				}
+				
+			}
+		/*	dooya_check_motor_run_boundary(payload_msg[4]);
 			dooya_check_motor_dir(payload_msg[6]);
-			/*上报*/
+			*//*上报*/
 			
 		break;
 

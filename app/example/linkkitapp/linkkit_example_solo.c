@@ -110,10 +110,6 @@ static int user_disconnected_event_handler(void)
 		dooya_set_led_r_status(LED_CLOSE,1);
 		dooya_set_led_g_status(LED_OPEN,1);
 	}
-	else
-	{
-		aos_reboot();
-	}
     return 0;
 }
 
@@ -432,42 +428,26 @@ void user_post_property(void)
     static int example_index = 0;
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-    #if 0
-    char *property_payload = "NULL";
 
-    if (example_index == 0) {
-        /* Normal Example */
-        property_payload = "{\"LightSwitch\":1}";
-        example_index++;
-    } else if (example_index == 1) {
-        /* Wrong Property ID */
-        property_payload = "{\"LightSwitchxxxx\":1}";
-        example_index++;
-    } else if (example_index == 2) {
-        /* Wrong Value Format */
-        property_payload = "{\"LightSwitch\":\"test\"}";
-        example_index++;
-    } else if (example_index == 3) {
-        /* Wrong Value Range */
-        property_payload = "{\"LightSwitch\":10}";
-        example_index++;
-    } else if (example_index == 4) {
-        /* Missing Property Item */
-        property_payload = "{\"RGBColor\":{\"Red\":45,\"Green\":30}}";
-        example_index++;
-    } else if (example_index == 5) {
-        /* Wrong Params Format */
-        property_payload = "\"hello world\"";
-        example_index++;
-    } else if (example_index == 6) {
-        /* Wrong Json Format */
-        property_payload = "hello world";
-        example_index = 0;
-    }
-    #endif
     char property_payload[200]={0};
     memset(property_payload, 0, sizeof(property_payload));
     dooya_dev_property_update(property_payload);
+    printf("gg##sun##[%s]\r\n",property_payload);
+
+    res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
+                             (unsigned char *)property_payload, strlen(property_payload));
+
+    EXAMPLE_TRACE("Post Property Message ID: %d", res);
+}
+void user_post_property_motor_status(void)
+{
+    static int example_index = 0;
+    int res = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
+    char property_payload[200]={0};
+    memset(property_payload, 0, sizeof(property_payload));
+    dooya_dev_property_update_motor_status(property_payload);
     printf("gg##sun##[%s]\r\n",property_payload);
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
@@ -581,7 +561,12 @@ void set_iotx_info()
 
 }
 extern uint8_t dooya_post_flag;
+extern uint8_t dooya_post_flag_motor_status;
+
 static int max_running_seconds = 0;
+static int get_ip_state_number=0;
+static int socket_number=0;
+
 int linkkit_main(void *paras)
 {
 
@@ -650,21 +635,34 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
         /* Create Master Device Resources */
+	socket_number=0;
     do{
         user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
         if (user_example_ctx->master_devid < 0) {
             EXAMPLE_TRACE("IOT_Linkkit_Open Failed, retry after 5s...\n");
             HAL_SleepMs(5000);
-            aos_reboot();
+			socket_number++;
+			if(socket_number>12)
+			{
+            	aos_reboot();
+			}
         }
     }while(user_example_ctx->master_devid < 0);
+
+	
         /* Start Connect Aliyun Server */
+	socket_number=0;
     do{
         res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
         if (res < 0) {
             EXAMPLE_TRACE("IOT_Linkkit_Connect Failed, retry after 5s...\n");
             HAL_SleepMs(5000);
-            aos_reboot();
+			socket_number++;
+			if(socket_number>12)
+			{
+				aos_reboot();
+			}
+
         }
     }while(res < 0);
 
@@ -683,11 +681,16 @@ int linkkit_main(void *paras)
         }
 
         /* Post Proprety Example */
-        if((dooya_post_flag==1)&&(user_master_dev_available()))
-        {
-            user_post_property();
-            dooya_post_flag=0;
-        }
+		if((dooya_post_flag==1)&&(user_master_dev_available()))
+		{
+			user_post_property();
+			dooya_post_flag=0;
+		}
+		else if((dooya_post_flag_motor_status==1)&&(user_master_dev_available()))
+		{
+			user_post_property_motor_status();
+			dooya_post_flag_motor_status=0;
+		}
         else if (time_now_sec % 60 == 0 && user_master_dev_available()) {
         user_post_property();
         }
@@ -697,12 +700,15 @@ int linkkit_main(void *paras)
         }
         if(netmgr_get_ip_state()!=1)
         {
-            aos_reboot();
+        	get_ip_state_number++;
+			if(get_ip_state_number>20)
+			{
+				get_ip_state_number=0;
+				aos_reboot();
+			}
+            
         }
-        /* 
-        if (time_now_sec % 1 == 0 && user_master_dev_available()) {
-        dooya_start_motor_check();
-        }*/
+
         #if 0
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {

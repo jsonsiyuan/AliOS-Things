@@ -34,11 +34,13 @@ static int dooya_uart_init_mutex(void)
 
 static int dooya_uart_lock_mutex(void)
 {
+	printf("##dooya_uart_lock_mutex\r\n");
 	return  aos_mutex_lock(&dooya_uart_mutex, AOS_WAIT_FOREVER);
 }
 
 static int dooya_uart_unlock_mutex(void)
 {
+	printf("##dooya_uart_unlock_mutex\r\n");
 	return	aos_mutex_unlock(&dooya_uart_mutex);
 }
 
@@ -46,11 +48,9 @@ static void uart_timer_handler(void * p_context)
 {
 	while(1)
 	{
-		printf("uart_timer_handler##\r\n");
 		retry_num++;
 		if(retry_num>5)
 		{
-			printf("UART_ERROR##\r\n");
 			dooya_set_led_g_status(LED_CLOSE,1);
 			dooya_set_led_r_status(LED_TAGGLE,10);
 			retry_over_flag=1;
@@ -61,7 +61,7 @@ static void uart_timer_handler(void * p_context)
 			dooya_set_led_r_status(LED_CLOSE,1);
 		}
 		dooya_start_motor_check();
-		aos_msleep(1000);
+		aos_msleep(10000);
 	}
 }
 
@@ -106,16 +106,15 @@ static void dooya_uart_handle(void *paras)
 				ret =hal_uart_recv_II(&uart_use, uart_data_buf+3, uart_data_buf[2],&rx_size, 5*uart_data_buf[2]);
 				if((ret == 0))
 				{
-					printf("##sun ok\r\n");
 					crc_tmp=CRC16_MODBUS(uart_data_buf, uart_data_buf[2]+1);
 					if((uart_data_buf[uart_data_buf[2]+1]==(crc_tmp/256))
 							&&(uart_data_buf[uart_data_buf[2]+2]==(crc_tmp%256)))
 						{
-							printf("##sun crc ok\r\n");
 							retry_num=0;
 							switch(uart_data_buf[3])
 							{
 								case CONTROL_CODE:
+									dooya_control_handle(uart_data_buf+4,uart_data_buf[2]-2);
 								break;
 								case CHECK_CODE:
 									dooya_check_handle(uart_data_buf+4,uart_data_buf[2]-2);

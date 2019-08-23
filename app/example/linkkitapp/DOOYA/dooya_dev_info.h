@@ -42,6 +42,8 @@ void dooya_set_dev_CurtainPosition(int data);
 void dooya_set_dev_CurtainPosition_dec(int data);
 void dooya_set_dev_error(int data);
 void dooya_dev_property_update(char *data);
+void dooya_dev_property_update_motor_status(char *data);
+
 void dooya_dev_event_update(char *data);
 void dooya_user_property_parse(char *data);
 
