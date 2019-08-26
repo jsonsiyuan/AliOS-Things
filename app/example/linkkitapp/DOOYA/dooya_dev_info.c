@@ -132,16 +132,16 @@ void dooya_set_dev_error(int data)
 	dev_tmp->Error_status=data;
 }
 
-#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d,\"SetDir\":%d} "
-//#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d} "
+//#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d,\"SetDir\":%d} "
+#define dev_property_json "{\"curtainPosition\":%d,\"curtainConrtol\":%d} "
 void dooya_dev_property_update(char *data)
 {
 	sprintf(data,dev_property_json, _g_pDEVMgr->CurtainPosition,
-			_g_pDEVMgr->CurtainOperation,_g_pDEVMgr->SetDir);
+			_g_pDEVMgr->CurtainOperation/*,_g_pDEVMgr->SetDir*/);
 }
 
 
-#define dev_property_json "{\"CurtainOperation\":%d} "
+#define dev_property_json "{\"curtainConrtol\":%d} "
 void dooya_dev_property_update_motor_status(char *data)
 {
 	sprintf(data,dev_property_json,
@@ -178,10 +178,10 @@ void dooya_user_property_parse(char *data)
 
 	}
 
-	item_CurtainOperation = cJSON_GetObjectItem(root, "CurtainOperation");
+	item_CurtainOperation = cJSON_GetObjectItem(root, "curtainConrtol");
 	if (item_CurtainOperation != NULL || cJSON_IsNumber(item_CurtainOperation))
 	{
-		printf("##########CurtainOperation is [%d]\r\n",item_CurtainOperation->valueint);
+		printf("##########curtainConrtol is [%d]\r\n",item_CurtainOperation->valueint);
 		//dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
 		
 		dooya_CurtainPosition_data=0xff;
