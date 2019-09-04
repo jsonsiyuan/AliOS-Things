@@ -26,8 +26,8 @@ void dooya_fac_start(void)
 {
 	dooya_fac_model=1;
 	dooya_set_wifi_STA();
-	dooya_set_led_r_status(LED_CLOSE ,1 );
-	dooya_set_led_g_status(LED_CLOSE ,1);
+	/*dooya_set_led_r_status(LED_CLOSE ,1 );
+	dooya_set_led_g_status(LED_CLOSE ,1);*/
 }
 
 void dooya_fac_stop(void)
@@ -52,8 +52,8 @@ void dooya_fac_key_led_check(void)
 {
 	if(dooya_fac_wifi_model_check()==1)
 	{
-		dooya_set_led_g_status(LED_CLOSE ,1);
-		dooya_fac_led_model=1;
+		/*dooya_set_led_g_status(LED_CLOSE ,1);
+		dooya_fac_led_model=1;*/
 	}
 	
 }
@@ -70,13 +70,13 @@ int dooya_fac_handle(void *paras)
 		if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==0))
 		{
 			count_tmp= 0;	
-			dooya_set_led_g_status(LED_TAGGLE ,2);	
+			//dooya_set_led_g_status(LED_TAGGLE ,2);	
 			dooya_response_fac(1);	
 		}
 		else if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==1))
 		{
 			count_tmp= 0;
-			dooya_set_led_g_status(LED_CLOSE ,1);
+			//dooya_set_led_g_status(LED_CLOSE ,1);
 		}
 		else 
 		{

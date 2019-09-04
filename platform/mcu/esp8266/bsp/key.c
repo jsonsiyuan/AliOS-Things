@@ -80,7 +80,7 @@ static void key_gpio_isr(void *arg)
 
 void key_gpio_init(void)
 {
-    GPIO_ConfigTypeDef key_gpio_cnf;
+   /* GPIO_ConfigTypeDef key_gpio_cnf;
 
     gpio_intr_handler_register(key_gpio_isr, NULL);
 
@@ -90,5 +90,5 @@ void key_gpio_init(void)
     key_gpio_cnf.GPIO_IntrType = KEY_GPIO_INTRTYPE;
     gpio_config(&key_gpio_cnf);
 
-    key_gpio_enable_isr();
+    key_gpio_enable_isr();*/
 }

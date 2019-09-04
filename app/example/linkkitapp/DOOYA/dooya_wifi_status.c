@@ -22,7 +22,7 @@ static void dooya_start_smart_config_handle(void *p)
 static void dooya_start_smart_config_start(void)
 {
 	printf("##############3dooya_start_smart_config_start\r\n");
-	dooya_set_led_g_status(LED_TAGGLE,10);
+	//dooya_set_led_g_status(LED_TAGGLE,10);
 	dooya_set_wifi_STA();
 	aos_task_new("netmgr_start", dooya_start_smart_config_handle, NULL, 4096);
 
@@ -46,12 +46,13 @@ static void dooya_start_sta(void)
 	//iotx_event_regist_cb(linkkit_event_monitor);
 	if(netmgr_wifi_check_ssid()==1)
 	{
-		dooya_set_led_g_status(LED_TAGGLE,1);
+		/*dooya_set_led_g_status(LED_TAGGLE,1);*/
+		dooya_start_smart_config_start();
 	}
 	else
 	{
-		dooya_set_led_g_status(LED_CLOSE,1);
-		dooya_set_led_r_status(LED_OPEN,1);
+		/*dooya_set_led_g_status(LED_CLOSE,1);
+		dooya_set_led_r_status(LED_OPEN,1);*/
 		netmgr_reconnect_wifi();
 	}
 }
@@ -83,7 +84,8 @@ static void dooya_wifi_check_handle(void *paras)
 	else
 	{
 		printf("##sun read is error \r\n");
-		dooya_start_sta();
+		//dooya_start_sta();
+		dooya_start_smart_config_start();
 
 	}
 	aos_task_exit(0);

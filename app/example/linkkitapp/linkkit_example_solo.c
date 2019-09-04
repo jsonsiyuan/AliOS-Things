@@ -19,30 +19,29 @@
 #ifdef EN_COMBO_NET
 #include "combo_devinfo.h"
 #else
-// for demo only
-/* 
-#define PRODUCT_KEY     "a1uXapRCEMs"
-#define PRODUCT_SECRET  "0mQrM88CLlkrn6nl"
-#define DEVICE_NAME     "device1"
-#define DEVICE_SECRET   "B1kcFwTRNnEd0dxo6hE4N2KQMDf3K9co"
+
+    #if 1
+
+    #define PRODUCT_KEY     "a13865sCKJt"
+    #define PRODUCT_SECRET  "y8mjmuO7OcyO8gzg"
+    #define DEVICE_NAME     "motor1_test"
+    #define DEVICE_SECRET   "1CbSE3YvfcxAT5mhLuVgbJqxUQlKyYH8"
 
 
-uint8_t PRODUCT_KEY[]=  "a1uXapRCEMs";
-uint8_t PRODUCT_SECRET[]=  "0mQrM88CLlkrn6nl";
-uint8_t DEVICE_NAME[]=     "device1";
-uint8_t DEVICE_SECRET[]=   "B1kcFwTRNnEd0dxo6hE4N2KQMDf3K9co";
-*/
-/*sun change */
-#define D_PRODUCT_KEY_LEN          (20 + 1)
-#define D_PRODUCT_SECRET_LEN       (64 + 1)
-#define D_DEVICE_NAME_LEN          (32 + 1)
-#define D_DEVICE_SECRET_LEN        (64 + 1)
+    #else 
+    /*sun change */
+    #define D_PRODUCT_KEY_LEN          (20 + 1)
+    #define D_PRODUCT_SECRET_LEN       (64 + 1)
+    #define D_DEVICE_NAME_LEN          (32 + 1)
+    #define D_DEVICE_SECRET_LEN        (64 + 1)
 
 
-extern uint8_t PRODUCT_KEY[D_PRODUCT_KEY_LEN];
-extern uint8_t PRODUCT_SECRET[D_PRODUCT_SECRET_LEN];
-extern uint8_t DEVICE_NAME[D_DEVICE_NAME_LEN];
-extern uint8_t DEVICE_SECRET[D_DEVICE_SECRET_LEN];
+	extern uint8_t PRODUCT_KEY[D_PRODUCT_KEY_LEN];
+	extern uint8_t PRODUCT_SECRET[D_PRODUCT_SECRET_LEN];
+	extern uint8_t DEVICE_NAME[D_DEVICE_NAME_LEN];
+	extern uint8_t DEVICE_SECRET[D_DEVICE_SECRET_LEN];
+    #endif
+
 
 #endif
 /*end */
@@ -90,8 +89,8 @@ static int user_connected_event_handler(void)
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
     printf("#############user_connected_event_handler\r\n");
-    dooya_set_led_g_status(LED_CLOSE,1);
-    dooya_set_led_r_status(LED_CLOSE,1);
+   /* dooya_set_led_g_status(LED_CLOSE,1);
+    dooya_set_led_r_status(LED_CLOSE,1);*/
     dooya_set_wifi_STA();
     return 0;
 }
@@ -107,8 +106,8 @@ static int user_disconnected_event_handler(void)
 
 	if(netmgr_get_ip_state()==1)
 	{
-		dooya_set_led_r_status(LED_CLOSE,1);
-		dooya_set_led_g_status(LED_OPEN,1);
+		/*dooya_set_led_r_status(LED_CLOSE,1);
+		dooya_set_led_g_status(LED_OPEN,1);*/
 	}
     return 0;
 }
@@ -548,7 +547,7 @@ void set_iotx_info()
     /*sun add*/
     printf("#############set_iotx_info\r\n");
 
-    dooya_set_three_array_info();
+    //dooya_set_three_array_info();
         
     HAL_SetProductKey(PRODUCT_KEY);
     HAL_SetProductSecret(PRODUCT_SECRET);

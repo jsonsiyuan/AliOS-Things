@@ -5,7 +5,7 @@
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/out/helloworld@developerkit/binary/helloworld@developerkit.elf",
+            "program": "${workspaceRoot}/out/linkkitapp@esp8266/binary/linkkitapp@esp8266.elf",
             "args": [],
             "stopAtEntry": true,
             "cwd": "${workspaceRoot}",
@@ -22,7 +22,7 @@
                     "text": "target remote localhost:4242"
                 },
                 {
-                    "text": "file out/helloworld@developerkit/binary/helloworld@developerkit.elf"
+                    "text": "file out/linkkitapp@esp8266/binary/linkkitapp@esp8266.elf"
                 },
                 {
                     "text": "break application_start"
