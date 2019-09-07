@@ -324,6 +324,7 @@ static void do_awss_reset()
 
 void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 {
+	unsigned char key_flag_tmp;
     if (eventinfo->type != EV_KEY) {
         return;
     }
@@ -338,15 +339,17 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
         if (eventinfo->value == VALUE_KEY_CLICK) {
 
             //if(awss_running==0)
-			{
-				dooya_set_wifi_smartconfig();
-				aos_msleep(1000);
-				do_awss_reset();
+			//{
+
 				//aos_msleep(100);
 				//aos_reboot();
-			} 
-        } else if (eventinfo->value == VALUE_KEY_LLTCLICK) {
-            //do_awss_reset();
+			//} 
+			key_flag_tmp=0x01;
+			dooya_set_remout_data(key_flag_tmp);
+        } else /*if (eventinfo->value == VALUE_KEY_LLTCLICK) */{
+			dooya_set_wifi_smartconfig();
+			aos_msleep(1000);
+			do_awss_reset();
         }
     }
 }
@@ -440,7 +443,7 @@ int application_start(int argc, char **argv)
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
-    //aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
+    aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
     IOT_RegisterCallback(ITE_MQTT_CONNECT_SUCC,mqtt_connected_event_handler);
@@ -471,7 +474,7 @@ int application_start(int argc, char **argv)
     char *A_version="1.0.0";
     printf("###code## is [%s]\r\n",A_version);
 	iotx_event_regist_cb(linkkit_event_monitor);
-	
+	dooya_create_key_thread();
     dooya_create_led_thread();
     //dooya_create_wdg_thread();
     dooya_create_remout_thread();

@@ -4,6 +4,7 @@
 #include "dooya_uart_send.h"
 #include "aos/kv.h"
 #include "netmgr.h"
+#include "dooya_remout.h"
 
 uint8_t dooya_post_flag=1;
 uint8_t dooya_post_flag_motor_status=0;
@@ -132,12 +133,12 @@ void dooya_set_dev_error(int data)
 	dev_tmp->Error_status=data;
 }
 
-#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d,\"SetDir\":%d} "
-//#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d} "
+//#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d,\"SetDir\":%d} "
+#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d} "
 void dooya_dev_property_update(char *data)
 {
 	sprintf(data,dev_property_json, _g_pDEVMgr->CurtainPosition,
-			_g_pDEVMgr->CurtainOperation,_g_pDEVMgr->SetDir);
+			_g_pDEVMgr->CurtainOperation);
 }
 
 
@@ -170,32 +171,36 @@ void dooya_user_property_parse(char *data)
 	item_CurtainPosition = cJSON_GetObjectItem(root, "CurtainPosition");
 	if (item_CurtainPosition != NULL || cJSON_IsNumber(item_CurtainPosition))
 	{
+	/*
 		printf("#######CurtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
 		dooya_set_dev_CurtainPosition_dec(item_CurtainPosition->valueint);
 		dooya_control_percent(item_CurtainPosition->valueint,0xff); 
 		
 		dooya_CurtainPosition_data=item_CurtainPosition->valueint;
-
+*/
 	}
 
 	item_CurtainOperation = cJSON_GetObjectItem(root, "CurtainOperation");
 	if (item_CurtainOperation != NULL || cJSON_IsNumber(item_CurtainOperation))
 	{
+	
 		printf("##########CurtainOperation is [%d]\r\n",item_CurtainOperation->valueint);
-		//dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
 		
 		dooya_CurtainPosition_data=0xff;
 
 		switch(item_CurtainOperation->valueint)
 		{
 			case MOTOR_CLOSE:
-				dooya_control_motor_close();
+				//dooya_control_motor_close();
+				dooya_set_remout_data(0x08);
 			break;
 			case MOTOR_OPEN:
-				dooya_control_motor_open();
+				//dooya_control_motor_open();
+				dooya_set_remout_data(0x02);
 			break;
 			case MOTOR_STOP:
-				dooya_control_motor_stop();
+				//dooya_control_motor_stop();
+				dooya_set_remout_data(0x04);
 			break;
 			
 		}
@@ -206,6 +211,7 @@ void dooya_user_property_parse(char *data)
 	item_SetDir = cJSON_GetObjectItem(root, "SetDir");
 	if (item_SetDir != NULL || cJSON_IsNumber(item_SetDir))
 	{
+	/*
 		printf("SetDir is [%d]\r\n",item_SetDir->valueint);
 		//dooya_set_dev_SetDir(item_SetDir->valueint);
 		switch(item_SetDir->valueint)
@@ -217,7 +223,7 @@ void dooya_user_property_parse(char *data)
 				dooya_control_reverse_dir();
 			break;
 			
-		}
+		}*/
 
 
 	}

@@ -47,7 +47,7 @@ static void dooya_start_sta(void)
 	if(netmgr_wifi_check_ssid()==1)
 	{
 		/*dooya_set_led_g_status(LED_TAGGLE,1);*/
-		dooya_start_smart_config_start();
+		//dooya_start_smart_config_start();
 	}
 	else
 	{
@@ -85,7 +85,7 @@ static void dooya_wifi_check_handle(void *paras)
 	{
 		printf("##sun read is error \r\n");
 		//dooya_start_sta();
-		dooya_start_smart_config_start();
+		//dooya_start_smart_config_start();
 
 	}
 	aos_task_exit(0);
