@@ -6,10 +6,11 @@
 
 #include "aos/kernel.h"
 
-void dooya_use_flash_info(void);
-void dooya_use_flash_read(uint32_t offset,void *data,uint32_t length);
-void dooya_use_flash_erase(uint32_t offset,uint32_t length);
-void dooya_use_flash_write(uint32_t offset,void *data,uint32_t length);
+uint8_t dooya_flash_read_productkey(uint32_t offset,void *data,uint32_t length);
+uint8_t dooya_flash_read_devicename(uint32_t offset,void *data,uint32_t length);
+uint8_t dooya_flash_read_devicesecret(uint32_t offset,void *data,uint32_t length);
+uint8_t dooya_flash_read_433(uint32_t offset,void *data,uint32_t length);
+
 
 
 #endif

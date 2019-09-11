@@ -5,6 +5,7 @@
 #include "aos/kv.h"
 #include "netmgr.h"
 #include "dooya_remout.h"
+#include "dooya_flash.h"
 
 uint8_t dooya_post_flag=1;
 uint8_t dooya_post_flag_motor_status=0;
@@ -232,6 +233,9 @@ void dooya_user_property_parse(char *data)
 	cJSON_Delete(root);
 }
 
+
+
+/**********************************************************************************/
 #define linkkit_product_key    "linkkit_product_key"
 #define linkkit_product_secret "linkkit_product_secret"
 
@@ -239,44 +243,17 @@ void dooya_user_property_parse(char *data)
 #define linkkit_device_secret  "linkkit_device_secret" 
 
 
-#define D_PRODUCT_KEY_LEN          (20 + 1)
-#define D_PRODUCT_SECRET_LEN       (64 + 1)
-#define D_DEVICE_NAME_LEN          (32 + 1)
-#define D_DEVICE_SECRET_LEN        (64 + 1)
+#define D_PRODUCT_KEY_LEN          (11 + 1)
+#define D_DEVICE_NAME_LEN          (20 + 1)
+#define D_DEVICE_SECRET_LEN        (32 + 1)
 
-uint8_t dooya_set_product_key_info(uint8_t *array)
+static uint8_t dooya_set_product_key_info(uint8_t *array)
 {
 	uint8_t res;
 	uint8_t tmp=D_PRODUCT_KEY_LEN;
-	res=aos_kv_get(linkkit_product_key, array, &tmp);
-	if(0==res)
-	{
-		if(0!=strlen(array))
-		{
-			return 0;
-		}
-	}
-	return 1;
-}
-uint8_t dooya_set_product_secret_info(uint8_t *array)
-{
-	uint8_t res;
-	uint8_t tmp=D_PRODUCT_SECRET_LEN;
-	res=aos_kv_get(linkkit_product_secret, array, &tmp);
-	if(0==res)
-	{
-		if(0!=strlen(array))
-		{
-			return 0;
-		}
-	}
-	return 1;
-}
-uint8_t dooya_set_device_name_info(uint8_t *array)
-{
-	uint8_t res;
-	uint8_t tmp=D_DEVICE_NAME_LEN;
-	res=aos_kv_get(linkkit_device_name, array, &tmp);
+
+	printf("dooya_set_product_key_info\r\n");
+	res=dooya_flash_read_productkey(0,array,D_PRODUCT_KEY_LEN-1);
 	if(0==res)
 	{
 		if(0!=strlen(array))
@@ -287,11 +264,27 @@ uint8_t dooya_set_device_name_info(uint8_t *array)
 	return 1;
 }
 
-uint8_t dooya_set_device_secret_info(uint8_t *array)
+
+static uint8_t dooya_set_device_name_info(uint8_t *array)
+{
+	uint8_t res;
+	uint8_t tmp=D_DEVICE_NAME_LEN;
+	res=dooya_flash_read_productkey(11,array,D_DEVICE_NAME_LEN-1);
+	if(0==res)
+	{
+		if(0!=strlen(array))
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+
+static uint8_t dooya_set_device_secret_info(uint8_t *array)
 {
 	uint8_t res;
 	uint8_t tmp=D_DEVICE_SECRET_LEN;
-	res=aos_kv_get(linkkit_device_secret, array, &tmp);
+	res=dooya_flash_read_productkey(31,array,D_DEVICE_SECRET_LEN-1);
 	if(0==res)
 	{
 		if(0!=strlen(array))
@@ -303,7 +296,6 @@ uint8_t dooya_set_device_secret_info(uint8_t *array)
 }
 
 uint8_t PRODUCT_KEY[D_PRODUCT_KEY_LEN]={0};
-uint8_t PRODUCT_SECRET[D_PRODUCT_SECRET_LEN]={0};
 uint8_t DEVICE_NAME[D_DEVICE_NAME_LEN]={0};
 uint8_t DEVICE_SECRET[D_DEVICE_SECRET_LEN]={0};
 
@@ -312,7 +304,6 @@ uint8_t dooya_set_three_array_info(void)
 
 	uint8_t res;
 	memset(PRODUCT_KEY,0,sizeof(PRODUCT_KEY));
-	memset(PRODUCT_SECRET,0,sizeof(PRODUCT_SECRET));
 	memset(DEVICE_NAME,0,sizeof(DEVICE_NAME));
 	memset(DEVICE_SECRET,0,sizeof(DEVICE_SECRET));
 
@@ -322,15 +313,7 @@ uint8_t dooya_set_three_array_info(void)
 	{	
 		return 1;
 	}
-	printf("\r\n dooya_set_three_array_info product_key is [%s]\r\n",PRODUCT_KEY);
-
-	res=1;
-	res=dooya_set_product_secret_info(PRODUCT_SECRET);
-	if(0!=res)
-	{	
-		return 1;
-	}	
-	printf("\r\n dooya_set_three_array_info product_secret is [%s]\r\n",PRODUCT_SECRET);
+	printf("\r\n  product_key is [%s]\r\n",PRODUCT_KEY);
 
 	res=1;
 	res=dooya_set_device_name_info(DEVICE_NAME);
@@ -338,7 +321,7 @@ uint8_t dooya_set_three_array_info(void)
 	{	
 		return 1;
 	}
-	printf("\r\n dooya_set_three_array_info device_name is [%s]\r\n",DEVICE_NAME);
+	printf("\r\n  device_name is [%s]\r\n",DEVICE_NAME);
 
 
 	res=1;
@@ -347,20 +330,20 @@ uint8_t dooya_set_three_array_info(void)
 	{	
 		return 1;
 	}
-	printf("\r\n dooya_set_three_array_info device_secret is [%s]\r\n",DEVICE_SECRET);
+	printf("\r\n  device_secret is [%s]\r\n",DEVICE_SECRET);
 
 	return 0;
 }
 
 uint8_t dooya_show_three_array_info(void)
 {
-
+#if 0
 	uint8_t res;
 	uint8_t product_key1[D_PRODUCT_KEY_LEN]={0};
-	uint8_t product_secret1[D_PRODUCT_SECRET_LEN]={0};
 	uint8_t device_name1[D_DEVICE_NAME_LEN]={0};
 	uint8_t device_secret1[D_DEVICE_SECRET_LEN]={0};
 
 	res=dooya_set_three_array_info();
 	return res;
+#endif
 }

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #define USER_DATA_CURTAINPOSITION   "CurtainPosition"
 #define USER_DATA_CURTAINOPERATION   "CurtainOperation"

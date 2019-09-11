@@ -2,7 +2,7 @@
 #include "aos/hal/flash.h"
 
 
-
+#if 0
 void dooya_use_flash_info(void)
 {
 	hal_logic_partition_t *dooya_flash_p;
@@ -47,7 +47,57 @@ void dooya_use_flash_write(uint32_t offset,void *data,uint32_t length)
 		printf("dooya_use_flash_write error\r\n");	
 	}
 }
+#endif
 
+uint8_t dooya_flash_read_productkey(uint32_t offset,void *data,uint32_t length)
+{
+	uint32_t a_tmp;
+	a_tmp=offset;
+	if(0!=hal_flash_read(HAL_PARTITION_PARAMETER_3, &a_tmp,data, length))
+	{
+		printf("dooya_use_flash_read rror\r\n");
+		return 1;
+	}
+	return 0;
+	
+
+}
+uint8_t dooya_flash_read_devicename(uint32_t offset,void *data,uint32_t length)
+{
+	uint32_t a_tmp;
+	a_tmp=offset;
+	if(0!=hal_flash_read(HAL_PARTITION_PARAMETER_3, &a_tmp,data, length))
+	{
+		printf("dooya_use_flash_read rror\r\n");
+		return 1;
+	}
+	return 0;
+
+}
+uint8_t dooya_flash_read_devicesecret(uint32_t offset,void *data,uint32_t length)
+{
+	uint32_t a_tmp;
+	a_tmp=offset;
+	if(0!=hal_flash_read(HAL_PARTITION_PARAMETER_3, &a_tmp,data, length))
+	{
+		printf("dooya_use_flash_read rror\r\n");
+		return 1;
+	}
+	return 0;
+
+}
+uint8_t dooya_flash_read_433(uint32_t offset,void *data,uint32_t length)
+{
+	uint32_t a_tmp;
+	a_tmp=offset;
+	if(0!=hal_flash_read(HAL_PARTITION_PARAMETER_3, &a_tmp,data, length))
+	{
+		printf("dooya_use_flash_read rror\r\n");
+		return 1;
+	}
+	return 0;
+
+}
 
 
 
