@@ -141,10 +141,10 @@ void dooya_dev_property_update(char *data)
 }
 
 
-#define dev_property_json "{\"CurtainOperation\":%d} "
+#define dev_CurtainOperation_json "{\"CurtainOperation\":%d} "
 void dooya_dev_property_update_motor_status(char *data)
 {
-	sprintf(data,dev_property_json,
+	sprintf(data,dev_CurtainOperation_json,
 			_g_pDEVMgr->CurtainOperation);
 }
 
