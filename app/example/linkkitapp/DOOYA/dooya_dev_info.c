@@ -143,10 +143,10 @@ void dooya_dev_property_update(char *data)
 }
 
 
-#define dev_property_json "{\"CurtainOperation\":%d} "
+#define dev_CurtainOperation_json "{\"CurtainOperation\":%d} "
 void dooya_dev_property_update_motor_status(char *data)
 {
-	sprintf(data,dev_property_json,
+	sprintf(data,dev_CurtainOperation_json,
 			_g_pDEVMgr->CurtainOperation);
 }
 
@@ -172,13 +172,21 @@ void dooya_user_property_parse(char *data)
 	item_CurtainPosition = cJSON_GetObjectItem(root, "CurtainPosition");
 	if (item_CurtainPosition != NULL || cJSON_IsNumber(item_CurtainPosition))
 	{
-	/*
+	
 		printf("#######CurtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
-		dooya_set_dev_CurtainPosition_dec(item_CurtainPosition->valueint);
-		dooya_control_percent(item_CurtainPosition->valueint,0xff); 
+		//dooya_set_dev_CurtainPosition_dec(item_CurtainPosition->valueint);
+		//dooya_control_percent(item_CurtainPosition->valueint,0xff); 
 		
-		dooya_CurtainPosition_data=item_CurtainPosition->valueint;
-*/
+		//dooya_CurtainPosition_data=item_CurtainPosition->valueint;
+		if(item_CurtainPosition->valueint==100)
+		{
+			dooya_set_remout_data(0x02);
+		}
+		else if(item_CurtainPosition->valueint==0)
+		{
+			dooya_set_remout_data(0x08);
+		}
+
 	}
 
 	item_CurtainOperation = cJSON_GetObjectItem(root, "CurtainOperation");

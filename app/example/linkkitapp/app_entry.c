@@ -215,7 +215,7 @@ static void linkkit_event_monitor(int event)
             }
             else
             {
-                //dooya_set_led_g_status(LED_TAGGLE,1);
+                dooya_set_led_status(LED_TAGGLE,1);
             }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
@@ -234,6 +234,7 @@ static void linkkit_event_monitor(int event)
             // operate led to indicate user
 			/*dooya_set_led_r_status(LED_CLOSE,1);
 			dooya_set_led_g_status(LED_OPEN,1);*/
+			dooya_set_led_status(LED_OPEN,1);
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
                          // cloud without any other operation)
@@ -348,7 +349,7 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 			dooya_set_remout_data(key_flag_tmp);
         } else /*if (eventinfo->value == VALUE_KEY_LLTCLICK) */{
 			dooya_set_wifi_smartconfig();
-			aos_msleep(1000);
+			aos_msleep(100);
 			do_awss_reset();
         }
     }
