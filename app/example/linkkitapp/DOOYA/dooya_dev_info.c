@@ -169,11 +169,11 @@ void dooya_user_property_parse(char *data)
 	{
 		return ;
 	}
-	item_CurtainPosition = cJSON_GetObjectItem(root, "CurtainPosition");
+	item_CurtainPosition = cJSON_GetObjectItem(root, "curtainPosition");
 	if (item_CurtainPosition != NULL || cJSON_IsNumber(item_CurtainPosition))
 	{
 	
-		printf("#######CurtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
+		printf("#######curtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
 		//dooya_set_dev_CurtainPosition_dec(item_CurtainPosition->valueint);
 		//dooya_control_percent(item_CurtainPosition->valueint,0xff); 
 		
@@ -189,11 +189,11 @@ void dooya_user_property_parse(char *data)
 
 	}
 
-	item_CurtainOperation = cJSON_GetObjectItem(root, "CurtainOperation");
+	item_CurtainOperation = cJSON_GetObjectItem(root, "curtainConrtol");
 	if (item_CurtainOperation != NULL || cJSON_IsNumber(item_CurtainOperation))
 	{
 	
-		printf("##########CurtainOperation is [%d]\r\n",item_CurtainOperation->valueint);
+		printf("##########curtainConrtol is [%d]\r\n",item_CurtainOperation->valueint);
 		
 		dooya_CurtainPosition_data=0xff;
 
