@@ -134,8 +134,8 @@ void dooya_set_dev_error(int data)
 	dev_tmp->Error_status=data;
 }
 
-//#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d,\"SetDir\":%d} "
-#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d} "
+
+#define dev_property_json "{\"curtainPosition\":%d,\"curtainConrtol\":%d} "
 void dooya_dev_property_update(char *data)
 {
 	sprintf(data,dev_property_json, _g_pDEVMgr->CurtainPosition,
@@ -143,7 +143,7 @@ void dooya_dev_property_update(char *data)
 }
 
 
-#define dev_CurtainOperation_json "{\"CurtainOperation\":%d} "
+#define dev_CurtainOperation_json "{\"curtainConrtol\":%d} "
 void dooya_dev_property_update_motor_status(char *data)
 {
 	sprintf(data,dev_CurtainOperation_json,
