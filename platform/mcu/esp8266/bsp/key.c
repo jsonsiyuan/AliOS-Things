@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "aos/kernel.h"
 #include "aos/yloop.h"
+#include "dooya_led.h"
+
 
 #define KEY_GPIO_PIN GPIO_Pin_4
 #define KEY_GPIO_MODE GPIO_Mode_Input
@@ -28,7 +30,13 @@ static void key_poll_func(void *arg)
     uint64_t diff;
 
     if (level == 0) {
+		diff = aos_now_ms() - elink_time;
+		if(diff > 2000)
+		{
+			dooya_set_led_status(LED_TAGGLE,10);
+		}
         aos_post_delayed_action(10, key_poll_func, NULL);
+		
     } else {
         diff = aos_now_ms() - elink_time;
         if (diff > 6000) { /*long long press */
