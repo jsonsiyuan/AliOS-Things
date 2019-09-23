@@ -141,10 +141,10 @@ void dooya_dev_property_update(char *data)
 }
 
 
-#define dev_property_json "{\"curtainConrtol\":%d} "
+#define dev_curtainConrtol_json "{\"curtainConrtol\":%d} "
 void dooya_dev_property_update_motor_status(char *data)
 {
-	sprintf(data,dev_property_json,
+	sprintf(data,dev_curtainConrtol_json,
 			_g_pDEVMgr->CurtainOperation);
 }
 
