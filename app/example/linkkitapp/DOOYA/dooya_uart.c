@@ -24,16 +24,36 @@ static uart_dev_t uart_use={
 	.config.mode         = MODE_TX_RX,
 };
 
+static aos_mutex_t  dooya_uart_mutex ;
+	
+static int dooya_uart_init_mutex(void)
+{
+	return  aos_mutex_new(&dooya_uart_mutex);
+}
+
+static int dooya_uart_lock_mutex(void)
+{
+	//printf("##dooya_uart_lock_mutex\r\n");
+	return  aos_mutex_lock(&dooya_uart_mutex, AOS_WAIT_FOREVER);
+}
+
+static int dooya_uart_unlock_mutex(void)
+{
+	//printf("##dooya_uart_unlock_mutex\r\n");
+	return	aos_mutex_unlock(&dooya_uart_mutex);
+}
+
+
 static void uart_timer_handler(void * p_context)
 {
-	printf("uart_timer_handler##\r\n");
-	retry_num++;
+	//printf("uart_timer_handler##\r\n");
+	/*retry_num++;
 	if(retry_num>5)
 	{
 		printf("UART_ERROR##\r\n");
 		dooya_set_led_g_status(LED_CLOSE,1);
 		dooya_set_led_r_status(LED_TAGGLE,10);
-	}
+	}*/
 	dooya_start_motor_check();
 }
 
@@ -52,6 +72,7 @@ static void dooya_uart_init(void)
 	hal_uart_init(&uart_use);
 	dooya_uart_time_init();
 	dooya_uart_time_start();
+	dooya_uart_init_mutex();
 
 }
 
@@ -66,49 +87,163 @@ static void dooya_uart_handle(void *paras)
 	uint8_t uart_data_buf[256];
 	uint16_t crc_tmp;
 	int32_t ret = -1;
-	uint8_t recv_length;
+	
+	uint8_t recv_flag;
+	uint8_t recv_len;
 	uint8_t i;
-	printf("####sun# dooya_uart_handle start\r\n");
+	
 	while(1)
 	{
+		recv_flag=0;
+		recv_len=0;
+		
+		rx_size=0;
+		ret = -1;
 		memset(uart_data_buf,0,sizeof(uart_data_buf));
-		ret=hal_uart_recv_II(&uart_use, uart_data_buf, 5,&rx_size, 100);
+		ret=hal_uart_recv_II(&uart_use, uart_data_buf, 3,&rx_size, 100);/*拿3个数据*/
 		if ((ret == 0))
 		{
-			if(uart_data_buf[0]==0x55&&uart_data_buf[1]==0x00&&uart_data_buf[2]==0x00)
+			if(uart_data_buf[0]==0x55&&uart_data_buf[1]==DOOYA_UART_ID_L&&uart_data_buf[2]==DOOYA_UART_ID_L)
 			{
 				rx_size=0;
 				ret = -1;
-				ret =hal_uart_recv_II(&uart_use, uart_data_buf+5, uart_data_buf[4]+2,&rx_size, 500);
-				if((ret == 0))
+				ret=hal_uart_recv_II(&uart_use, uart_data_buf+3, 1,&rx_size, 100);/*拿3个数据*/
+				if ((ret == 0))
 				{
-					printf("##sun ok\r\n");
-					printf("recv data is ");
-					for (i=0;i<uart_data_buf[4]+7;i++)
+					rx_size=0;
+					ret = -1;
+					switch(uart_data_buf[3])
+					{
+						case WIFI_MODULE_READ :
+							ret =hal_uart_recv_II(&uart_use, uart_data_buf+4, 2,&rx_size, 200);
+							if(ret == 0)
+							{
+								rx_size=0;
+								ret = -1;
+								ret =hal_uart_recv_II(&uart_use, uart_data_buf+6, uart_data_buf[5]+2,&rx_size, 200);
+								if(ret == 0)
+								{
+									recv_flag=1;
+									recv_len=uart_data_buf[5]+2+6;
+								}
+							}
+						break;
+						case WIFI_MODULE_WRITE :
+							ret =hal_uart_recv_II(&uart_use, uart_data_buf+4, 3,&rx_size, 200);
+							if(ret == 0)
+							{
+								recv_flag=1;
+								recv_len=7;
+							}
+						break;
+						case MOTOR_RESPONSE:
+							ret =hal_uart_recv_II(&uart_use, uart_data_buf+4, 2,&rx_size, 200);
+							{
+								rx_size=0;
+								ret = -1;
+								if(uart_data_buf[4]==MOTOR_RESPONSE_MOTOR_INFO)
+								{
+									ret =hal_uart_recv_II(&uart_use, uart_data_buf+6, uart_data_buf[5]+2,&rx_size, 500);
+									if(ret == 0)
+									{
+										recv_flag=1;
+										recv_len=uart_data_buf[5]+2+6;
+									}
+								}
+								else
+								{
+									ret =hal_uart_recv_II(&uart_use, uart_data_buf+6, 2,&rx_size, 500);
+									if(ret == 0)
+									{
+										recv_flag=1;
+										recv_len=2+6;
+									}
+								}
+							}
+						break;
+							
+						case WIFI_MODULE_CONTROL :
+							ret =hal_uart_recv_II(&uart_use, uart_data_buf+4, 1,&rx_size, 200);
+							if(ret == 0)
+							{
+								rx_size=0;
+								ret = -1;
+								switch(uart_data_buf[4])
+								{
+									case WIFI_MODULE_CONTROL_POSITION:
+									case MOTOR_MODULE_CONTROL_SMARTCONFIG:
+									case MOTOR_MODULE_CONTROL_UNBIND:
+										ret =hal_uart_recv_II(&uart_use, uart_data_buf+5, 2,&rx_size, 200);
+										if(ret==0)
+										{
+											rx_size=0;
+											ret = -1;
+											ret =hal_uart_recv_II(&uart_use, uart_data_buf+7, 1,&rx_size, 20);
+											if(ret==0)
+											{
+												recv_flag=1;
+												recv_len=5+3;
+											}
+											else
+											{
+												recv_flag=1;
+												recv_len=5+2;
+											}
+											
+										}
+										
+									break;
+									
+									default :
+										ret =hal_uart_recv_II(&uart_use, uart_data_buf+5, 2,&rx_size, 200);
+										if(ret==0)
+										{
+											recv_flag=1;
+											recv_len=5+2;
+										}
+									break;
+									
+								}
+							}
+
+						break;
+
+					}
+				}
+
+				if(recv_flag)
+				{
+					
+					printf("recv data LEN is [%d]  is ",recv_len);
+					for (i=0;i<recv_len;i++)
 					{
 						printf(" %x ",uart_data_buf[i]);								
 					}
 					printf("\r\n");
-					crc_tmp=qioucrc16(dooya,uart_data_buf, uart_data_buf[4]+5);
-					if((uart_data_buf[uart_data_buf[4]+5]==(crc_tmp%256))
-							&&(uart_data_buf[uart_data_buf[4]+6]==(crc_tmp/256)))
+					
+					crc_tmp=qioucrc16(DOOYA_UART_CRC_INIT,uart_data_buf, recv_len-2);
+					if((uart_data_buf[recv_len-2]==(crc_tmp/256))
+							&&(uart_data_buf[recv_len-1]==(crc_tmp%256)))
+					{
+						printf("recive crc is ok\r\n");
+						switch(uart_data_buf[3])
 						{
-							printf("recive crc is ok\r\n");
-							retry_num=0;
-							switch(uart_data_buf[3])
-							{
-								case MOTOR_SEND:
-									dooya_motor_send_handle(uart_data_buf+5,uart_data_buf[4]);
-								break;
-								case MOTOR_RESPONSE:
-									dooya_motor_response_handle(uart_data_buf+5,uart_data_buf[4]);
-								break;
-
-							}
-
+							case WIFI_MODULE_READ :
+								dooya_motor_response_handle(uart_data_buf,recv_len);
+							break;
+							case WIFI_MODULE_WRITE :
+							break;
+							case WIFI_MODULE_CONTROL :
+								dooya_wifi_module_control_handle(uart_data_buf,recv_len);
+							break;
+							case MOTOR_RESPONSE :
+								
+							break;
 						}
-
+					}
 				}
+				
+				
 			}
 		}		
 	}	
@@ -129,7 +264,9 @@ uint8_t dooya_create_uart_thread(void)
 
 void dooya_uart_send( uint8_t *src, uint32_t size)
 {
+	dooya_uart_lock_mutex();
 	hal_uart_send(&uart_use, src, size, 1000);
+	dooya_uart_unlock_mutex();
 }
 
 /*------------------------------------------------
@@ -171,6 +308,10 @@ unsigned int calccrc(unsigned char crcbuf,unsigned int crc)
 }
 
 
+void dooya_wifi_status_uart( uint8_t data)
+{
+	dooya_wifi_module_control_smartconfig(data);
+}
 
 
 

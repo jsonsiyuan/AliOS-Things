@@ -5,9 +5,10 @@
 #include "dooya_fac.h"
 
 
-extern uint8_t start_percent;
-extern uint8_t start_boundary;
-extern uint8_t motor_status;
+#include "netmgr.h"
+
+
+
 
 
 static void dooya_check_motor_zone_percent(uint8_t data)
@@ -25,7 +26,6 @@ static void dooya_check_motor_zone_percent(uint8_t data)
 
 
 	}
-	start_percent=1;
 	
 
 	
@@ -34,14 +34,27 @@ static void dooya_check_motor_zone_percent(uint8_t data)
 static void dooya_check_motor_run_boundary(uint8_t data)
 {
 	printf("########motor_zone is [%d]\r\n",data);
-	start_boundary=1;
+
 }
 
-
+static void dooya_check_direction(uint8_t data)
+{
+	printf("########dooya_check_direction is [%d]\r\n",data);
+	switch (data)
+	{
+		case 0x00:/*正向*/
+			dooya_set_dev_SetDir(DIR_POSITIVE  );
+		break;
+		case 0x01:/*fan向*/
+			dooya_set_dev_SetDir(DIR_REVERSE );
+		break;
+		
+	}
+}
 
 static void dooya_check_motor(uint8_t data)
 {
-	printf("########motor_status is [%d]\r\n",data);
+	printf("########dooya_check_motor is [%d]\r\n",data);
 	switch (data)
 	{
 		case 0x01:/*打开*/
@@ -55,70 +68,36 @@ static void dooya_check_motor(uint8_t data)
 		break;
 		
 	}
-	motor_status=1;
-}
 
-
-void dooya_control_handle(uint8_t *payload_msg,uint8_t msg_len)
-{
-	
-}
-
-
-void dooya_motor_send_handle(uint8_t *payload_msg,uint8_t msg_len)
-{
-	switch(payload_msg[0])
-	{
-		case MOTOR_SEND_SMARTCONFIG:
-		break;
-		case MOTOR_SEND_RESET:
-		break;
-		case MOTOR_SEND_CHECK_NET:
-		break;
-		case MOTOR_SEND_CHECK_TIME:
-		break;
-		case MOTOR_SEND_FAC:
-			/*FAC FUNCTION*/
-			dooya_fac_set();
-		break;
-		case MOTOR_SEND_MODEL:
-		break;
-		case MOTOR_SEND_KEY:
-		break;
-		case MOTOR_SEND_SECRET:
-		break;
-		case MOTOR_SEND_LED_ENABLE:
-		break;
-		
-	}
 }
 
 void dooya_motor_response_handle(uint8_t *payload_msg,uint8_t msg_len)
 {
-	switch(payload_msg[0])
-	{
-		case MOTOR_RESPONSE_MOTOR_INFO:
-			printf("######MOTOR_RESPONSE_MOTOR_INFO\r\n");
-			dooya_check_motor_zone_percent(payload_msg[1]);
-			dooya_check_motor(payload_msg[3]);
-			
-			//dooya_check_motor_run_boundary(payload_msg[4]);
-			/*上报*/
-			
-		break;
-		case MOTOR_RESPONSE_NET_STATUS:
-		break;
-		case MOTOR_RESPONSE_CHECK_SN:
-		break;
-		case MOTOR_RESPONSE_SET_FAC:
-		break;
-		case MOTOR_RESPONSE_SET_UP_WORK:
-		break;
-		case MOTOR_RESPONSE_SET_DOWN_WORK:
-		break;
-	}
+	dooya_check_motor_zone_percent(payload_msg[6]); /*当前位置（百分比）*/
+	dooya_check_direction(payload_msg[7]);			/*电机默认方向*/
+												    /*手拉启动使能*/
+	dooya_check_motor(payload_msg[9]);              /*电机状态*/
+	
 }
 
+
+void dooya_wifi_module_control_handle(uint8_t *payload_msg,uint8_t msg_len)
+{
+	switch(payload_msg[4])
+	{
+		case MOTOR_MODULE_CONTROL_SMARTCONFIG:
+			if(msg_len>7)
+			{
+				dooya_set_wifi_smartconfig();
+				aos_msleep(500);
+				netmgr_clear_ap_config();
+				aos_msleep(100);
+    			HAL_Reboot();
+			}
+		break;
+	}
+	
+}
 
 
 

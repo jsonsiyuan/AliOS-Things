@@ -83,11 +83,11 @@ void dooya_set_dev_error(int data)
 }
 
 //#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d,\"SetDir\":%d} "
-#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d} "
+#define dev_property_json "{\"curtainPosition\":%d,\"curtainConrtol\":%d} "
 void dooya_dev_property_update(char *data)
 {
 	sprintf(data,dev_property_json, _g_pDEVMgr->CurtainPosition,
-			_g_pDEVMgr->CurtainOperation,_g_pDEVMgr->Error_status);
+			_g_pDEVMgr->CurtainOperation);
 }
 
 #define dev_event_json "{\"ErrorCode\":%d}" 
@@ -108,30 +108,30 @@ void dooya_user_property_parse(char *data)
 	{
 		return ;
 	}
-	item_CurtainPosition = cJSON_GetObjectItem(root, "CurtainPosition");
+	item_CurtainPosition = cJSON_GetObjectItem(root, "curtainPosition");
 	if (item_CurtainPosition != NULL || cJSON_IsNumber(item_CurtainPosition))
 	{
-		printf("#######CurtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
-		dooya_control_percent(item_CurtainPosition->valueint); 
+		printf("#######curtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
+		dooya_wifi_module_control_position(item_CurtainPosition->valueint); 
 		dooya_set_dev_CurtainPosition(item_CurtainPosition->valueint);
 
 	}
 
-	item_CurtainOperation = cJSON_GetObjectItem(root, "CurtainOperation");
+	item_CurtainOperation = cJSON_GetObjectItem(root, "curtainConrtol");
 	if (item_CurtainOperation != NULL || cJSON_IsNumber(item_CurtainOperation))
 	{
-		printf("##########CurtainOperation is [%d]\r\n",item_CurtainOperation->valueint);
+		printf("##########curtainConrtol is [%d]\r\n",item_CurtainOperation->valueint);
 		dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
 		switch(item_CurtainOperation->valueint)
 		{
 			case MOTOR_CLOSE:
-				dooya_control_motor_close();
+				dooya_wifi_module_control_close();
 			break;
 			case MOTOR_OPEN:
-				dooya_control_motor_open();
+				dooya_wifi_module_control_open();
 			break;
 			case MOTOR_STOP:
-				dooya_control_motor_stop();
+				dooya_wifi_module_control_stop();
 			break;
 			
 		}
@@ -139,18 +139,18 @@ void dooya_user_property_parse(char *data)
 
 	}
 
-	item_SetDir = cJSON_GetObjectItem(root, "SetDir");
+	item_SetDir = cJSON_GetObjectItem(root, "mode");
 	if (item_SetDir != NULL || cJSON_IsNumber(item_SetDir))
 	{
-		printf("SetDir is [%d]\r\n",item_SetDir->valueint);
+		printf("mode is [%d]\r\n",item_SetDir->valueint);
 		dooya_set_dev_SetDir(item_SetDir->valueint);
 		switch(item_SetDir->valueint)
 		{
-			case DIR_POSITIVE:
-				//dooya_control_positine_dir();
+			case 353:
+				dooya_wifi_module_write_direction(0);
 			break;
-			case DIR_REVERSE:
-				//dooya_control_reverse_dir();
+			case 351:
+				dooya_wifi_module_write_direction(1);
 			break;
 			
 		}

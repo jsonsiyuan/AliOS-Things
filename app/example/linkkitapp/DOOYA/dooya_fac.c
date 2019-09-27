@@ -71,7 +71,7 @@ int dooya_fac_handle(void *paras)
 		{
 			count_tmp= 0;	
 			dooya_set_led_g_status(LED_TAGGLE ,2);	
-			dooya_response_fac(1);	
+			//dooya_response_fac(1);	
 		}
 		else if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==1))
 		{
@@ -84,7 +84,7 @@ int dooya_fac_handle(void *paras)
 		}		
 		if(count_tmp>FAC_TIME_OUT)
 		{
-			dooya_response_fac(0);
+			//dooya_response_fac(0);
 		}
 		aos_msleep(1000);
 		

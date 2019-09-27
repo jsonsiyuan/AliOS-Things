@@ -92,6 +92,7 @@ static int user_connected_event_handler(void)
     printf("#############user_connected_event_handler\r\n");
     dooya_set_led_g_status(LED_CLOSE,1);
     dooya_set_led_r_status(LED_CLOSE,1);
+	dooya_wifi_status_uart( 0x02);
     dooya_set_wifi_STA();
     return 0;
 }
@@ -109,6 +110,7 @@ static int user_disconnected_event_handler(void)
 	{
 		dooya_set_led_r_status(LED_OPEN,1);
 		dooya_set_led_g_status(LED_CLOSE,1);
+		dooya_wifi_status_uart( 0x00);
 	}
 	else
 	{
@@ -432,39 +434,6 @@ void user_post_property(void)
     static int example_index = 0;
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-    #if 0
-    char *property_payload = "NULL";
-
-    if (example_index == 0) {
-        /* Normal Example */
-        property_payload = "{\"LightSwitch\":1}";
-        example_index++;
-    } else if (example_index == 1) {
-        /* Wrong Property ID */
-        property_payload = "{\"LightSwitchxxxx\":1}";
-        example_index++;
-    } else if (example_index == 2) {
-        /* Wrong Value Format */
-        property_payload = "{\"LightSwitch\":\"test\"}";
-        example_index++;
-    } else if (example_index == 3) {
-        /* Wrong Value Range */
-        property_payload = "{\"LightSwitch\":10}";
-        example_index++;
-    } else if (example_index == 4) {
-        /* Missing Property Item */
-        property_payload = "{\"RGBColor\":{\"Red\":45,\"Green\":30}}";
-        example_index++;
-    } else if (example_index == 5) {
-        /* Wrong Params Format */
-        property_payload = "\"hello world\"";
-        example_index++;
-    } else if (example_index == 6) {
-        /* Wrong Json Format */
-        property_payload = "hello world";
-        example_index = 0;
-    }
-    #endif
     char property_payload[200]={0};
     memset(property_payload, 0, sizeof(property_payload));
     dooya_dev_property_update(property_payload);
@@ -482,35 +451,6 @@ void user_post_event(void)
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *event_id = "Error";
-    #if 0
-    char *event_payload = "NULL";
-
-    if (example_index == 0) {
-        /* Normal Example */
-        event_payload = "{\"ErrorCode\":0}";
-        example_index++;
-    } else if (example_index == 1) {
-        /* Wrong Property ID */
-        event_payload = "{\"ErrorCodexxx\":0}";
-        example_index++;
-    } else if (example_index == 2) {
-        /* Wrong Value Format */
-        event_payload = "{\"ErrorCode\":\"test\"}";
-        example_index++;
-    } else if (example_index == 3) {
-        /* Wrong Value Range */
-        event_payload = "{\"ErrorCode\":10}";
-        example_index++;
-    } else if (example_index == 4) {
-        /* Wrong Value Range */
-        event_payload = "\"hello world\"";
-        example_index++;
-    } else if (example_index == 5) {
-        /* Wrong Json Format */
-        event_payload = "hello world";
-        example_index = 0;
-    }
-    #endif
     char event_payload [50]={0};
     dooya_dev_event_update(event_payload);
     res = IOT_Linkkit_TriggerEvent(user_example_ctx->master_devid, event_id, strlen(event_id),
@@ -688,11 +628,11 @@ int linkkit_main(void *paras)
 
         /* Post Proprety Example */
         
-        if (time_now_sec % 10 == 0 && user_master_dev_available()) {
+        if (time_now_sec % 60 == 0 && user_master_dev_available()) {
         user_post_property();
         }
         /* Post Event Example */
-        if (time_now_sec % 60 == 0 && user_master_dev_available()) {
+        if (time_now_sec % 120 == 0 && user_master_dev_available()) {
         user_post_event();
         }
         if(netmgr_get_ip_state()!=1)
