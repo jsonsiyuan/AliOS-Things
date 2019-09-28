@@ -17,6 +17,8 @@ static uint8_t remout_data;
 
 static uint32_t address_value=0;
 static uint8_t address_value_tmp[LENGTH_OF_ADDRESS];
+#define  fax_address_value (0x01010101)
+#define  fax_value (0x01)
 
 
 static gpio_dev_t remout={
@@ -212,6 +214,44 @@ static void dooya_remout_handle(void *pvParameters)
 
 	#endif
 	}
+}
+
+
+static void dooya_remout_send_fac_address(void)
+{
+	uint32_t address_value_tmp=fax_address_value;
+	int i;
+	for(i=0;i<32;i++)
+	{
+		if(address_value_tmp&0x80000000)
+		{
+			dooya_remout_high();
+		}
+		else
+		{
+			 dooya_remout_low();
+		}
+		address_value_tmp=(address_value_tmp)<<1;
+		
+	}
+	
+
+}
+
+void dooya_fac_remout_send(void)
+{
+	hal_gpio_output_high(&remout);
+	os_delay_us(4800);
+	hal_gpio_output_low(&remout);
+	os_delay_us(1500);
+	dooya_remout_send_address();
+	dooya_remout_send_data(fax_value);
+	hal_gpio_output_low(&remout);
+}
+
+uint32_t dooya_get_remout_address(void)
+{
+	return address_value;
 }
 
 

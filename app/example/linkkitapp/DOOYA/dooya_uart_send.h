@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 
-void dooya_response_fac(uint8_t data);
+
+void dooya_response_fac(uint8_t ret,int8_t rssi,uint32_t address);
 void dooya_control_motor_open(void);
 void dooya_control_motor_close(void);
 void dooya_control_motor_stop(void);

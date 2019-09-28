@@ -78,7 +78,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
     if(dooya_fac_check()==1)
     {
-        dooya_fac_wifi_model_ok();
+        dooya_fac_wifi_model_connected();
         return;
     }
     //dooya_set_led_g_status(LED_OPEN,1);
@@ -190,6 +190,11 @@ static void linkkit_event_monitor(int event)
 				awss_running = 0;
 				dooya_set_wifi_STA();
 			}
+			if(dooya_fac_check()==1)
+			{
+				dooya_fac_wifi_model_connected();
+			}
+			
 			/*dooya_set_led_r_status(LED_CLOSE,1);
             dooya_set_led_g_status(LED_OPEN,1);*/
             break;
@@ -334,17 +339,10 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
     if (eventinfo->code == CODE_BOOT) {
         if(dooya_fac_check()==1)
         {
-            dooya_fac_key_led_check();
+            dooya_fac_key_model_key2_set();
             return ;
         }
         if (eventinfo->value == VALUE_KEY_CLICK) {
-
-            //if(awss_running==0)
-			//{
-
-				//aos_msleep(100);
-				//aos_reboot();
-			//} 
 			key_flag_tmp=0x01;
 			dooya_set_remout_data(key_flag_tmp);
         } else /*if (eventinfo->value == VALUE_KEY_LLTCLICK) */{
@@ -479,11 +477,10 @@ int application_start(int argc, char **argv)
     dooya_create_led_thread();
     //dooya_create_wdg_thread();
     dooya_create_remout_thread();
-    //if(0==dooya_show_three_array_info())
-    {
-        //dooya_create_uart_thread();
-        dooya_create_wifi_check_thread();
-    }
+
+    dooya_create_uart_thread();
+    dooya_create_wifi_check_thread();
+    
 #endif
     aos_loop_run();
 

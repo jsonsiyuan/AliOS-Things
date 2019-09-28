@@ -39,6 +39,7 @@ static void dooya_start_fac(void)
     hal_wifi_suspend_station(NULL);
     printf("aos_awss Will connect WiFi AP: %s", config.ssid);
     netmgr_reconnect_wifi();
+	
 	dooya_set_wifi_STA();
 	dooya_create_fac_thread();
 

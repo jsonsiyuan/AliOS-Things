@@ -115,10 +115,10 @@ static void dooya_uart_handle(void *paras)
 							switch(uart_data_buf[3])
 							{
 								case CONTROL_CODE:
-									dooya_control_handle(uart_data_buf+4,uart_data_buf[2]-2);
+									//dooya_control_handle(uart_data_buf+4,uart_data_buf[2]-2);
 								break;
 								case CHECK_CODE:
-									dooya_check_handle(uart_data_buf+4,uart_data_buf[2]-2);
+									//dooya_check_handle(uart_data_buf+4,uart_data_buf[2]-2);
 								break;
 								case NOTICE_CODE:
 									dooya_notice_handle(uart_data_buf+4,uart_data_buf[2]-2);
@@ -149,8 +149,7 @@ uint8_t dooya_create_uart_thread(void)
 	dooya_uart_init();
 	printf("do dooya_create_uart_thread\r\n");	
 	aos_task_new("uart", (void (*)(void *))dooya_uart_handle, NULL, 1024);
-	aos_task_new("uart_time", (void (*)(void *))uart_timer_handler, NULL, 1024);
-	return 0;
+	
 
 }
 

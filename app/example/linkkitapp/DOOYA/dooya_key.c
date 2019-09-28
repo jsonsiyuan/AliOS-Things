@@ -1,5 +1,6 @@
 #include "dooya_key.h"
 #include "dooya_remout.h"
+#include "dooya_fac.h"
 
 
 typedef enum	
@@ -87,15 +88,37 @@ static int dooya_read_key_value(void)
 
 	if(KEY_LOW==dooya_get_key2_status())
 	{
-		key_flag=key_flag|0x02;
+		if(dooya_fac_check()==1)
+		{
+			dooya_fac_key_model_key2_set();
+		}
+		else
+		{
+			key_flag=key_flag|0x02;
+		}
 	}
 	if(KEY_LOW==dooya_get_key3_status())
 	{
-		key_flag=key_flag|0x04;
+		if(dooya_fac_check()==1)
+		{
+			dooya_fac_key_model_key3_set();
+		}
+		else
+		{
+			key_flag=key_flag|0x04;
+		}
 	}
 	if(KEY_LOW==dooya_get_key4_status())
 	{
-		key_flag=key_flag|0x08;
+		if(dooya_fac_check()==1)
+		{
+			dooya_fac_key_model_key4_set();
+		}
+		else
+		{
+			key_flag=key_flag|0x08;
+		}
+		
 	}
 	return key_flag;
 }

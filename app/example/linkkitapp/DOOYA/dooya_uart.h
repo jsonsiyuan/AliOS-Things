@@ -9,7 +9,7 @@
 
 #include <aos/hal/uart.h>
 
-#define UUID 0x0926
+#define UUID 0xffff
 
 
 typedef enum 
@@ -59,6 +59,8 @@ typedef enum
 /*NOTICE_CODE*/
 
 #define NOTICE_MOTOR_INFO           0x01
+#define NOTICE_TO_FAC_MODEL         0X05
+
 /*OTA*/
 #define OTA_START                   0X01
 #define OTA_SEND                    0x02

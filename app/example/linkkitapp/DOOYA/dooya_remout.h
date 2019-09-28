@@ -9,6 +9,8 @@ uint8_t dooya_get_remout_data(void);
 void dooya_set_remout_data(uint8_t data);
 void dooya_clean_remout_data(void);
 uint8_t dooya_create_remout_thread(void);
+void dooya_fac_remout_send(void);
+uint32_t dooya_get_remout_address(void);
 
 
 
