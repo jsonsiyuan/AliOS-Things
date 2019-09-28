@@ -167,7 +167,7 @@ void dooya_user_property_parse(char *data)
 	{
 		return ;
 	}
-	item_CurtainPosition = cJSON_GetObjectItem(root, "CurtainPosition");
+	item_CurtainPosition = cJSON_GetObjectItem(root, "curtainPosition");
 	if (item_CurtainPosition != NULL || cJSON_IsNumber(item_CurtainPosition))
 	{
 		printf("#######CurtainPosition is [%d]\r\n",item_CurtainPosition->valueint);

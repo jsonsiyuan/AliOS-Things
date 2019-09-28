@@ -683,8 +683,8 @@ int linkkit_main(void *paras)
         /* Post Proprety Example */
 		if((dooya_post_flag==1)&&(user_master_dev_available()))
 		{
-			user_post_property();
 			dooya_post_flag=0;
+			user_post_property();
 		}
 		else if((dooya_post_flag_motor_status==1)&&(user_master_dev_available()))
 		{
