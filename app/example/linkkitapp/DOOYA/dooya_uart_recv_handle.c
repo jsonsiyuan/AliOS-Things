@@ -2,6 +2,7 @@
 #include "dooya_uart.h"
 #include "dooya_dev_info.h"
 
+#include "dooya_fac.h"
 
 
 extern uint8_t dooya_CurtainPosition_data;
@@ -181,29 +182,11 @@ void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 	{
 		case NOTICE_MOTOR_INFO:
 			
-			dooya_check_motor(payload_msg[1]);
-			if(payload_msg[1]==0x03)
-			{
-				if(dooya_CurtainPosition_data!=0xff)
-				{
-					if(abs(dooya_CurtainPosition_data-payload_msg[2])<3)
-					{
-						dooya_check_motor_zone_percent_dec(payload_msg[2]);
-					}
-					
-				}
-				else
-				{
-					dooya_check_motor_zone_percent_dec(payload_msg[2]);
-				}
-				
-			}
-		/*	dooya_check_motor_run_boundary(payload_msg[4]);
-			dooya_check_motor_dir(payload_msg[6]);
-			*//*上报*/
 			
 		break;
-
+		case NOTICE_TO_FAC_MODEL:
+			dooya_fac_set();
+		break;
 
 	}
 }

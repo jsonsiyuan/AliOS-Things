@@ -18,12 +18,28 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 {
     int i = 0;
     char* pdata = (char *)data;
-
+	/*
     for(i = 0; i < size; i++)
     {
         uart0_write_char(pdata[i]);
     }
-
+	*/
+	if(uart->port==0)
+	{
+		for(i = 0; i < size; i++)
+		{
+			uart1_write_char(pdata[i]);
+		}
+		
+	}
+	else
+	{
+		for(i = 0; i < size; i++)
+		{
+			uart0_write_char(pdata[i]);
+		}
+		
+	}
     return 0;
 }
 
