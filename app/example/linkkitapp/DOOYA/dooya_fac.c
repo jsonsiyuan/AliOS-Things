@@ -5,6 +5,7 @@
 #include "dooya_led.h"
 #include "dooya_uart_send.h"
 #include "netmgr.h"
+#include "network/hal/wifi.h"
 
 #define FAC_TIME_OUT 60
 static uint8_t dooya_fac_model=0;
@@ -14,6 +15,7 @@ static uint8_t dooya_fac_led_model=0;
 void dooya_fac_set(void)
 {
 	dooya_set_wifi_FAC();
+	aos_msleep(100);
 	aos_reboot();
 }
 
@@ -34,6 +36,7 @@ void dooya_fac_stop(void)
 {
 	dooya_fac_model=0;
 	dooya_set_wifi_STA();
+	netmgr_clear_ap_config();
 }
 
 uint8_t dooya_fac_wifi_model_check(void)
@@ -44,7 +47,7 @@ uint8_t dooya_fac_wifi_model_check(void)
 void dooya_fac_wifi_model_ok(void)
 {
 	dooya_fac_wifi_model=1;
-	netmgr_clear_ap_config();
+	
 	 
 }
 
@@ -63,6 +66,9 @@ int dooya_fac_handle(void *paras)
 	dooya_fac_start();
 	aos_msleep(100);
 	uint8_t count_tmp=0;
+	int8_t wifi_rssi_int;
+	int8_t wifi_rssi[4];
+	hal_wifi_link_stat_t out_info;
 	printf("####sun# %s start\r\n",__func__);
 	while(1)
 	{
@@ -72,6 +78,13 @@ int dooya_fac_handle(void *paras)
 			count_tmp= 0;	
 			dooya_set_led_g_status(LED_TAGGLE ,2);	
 			dooya_response_fac(1);	
+			hal_wifi_get_link_stat(NULL, &out_info);
+			
+			printf("test ressi is (%d)\r\n",out_info.wifi_strength);
+			wifi_rssi_int=(char)out_info.wifi_strength;
+			printf("test ressi is (%d)\r\n",wifi_rssi_int);
+
+			
 		}
 		else if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==1))
 		{
