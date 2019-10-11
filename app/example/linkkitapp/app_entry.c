@@ -334,17 +334,20 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
             dooya_fac_key_led_check();
             return ;
         }
-        if (eventinfo->value == VALUE_KEY_CLICK) {
+        //if (eventinfo->value == VALUE_KEY_CLICK) 
+		{
 
             //if(awss_running==0)
 			{
 				dooya_set_wifi_smartconfig();
-				aos_msleep(1000);
+				aos_msleep(100);
 				do_awss_reset();
 				//aos_msleep(100);
 				//aos_reboot();
 			} 
-        } else if (eventinfo->value == VALUE_KEY_LLTCLICK) {
+        } 
+		//else if (eventinfo->value == VALUE_KEY_LLTCLICK) 
+		{
             //do_awss_reset();
         }
     }
