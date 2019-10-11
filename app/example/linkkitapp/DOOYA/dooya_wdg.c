@@ -7,18 +7,17 @@
 wdg_dev_t dooya_wdg;
 void dooya_wdg_start(void)
 {
-	dooya_wdg.config.timeout=(1000*60*5);
-	hal_wdg_init(&dooya_wdg);
+	rec_wdt_init(1000);
 }
 
 void dooya_wdg_feed(void)
 {
-	hal_wdg_reload(&dooya_wdg);
+	rec_wdt_feed();
 }
 
 void dooya_wdg_stop(void)
 {
-	hal_wdg_finalize(&dooya_wdg);
+	//hal_wdg_finalize(&dooya_wdg);
 }
 
 int dooya_wgd_handle(void *paras)
@@ -29,7 +28,7 @@ int dooya_wgd_handle(void *paras)
 	while(1)
 	{
 		dooya_wdg_feed();
-		aos_msleep(1000);
+		aos_msleep(500);
 	}	
 	dooya_wdg_stop();
 	aos_task_exit(0);

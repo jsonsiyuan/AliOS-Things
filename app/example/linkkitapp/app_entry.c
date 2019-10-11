@@ -475,7 +475,7 @@ int application_start(int argc, char **argv)
 	iotx_event_regist_cb(linkkit_event_monitor);
 	dooya_create_key_thread();
     dooya_create_led_thread();
-    //dooya_create_wdg_thread();
+    dooya_create_wdg_thread();
     dooya_create_remout_thread();
 
     dooya_create_uart_thread();
