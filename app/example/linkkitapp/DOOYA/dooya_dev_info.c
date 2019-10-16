@@ -11,8 +11,12 @@ user_dev_status_t user_dev_status=
 	.CurtainPosition=0,
 	.CurtainOperation=2,
 	.Error_status=0,
-	.SetDir=0,
+	.SetDir=353,
 };
+
+
+uint8_t dooya_CurtainPosition_data=0;
+
 
 user_dev_status_t * _g_pDEVMgr = &user_dev_status;
 
@@ -27,7 +31,7 @@ CurtainOperation_T dooya_get_dev_CurtainOperation(void  )
 	return dev_tmp->CurtainOperation;
 }
 
-SetDir_T dooya_get_dev_SetDir(void  )
+int dooya_get_dev_SetDir(void  )
 {
 	user_dev_status_t * dev_tmp=dooya_get_dev_info();
 	return dev_tmp->SetDir;
@@ -45,8 +49,35 @@ int dooya_get_dev_error(void)
 	return dev_tmp->Error_status;
 }
 
-
+int CurtainOperation_tmp=0;
+int CurtainOperation_number=0;
 void dooya_set_dev_CurtainOperation(CurtainOperation_T  data)
+{   
+	user_dev_status_t *dev_tmp=dooya_get_dev_info();
+	if(CurtainOperation_tmp!=data)
+	{
+		CurtainOperation_tmp=data;
+		CurtainOperation_number=0;
+	}
+	else if(CurtainOperation_tmp==data)
+	{
+		CurtainOperation_number++;
+		if(CurtainOperation_number>1)
+		{
+			CurtainOperation_number=0;
+			if(dev_tmp->CurtainOperation!=data)
+			{
+				dooya_post_flag=1;
+				dev_tmp->CurtainOperation=data;
+			}
+
+
+			
+		}
+	}
+
+}
+void dooya_set_dev_CurtainOperation_dec(CurtainOperation_T  data)
 {   
 	user_dev_status_t * dev_tmp=dooya_get_dev_info();
 	if(dev_tmp->CurtainOperation!=data)
@@ -56,25 +87,58 @@ void dooya_set_dev_CurtainOperation(CurtainOperation_T  data)
 	dev_tmp->CurtainOperation=data;
 }
 
-void dooya_set_dev_SetDir(SetDir_T data  )
+void dooya_set_dev_SetDir(int data  )
 {
 	user_dev_status_t * dev_tmp=dooya_get_dev_info();
-	if(dev_tmp->SetDir!=data)
+	/*if(dev_tmp->SetDir!=data)
 	{
 		dooya_post_flag=1;
-	}
+	}*/
 	dev_tmp->SetDir=data;
 }
 
+int CurtainPosition_tmp=0;
+int CurtainPosition_number=0;
 void dooya_set_dev_CurtainPosition(int data)
 {
 	user_dev_status_t *dev_tmp=dooya_get_dev_info();
-	if(dev_tmp->CurtainPosition!=data)
+	if(CurtainPosition_tmp!=data)
+	{
+		CurtainPosition_tmp=data;
+		CurtainPosition_number=0;
+	}
+	else if(CurtainPosition_tmp==data)
+	{
+		CurtainPosition_number++;
+		if(CurtainPosition_number>1)
+		{
+			CurtainPosition_number=0;
+			if(abs(dev_tmp->CurtainPosition-data)>3)
+			{
+				dooya_post_flag=1;
+				dev_tmp->CurtainPosition=data;
+			}
+
+
+
+			
+		}
+	}
+	
+}
+
+
+void dooya_set_dev_CurtainPosition_dec(int data)
+{
+	user_dev_status_t *dev_tmp=dooya_get_dev_info();
+	if(abs(dev_tmp->CurtainPosition-data)>3)
 	{
 		dooya_post_flag=1;
+		dev_tmp->CurtainPosition=data;
 	}
-	dev_tmp->CurtainPosition=data;
+	
 }
+
 
 void dooya_set_dev_error(int data)
 {
@@ -82,12 +146,12 @@ void dooya_set_dev_error(int data)
 	dev_tmp->Error_status=data;
 }
 
-//#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d,\"SetDir\":%d} "
-#define dev_property_json "{\"curtainPosition\":%d,\"curtainConrtol\":%d} "
+#define dev_property_json "{\"curtainPosition\":%d,\"curtainConrtol\":%d,\"mode\":%d} "
+
 void dooya_dev_property_update(char *data)
 {
 	sprintf(data,dev_property_json, _g_pDEVMgr->CurtainPosition,
-			_g_pDEVMgr->CurtainOperation);
+			_g_pDEVMgr->CurtainOperation,_g_pDEVMgr->SetDir);
 }
 
 #define dev_event_json "{\"ErrorCode\":%d}" 
@@ -113,22 +177,27 @@ void dooya_user_property_parse(char *data)
 	{
 		printf("#######curtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
 		dooya_wifi_module_control_position(item_CurtainPosition->valueint); 
-		dooya_set_dev_CurtainPosition(item_CurtainPosition->valueint);
-
+		dooya_set_dev_CurtainPosition_dec(item_CurtainPosition->valueint);
+		
+		dooya_CurtainPosition_data=item_CurtainPosition->valueint;
 	}
 
 	item_CurtainOperation = cJSON_GetObjectItem(root, "curtainConrtol");
 	if (item_CurtainOperation != NULL || cJSON_IsNumber(item_CurtainOperation))
 	{
 		printf("##########curtainConrtol is [%d]\r\n",item_CurtainOperation->valueint);
-		dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
+		dooya_set_dev_CurtainOperation_dec(item_CurtainOperation->valueint);
+		
+		dooya_CurtainPosition_data=0xff;
 		switch(item_CurtainOperation->valueint)
 		{
 			case MOTOR_CLOSE:
 				dooya_wifi_module_control_close();
+				dooya_set_dev_CurtainPosition_dec(0);
 			break;
 			case MOTOR_OPEN:
 				dooya_wifi_module_control_open();
+				dooya_set_dev_CurtainPosition_dec(100);
 			break;
 			case MOTOR_STOP:
 				dooya_wifi_module_control_stop();
@@ -143,7 +212,7 @@ void dooya_user_property_parse(char *data)
 	if (item_SetDir != NULL || cJSON_IsNumber(item_SetDir))
 	{
 		printf("mode is [%d]\r\n",item_SetDir->valueint);
-		dooya_set_dev_SetDir(item_SetDir->valueint);
+		//dooya_set_dev_SetDir(item_SetDir->valueint);
 		switch(item_SetDir->valueint)
 		{
 			case 353:
@@ -152,7 +221,9 @@ void dooya_user_property_parse(char *data)
 			case 351:
 				dooya_wifi_module_write_direction(1);
 			break;
-			
+			case 352:
+				dooya_wifi_module_control_stroke();
+			break;
 		}
 
 

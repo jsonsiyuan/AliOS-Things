@@ -107,7 +107,8 @@ void dooya_set_led_g_status(LED_ACTION_T status,uint8_t hz)
 
 int dooya_led_g_handle(void *paras)
 {
-	dooya_close_led_g();
+	//dooya_close_led_g();
+	dooya_open_led_g();
 	aos_msleep(100);
 	printf("####sun# dooya_led_g_handle start\r\n");
 	while(1)

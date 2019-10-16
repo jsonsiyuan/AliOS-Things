@@ -56,9 +56,11 @@ static void handle_awss_key(void *arg)
 
 void board_init(void)
 {
+/*
     gpio_key_awss.port = KEY_AWSS;
     gpio_key_awss.config = INPUT_PULL_UP;
 
     hal_gpio_init(&gpio_key_awss);
     hal_gpio_enable_irq(&gpio_key_awss, IRQ_TRIGGER_FALLING_EDGE, handle_awss_key, NULL);
+*/
 }

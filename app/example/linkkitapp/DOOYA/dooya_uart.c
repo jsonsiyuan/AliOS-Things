@@ -60,7 +60,7 @@ static void uart_timer_handler(void * p_context)
 static void dooya_uart_time_init(void)
 {
 
-	aos_timer_new(&uart_timer, uart_timer_handler, NULL, 1000, 1);
+	aos_timer_new(&uart_timer, uart_timer_handler, NULL, 5000, 1);
 }
 static void dooya_uart_time_start(void)
 {
@@ -237,7 +237,7 @@ static void dooya_uart_handle(void *paras)
 								dooya_wifi_module_control_handle(uart_data_buf,recv_len);
 							break;
 							case MOTOR_RESPONSE :
-								
+								dooya_motor_self_response_handle(uart_data_buf,recv_len);
 							break;
 						}
 					}

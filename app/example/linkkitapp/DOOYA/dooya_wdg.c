@@ -7,7 +7,7 @@
 wdg_dev_t dooya_wdg;
 void dooya_wdg_start(void)
 {
-	dooya_wdg.config.timeout=(1000*60*5);
+	dooya_wdg.config.timeout=(1000*15);
 	hal_wdg_init(&dooya_wdg);
 }
 

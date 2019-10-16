@@ -9,6 +9,7 @@
 
 void dooya_motor_response_handle(uint8_t *payload_msg,uint8_t msg_len);
 void dooya_wifi_module_control_handle(uint8_t *payload_msg,uint8_t msg_len);
+void dooya_motor_self_response_handle(uint8_t *payload_msg,uint8_t msg_len);
 
 
 #endif
