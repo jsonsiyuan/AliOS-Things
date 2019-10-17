@@ -144,14 +144,14 @@ void dooya_motor_self_response_handle(uint8_t *payload_msg,uint8_t msg_len)
 	switch(payload_msg[4])
 	{
 		case MOTOR_RESPONSE_MOTOR_INFO:
-			dooya_check_motor_dec(payload_msg[9]);   
 			if(payload_msg[9]==0x00)
 			{
 				if(dooya_CurtainPosition_data!=0xff)
-				{
+				{	
+					dooya_CurtainPosition_data=0xff;
 					if(abs(dooya_CurtainPosition_data-payload_msg[6])>3)
 					{
-						dooya_CurtainPosition_data=0xff;
+						
 						dooya_check_motor_zone_percent_dec(payload_msg[6]);
 					}
 					
@@ -160,15 +160,25 @@ void dooya_motor_self_response_handle(uint8_t *payload_msg,uint8_t msg_len)
 				{
 					dooya_check_motor_zone_percent_dec(payload_msg[6]);
 				}
+				dooya_set_dev_CurtainOperation_dec(0x02);
 			}
-			if(payload_msg[9]==0x01)
+			else if(payload_msg[9]==0x01)
 			{
-				dooya_set_dev_CurtainPosition_dec(100);
+				if(dooya_CurtainPosition_data==0xff)
+				{
+					dooya_set_dev_CurtainPosition_dec(100);
+				}
+				dooya_set_dev_CurtainOperation_dec(0x01);
 			}
-			if(payload_msg[9]==0x02)
+			else if(payload_msg[9]==0x02)
 			{
-				dooya_set_dev_CurtainPosition_dec(0);
-			}			   
+				if(dooya_CurtainPosition_data==0xff)
+				{
+					dooya_set_dev_CurtainPosition_dec(0);
+				}
+				dooya_set_dev_CurtainOperation_dec(0x00);
+			}
+			//dooya_check_motor_dec(payload_msg[9]);   
 		break;
 	}
 	
