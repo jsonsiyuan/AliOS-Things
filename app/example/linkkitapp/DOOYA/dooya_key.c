@@ -1,6 +1,7 @@
 #include "dooya_key.h"
 #include "dooya_remout.h"
 #include "dooya_fac.h"
+#include "dooya_led.h"
 
 
 typedef enum	
@@ -44,8 +45,8 @@ static void dooya_key_init(void)
 {
 	//hal_gpio_init(&key1);
 	hal_gpio_init(&key2);
-	gpio16_input_conf();
-	hal_gpio_init(&key4);
+	//gpio16_input_conf();
+	//hal_gpio_init(&key4);
 }
 
 static uint32_t dooya_get_key1_status(void)
@@ -97,6 +98,7 @@ static int dooya_read_key_value(void)
 			key_flag=key_flag|0x02;
 		}
 	}
+	/*
 	if(KEY_LOW==dooya_get_key3_status())
 	{
 		if(dooya_fac_check()==1)
@@ -120,8 +122,10 @@ static int dooya_read_key_value(void)
 		}
 		
 	}
+	*/
 	return key_flag;
 }
+extern int user_master_dev_available(void);
 
 static void dooya_key_handle(void *paras)
 {
@@ -142,7 +146,11 @@ static void dooya_key_handle(void *paras)
 			{
 				
 				
-					dooya_set_remout_data(key_flag_tmp1);
+					dooya_set_remout_data(key_flag_tmp1,0);
+					if(user_master_dev_available())
+					{
+						dooya_set_led_status(LED_TAGGLE_TIME,1,1);
+					}
 					aos_msleep(500);
 				
 

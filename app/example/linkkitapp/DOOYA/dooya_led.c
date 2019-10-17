@@ -7,6 +7,7 @@ typedef  struct
 {
 	uint8_t led_new_status;
 	uint8_t led_HZ;
+	uint8_t led_TIMES;
 }LED_STATUS_T;
 
 
@@ -21,6 +22,7 @@ static gpio_dev_t led={
 static LED_STATUS_T led_status={
 	.led_new_status=LED_CLOSE,
 	.led_HZ=1,
+	.led_TIMES=0,
 };
 
 
@@ -61,6 +63,7 @@ static int dooya_led_handle(void *paras)
 	dooya_close_led();
 	aos_msleep(100);
 	printf("####sun# dooya_led_handle start\r\n");
+	uint8_t i;
 	while(1)
 	{
 		switch(led_status.led_new_status)
@@ -78,15 +81,27 @@ static int dooya_led_handle(void *paras)
 				dooya_toggle_led();
 				aos_msleep(1000/led_status.led_HZ);
 			break;
+			case LED_TAGGLE_TIME:
+				for(i=0;i<led_status.led_TIMES;i++)
+				{
+					dooya_open_led();
+					aos_msleep(1000);
+					dooya_close_led();
+					aos_msleep(200);
+				}
+				dooya_set_led_status(LED_CLOSE,1,0);
+			break;
 		}
 		
 	}
 }
 
-void dooya_set_led_status(LED_ACTION_T status,uint8_t hz)
+void dooya_set_led_status(LED_ACTION_T status,uint8_t hz,uint8_t times)
+
 {
 	led_status.led_new_status=status;
 	led_status.led_HZ=hz;
+	led_status.led_TIMES=times;
 }
 
 

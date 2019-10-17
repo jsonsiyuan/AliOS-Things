@@ -23,6 +23,7 @@ void register_click_callback(click_cb_t cb)
     printf("Click callback registered.\n");
     click_callback = cb;
 }
+extern int user_master_dev_available(void);
 
 static void key_poll_func(void *arg)
 {
@@ -31,9 +32,17 @@ static void key_poll_func(void *arg)
 
     if (level == 0) {
 		diff = aos_now_ms() - elink_time;
+
+		if((diff > 20)&&(diff <1000))
+		{
+			if(user_master_dev_available())
+			{
+				dooya_set_led_status(LED_TAGGLE_TIME,1,1);
+			}
+		}
 		if(diff > 2000)
 		{
-			dooya_set_led_status(LED_TAGGLE,10);
+			dooya_set_led_status(LED_TAGGLE,10,0);
 		}
         aos_post_delayed_action(10, key_poll_func, NULL);
 		

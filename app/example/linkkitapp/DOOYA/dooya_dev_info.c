@@ -180,11 +180,11 @@ void dooya_user_property_parse(char *data)
 		//dooya_CurtainPosition_data=item_CurtainPosition->valueint;
 		if(item_CurtainPosition->valueint==100)
 		{
-			dooya_set_remout_data(0x02);
+			dooya_set_remout_data(0x02,1);
 		}
 		else if(item_CurtainPosition->valueint==0)
 		{
-			dooya_set_remout_data(0x08);
+			dooya_set_remout_data(0x08,1);
 		}
 
 	}
@@ -201,15 +201,15 @@ void dooya_user_property_parse(char *data)
 		{
 			case MOTOR_CLOSE:
 				//dooya_control_motor_close();
-				dooya_set_remout_data(0x08);
+				dooya_set_remout_data(0x08,1);
 			break;
 			case MOTOR_OPEN:
 				//dooya_control_motor_open();
-				dooya_set_remout_data(0x02);
+				dooya_set_remout_data(0x02,1);
 			break;
 			case MOTOR_STOP:
 				//dooya_control_motor_stop();
-				dooya_set_remout_data(0x04);
+				dooya_set_remout_data(0x04,1);
 			break;
 			
 		}

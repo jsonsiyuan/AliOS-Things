@@ -13,7 +13,10 @@
 
 #define remout_port 14
 #define LENGTH_OF_ADDRESS (8+1)
-static uint8_t remout_data;
+
+static uint8_t remout_data=0xff;;
+static uint8_t net_flag=0;
+
 
 static uint32_t address_value=0;
 static uint8_t address_value_tmp[LENGTH_OF_ADDRESS];
@@ -158,61 +161,92 @@ static void dooya_remout_send(unsigned char data)
 	dooya_remout_send_data(data);
 	hal_gpio_output_low(&remout);
 }
+static uint8_t dooya_get_send_data_from_user(void)
+{
+	unsigned char key_flag_tmp;
+	unsigned char send_data_tmp;
+	key_flag_tmp=dooya_get_remout_data();
+	send_data_tmp=0xff;
+
+	switch(key_flag_tmp)
+	{
+		case 0x01:
+			send_data_tmp=CMD_SETUP;
+
+		break;
+		case 0x02:
+			send_data_tmp=CMD_UP;
+		break;
+		case 0x04:
+			send_data_tmp=CMD_STOP;
+		break;
+		case 0x08:
+			send_data_tmp=CMD_DOWN;
+		break;
+	}
+	return send_data_tmp;
+}
+
+static void dooya_remout_send_data_of_net(void)
+{
+	unsigned char send_data_tmp;
+	unsigned char send_data_tmp1=0xff;
+	uint8_t i=0;
+	while (i<15)
+	{
+		send_data_tmp=dooya_get_send_data_from_user();
+		printf("send_data_tmp [%x]\r\n",send_data_tmp);
+		if(send_data_tmp!=send_data_tmp1)
+		{
+			send_data_tmp1=send_data_tmp;
+			i=0;
+		}
+		if(send_data_tmp!=0xff)
+		{
+			
+
+			CPSR_ALLOC();
+			RHINO_CRITICAL_ENTER();
+			dooya_remout_send(send_data_tmp);
+			RHINO_CRITICAL_EXIT();
+			aos_msleep(50);
+		}
+		i++;
+	}
+}
 
 static void dooya_remout_handle(void *pvParameters)
 {
-	unsigned char key_flag_tmp;
-
 	unsigned char send_data_tmp;
 	int i;
 	while(1)
 	{
-	#if 1
-		send_data_tmp=0xff;
-		key_flag_tmp=dooya_get_remout_data();
-		
-		switch(key_flag_tmp)
-		{
-			case 0x01:
-				send_data_tmp=CMD_SETUP;
-		
-			break;
-			case 0x02:
-				send_data_tmp=CMD_UP;
-			break;
-			case 0x04:
-				send_data_tmp=CMD_STOP;
-			break;
-			case 0x08:
-				send_data_tmp=CMD_DOWN;
-			break;
-		}
-		if(send_data_tmp!=0xff)
-		{
-			printf("send_data_tmp [%x]\r\n",send_data_tmp);
-			for(i=0;i<3;i++)
-			{
-				CPSR_ALLOC();
-				RHINO_CRITICAL_ENTER();
-				dooya_remout_send(send_data_tmp);
-				RHINO_CRITICAL_EXIT();
-				aos_msleep(100);
-			}
 
+		if(1==dooya_get_net_flag_data())
+		{
+			dooya_remout_send_data_of_net();
 		}
+		else
+		{
+			send_data_tmp=dooya_get_send_data_from_user();
+
+			if(send_data_tmp!=0xff)
+			{
+				printf("send_data_tmp [%x]\r\n",send_data_tmp);
+				for(i=0;i<5;i++)
+				{
+					CPSR_ALLOC();
+					RHINO_CRITICAL_ENTER();
+					dooya_remout_send(send_data_tmp);
+					RHINO_CRITICAL_EXIT();
+					aos_msleep(50);
+				}
+
+			}
+		}
+
 		dooya_clean_remout_data();
 		aos_msleep(100);
-	#else
-		printf("dooya_remout_send\r\n");
-		aos_msleep(5000);
-		
-		CPSR_ALLOC();
-		RHINO_CRITICAL_ENTER();
-		dooya_remout_send(1);
-		RHINO_CRITICAL_EXIT();
-
-
-	#endif
 	}
 }
 
@@ -260,13 +294,20 @@ uint8_t dooya_get_remout_data(void)
 	return remout_data;
 }
 
-void dooya_set_remout_data(uint8_t data)
+uint8_t dooya_get_net_flag_data(void)
+{
+	return net_flag;
+}
+
+void dooya_set_remout_data(uint8_t data,uint8_t net_flag_tmp)
 {
 	remout_data=data;
+	net_flag=net_flag_tmp;
 }
 void dooya_clean_remout_data(void)
 {
 	remout_data=0xff;
+	net_flag=0;
 }
 
 uint8_t dooya_create_remout_thread(void)

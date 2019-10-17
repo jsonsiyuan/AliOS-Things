@@ -6,7 +6,8 @@
 #include "aos/hal/gpio.h"
 
 uint8_t dooya_get_remout_data(void);
-void dooya_set_remout_data(uint8_t data);
+uint8_t dooya_get_net_flag_data(void);
+void dooya_set_remout_data(uint8_t data,uint8_t net_flag_tmp);
 void dooya_clean_remout_data(void);
 uint8_t dooya_create_remout_thread(void);
 void dooya_fac_remout_send(void);

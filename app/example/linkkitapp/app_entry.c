@@ -81,7 +81,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         dooya_fac_wifi_model_connected();
         return;
     }
-    //dooya_set_led_g_status(LED_OPEN,1);
+
  #ifdef EN_COMBO_NET
     if (awss_running) {
         awss_success_notify();
@@ -220,7 +220,7 @@ static void linkkit_event_monitor(int event)
             }
             else
             {
-                dooya_set_led_status(LED_TAGGLE,1);
+                dooya_set_led_status(LED_TAGGLE,1,0);
             }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
@@ -237,9 +237,7 @@ static void linkkit_event_monitor(int event)
         case IOTX_CONN_CLOUD_SUC: // Device connects cloud successfully
             LOG("IOTX_CONN_CLOUD_SUC");
             // operate led to indicate user
-			/*dooya_set_led_r_status(LED_CLOSE,1);
-			dooya_set_led_g_status(LED_OPEN,1);*/
-			dooya_set_led_status(LED_OPEN,1);
+			dooya_set_led_status(LED_CLOSE,1,0);
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
                          // cloud without any other operation)
@@ -328,6 +326,7 @@ static void do_awss_reset()
 }
 
 
+
 void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 {
 	unsigned char key_flag_tmp;
@@ -344,7 +343,10 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
         }
         if (eventinfo->value == VALUE_KEY_CLICK) {
 			key_flag_tmp=0x01;
-			dooya_set_remout_data(key_flag_tmp);
+			dooya_set_remout_data(key_flag_tmp,0);
+		
+
+			
         } else /*if (eventinfo->value == VALUE_KEY_LLTCLICK) */{
 			dooya_set_wifi_smartconfig();
 			aos_msleep(100);
