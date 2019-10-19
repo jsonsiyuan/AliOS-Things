@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-#define AWSS_CHECK_RESP_TIME (300)
+#define AWSS_CHECK_RESP_TIME (1000)/*(300)*/
 #define AWSS_NOTIFY_PORT     (5683)
 #define AWSS_NOTIFY_HOST     "255.255.255.255"
 #define AWSS_DEV_NOTIFY_FMT  "{\"id\":\"%u\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":{%s}}"
@@ -242,6 +242,8 @@ int awss_notify_dev_info(int type, int count)
 #define AWSS_NOTIFY_CNT_MAX (30)
 
 static void *coap_session_ctx = NULL;
+static int report_token_time=0;
+
 
 static int awss_process_get_devinfo()
 {
@@ -257,7 +259,14 @@ static int awss_process_get_devinfo()
 #endif
 
     if (awss_report_token_suc == 0) {
+		awss_debug("sun_report_token_to_cloud{%d}\r\n",report_token_time);
         awss_debug("try to report token to cloud");
+		report_token_time++;
+		if(report_token_time>5)
+		{
+			aos_reboot();
+		}
+
         HAL_Timer_Start(get_devinfo_timer, AWSS_CHECK_RESP_TIME);
         return 0;
     }
