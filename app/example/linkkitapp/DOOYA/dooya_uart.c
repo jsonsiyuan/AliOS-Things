@@ -97,43 +97,15 @@ static void dooya_uart_handle(void *paras)
 		rx_size=0;
 		ret = -1;
 		memset(uart_data_buf,0,sizeof(uart_data_buf));
-		ret=hal_uart_recv_II(&uart_use, uart_data_buf, 3,&rx_size, 500);
+		ret=hal_uart_recv_II(&uart_use, uart_data_buf, 5,&rx_size, 500);
 		if ((ret == 0))
 		{
-			if(uart_data_buf[0]==0x55&&uart_data_buf[1]==0xAA)
+			if(uart_data_buf[0]=='c'&&uart_data_buf[1]=='h')
 			{
-				rx_size=0;
-				ret = -1;
-				ret =hal_uart_recv_II(&uart_use, uart_data_buf+3, uart_data_buf[2],&rx_size, 5*uart_data_buf[2]);
-				if((ret == 0))
-				{
-					crc_tmp=CRC16_MODBUS(uart_data_buf, uart_data_buf[2]+1);
-					if((uart_data_buf[uart_data_buf[2]+1]==(crc_tmp/256))
-							&&(uart_data_buf[uart_data_buf[2]+2]==(crc_tmp%256)))
-						{
-							retry_num=0;
-							switch(uart_data_buf[3])
-							{
-								case CONTROL_CODE:
-									//dooya_control_handle(uart_data_buf+4,uart_data_buf[2]-2);
-								break;
-								case CHECK_CODE:
-									//dooya_check_handle(uart_data_buf+4,uart_data_buf[2]-2);
-								break;
-								case NOTICE_CODE:
-									dooya_notice_handle(uart_data_buf+4,uart_data_buf[2]-2);
-								break;
-								case OTA:
-								break;
-							}
-
-						}
-
-
-					
-				}
-				
+				printf("dooya_uart_handle recever check\r\n");
+				dooya_fac_set();
 			}
+			
 		}
 		
 		

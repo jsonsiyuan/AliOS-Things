@@ -14,7 +14,7 @@
 #define dooya_fac_ssid "chanxiancheck"
 
 
-#define FAC_TIME_OUT 180
+#define FAC_TIME_OUT 45
 static uint8_t dooya_fac_model=0;
 static uint8_t dooya_fac_wifi_model=0;
 static uint8_t dooya_fac_led_model=0;
@@ -23,7 +23,7 @@ static uint8_t dooya_fac_key_model=0;
 void dooya_fac_set(void)
 {
 	dooya_set_wifi_FAC();
-	aos_msleep(100);
+	aos_msleep(1000);
 	aos_reboot();
 }
 
@@ -112,10 +112,10 @@ static int dooya_fac_handle(void *paras)
 
 				
 			}
-			if((wifi_tmp==0x01)&&(key_tmp==0x0f))
+			if((wifi_tmp==0x01)/*&&(key_tmp==0x0f)*/)
 			{
 				/*433 send*/
-				for(i=0;i<3;i++)
+				for(i=0;i<5;i++)
 				{
 					CPSR_ALLOC();
 					RHINO_CRITICAL_ENTER();

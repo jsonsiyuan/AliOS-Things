@@ -273,11 +273,11 @@ static uint8_t dooya_set_product_key_info(uint8_t *array)
 }
 
 
-static uint8_t dooya_set_device_name_info(uint8_t *array)
+static uint8_t dooya_set_device_secret_info(uint8_t *array)
 {
 	uint8_t res;
-	uint8_t tmp=D_DEVICE_NAME_LEN;
-	res=dooya_flash_read_productkey(11,array,D_DEVICE_NAME_LEN-1);
+	uint8_t tmp=D_DEVICE_SECRET_LEN;
+	res=dooya_flash_read_devicesecret(11,array,D_DEVICE_SECRET_LEN-1);
 	if(0==res)
 	{
 		if(0!=strlen(array))
@@ -288,11 +288,12 @@ static uint8_t dooya_set_device_name_info(uint8_t *array)
 	return 1;
 }
 
-static uint8_t dooya_set_device_secret_info(uint8_t *array)
+
+static uint8_t dooya_set_device_name_info(uint8_t *array)
 {
 	uint8_t res;
-	uint8_t tmp=D_DEVICE_SECRET_LEN;
-	res=dooya_flash_read_productkey(31,array,D_DEVICE_SECRET_LEN-1);
+	uint8_t tmp=D_DEVICE_NAME_LEN;
+	res=dooya_flash_read_devicename(43,array,D_DEVICE_NAME_LEN-1);
 	if(0==res)
 	{
 		if(0!=strlen(array))

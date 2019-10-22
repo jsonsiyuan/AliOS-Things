@@ -3,12 +3,13 @@
 
 
 
+#define dev_res_string "{\"ret\":%d,\"rssi\":%d,\"address\":%d} "   
 
 void dooya_response_fac(uint8_t ret,int8_t rssi,uint32_t address)
 {
 
-	uint8_t data[20];
-	uint16_t crc16_tmp;
+	uint8_t data[126]={0};
+	/*uint16_t crc16_tmp;
 	data[0]=0x55;
 	data[1]=0xAA;
 	data[2]=0x0a;
@@ -16,15 +17,21 @@ void dooya_response_fac(uint8_t ret,int8_t rssi,uint32_t address)
 	data[4]=NOTICE_TO_FAC_MODEL;
 	data[5]=ret;
 	data[6]=rssi;
-	/*address*/
+	//address
 	data[7]=address&0xff000000;
 	data[8]=(address<<8)&0xff000000;
 	data[9]=(address<<16)&0xff000000;
 	data[10]=(address<<24)&0xff000000;
 	crc16_tmp= CRC16_MODBUS(data,11);
 	data[11]=crc16_tmp/256;
-	data[12]=crc16_tmp%256;
-	dooya_uart_send(data,13);
+	data[12]=crc16_tmp%256;*/
+
+		
+		
+	sprintf(data,dev_res_string,ret,rssi,address);
+	printf("dooya_response_fac string is %s\r\n",data);
+		
+	dooya_uart_send(data,strlen(data));
 }
 void dooya_control_motor_open(void)
 {
