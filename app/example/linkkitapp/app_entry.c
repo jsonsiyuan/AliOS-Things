@@ -207,6 +207,8 @@ static void linkkit_event_monitor(int event)
                                        // user needs to enable awss again to support get ssid & passwd of router
             LOG("IOTX_AWSS_ENALBE_TIMEOUT");
             // operate led to indicate user
+            
+            dooya_wifi_status_uart(0x03);
             awss_running=0;
             if(netmgr_wifi_check_ssid()==0)
             {
