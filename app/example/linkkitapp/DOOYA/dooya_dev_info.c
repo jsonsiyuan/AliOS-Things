@@ -219,7 +219,7 @@ void dooya_user_property_parse(char *data)
 				dooya_wifi_module_write_direction(0);
 			break;
 			case 351:
-				dooya_wifi_module_write_direction(1);
+				dooya_wifi_module_write_direction(2);//根据新协议，修改为2，转向，原来为1
 			break;
 			case 352:
 				dooya_wifi_module_control_stroke();
