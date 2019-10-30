@@ -31,7 +31,7 @@
     #else 
 	
     /*sun change */
-	#define PRODUCT_SECRET  "Mg5ZaQa6a0QrmdYR"
+	#define PRODUCT_SECRET  "IYYZYRSJMOATLdD1"
 #define D_PRODUCT_KEY_LEN          (11 + 1)
 #define D_DEVICE_NAME_LEN          (20 + 1)
 #define D_DEVICE_SECRET_LEN        (32 + 1)
