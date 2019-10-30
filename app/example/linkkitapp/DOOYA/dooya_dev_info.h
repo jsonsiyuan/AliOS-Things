@@ -15,12 +15,9 @@ typedef enum
 	MOTOR_STOP,
 }CurtainOperation_T;
 	
-typedef enum	
-{
-	DIR_POSITIVE=0,
-	DIR_REVERSE,
 
-}SetDir_T;
+#define DIR_POSITIVE 353
+#define DIR_REVERSE 351
 
 typedef struct _user_dev_status_t{
 
@@ -33,11 +30,11 @@ typedef struct _user_dev_status_t{
 
 user_dev_status_t *  dooya_get_dev_info(void);
 CurtainOperation_T dooya_get_dev_CurtainOperation(void  );
-SetDir_T dooya_get_dev_SetDir(void  );
+int dooya_get_dev_SetDir(void  );
 int dooya_get_dev_CurtainPosition(void);
 int dooya_get_dev_error(void);
 void dooya_set_dev_CurtainOperation(CurtainOperation_T           data);
-void dooya_set_dev_SetDir(SetDir_T data  );
+void dooya_set_dev_SetDir(int data  );
 void dooya_set_dev_CurtainPosition(int data);
 void dooya_set_dev_CurtainPosition_dec(int data);
 void dooya_set_dev_error(int data);
