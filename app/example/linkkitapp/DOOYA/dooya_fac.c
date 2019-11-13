@@ -34,7 +34,6 @@ void dooya_fac_start(void)
 
 void dooya_fac_stop(void)
 {
-	dooya_fac_model=0;
 	dooya_set_wifi_STA();
 	netmgr_clear_ap_config();
 }
@@ -88,6 +87,13 @@ int dooya_fac_handle(void *paras)
 			count_tmp= 0;
 			dooya_set_led_g_status(LED_CLOSE ,1);
 			dooya_set_led_r_status( LED_TAGGLE,1);
+			dooya_fac_stop();
+			while(1)
+			{
+				aos_msleep(5000);
+				
+				
+			}
 		}
 		else 
 		{
@@ -96,7 +102,13 @@ int dooya_fac_handle(void *paras)
 		if(count_tmp>FAC_TIME_OUT)
 		{
 			dooya_response_fac(0,0);
-			aos_msleep(5000);
+			dooya_fac_stop();
+			while(1)
+			{
+				aos_msleep(5000);
+				
+				
+			}
 		}
 		aos_msleep(1000);
 		
