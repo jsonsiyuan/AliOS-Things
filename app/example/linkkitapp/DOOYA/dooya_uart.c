@@ -60,7 +60,14 @@ static void uart_timer_handler(void * p_context)
 			retry_over_flag=0;
 			dooya_set_led_r_status(LED_CLOSE,1);
 		}
-		dooya_start_motor_check();
+		if(dooya_fac_check()==1)
+		{
+			retry_num=0;
+		}
+		else
+		{
+			dooya_start_motor_check();
+		}
 		aos_msleep(10000);
 	}
 }

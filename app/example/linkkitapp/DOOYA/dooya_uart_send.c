@@ -4,8 +4,21 @@
 
 
 
-void dooya_response_fac(uint8_t data)
+void dooya_response_fac(uint8_t rec_data,uint8_t rssi_data)
 {
+	uint8_t data[10];
+	uint16_t crc16_tmp;
+	data[0]=0x55;
+	data[1]=0xAA;
+	data[2]=0x05;
+	data[3]=NOTICE_CODE;
+	data[4]=NOTICE_TO_FAC_MODEL;
+	data[5]=rec_data;
+	data[6]=rssi_data;
+	crc16_tmp= CRC16_MODBUS(data,7);
+	data[7]=crc16_tmp/256;
+	data[8]=crc16_tmp%256;
+	dooya_uart_send(data,9);
 
 
 }

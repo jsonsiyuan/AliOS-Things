@@ -7,6 +7,8 @@
 #include <aos/kernel.h>
 #include "aos/kernel.h"
 #include "dooya_led.h"
+#include "dooya_fac.h"
+
 
 #define KEY_AWSS   12
 
@@ -24,7 +26,14 @@ static void key_poll_func(void *arg)
 		diff = aos_now_ms() - awss_time;
 		if (diff > 40)
 		{
-			dooya_set_led_g_status(LED_TAGGLE,10);
+			 if(dooya_fac_check()!=1)
+        	{
+				 dooya_set_led_g_status(LED_TAGGLE,10);
+
+        	}
+
+		
+			
 		}
         
         aos_post_delayed_action(10, key_poll_func, NULL);
