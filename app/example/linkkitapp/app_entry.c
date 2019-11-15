@@ -81,6 +81,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         return;
     }
     dooya_set_led_g_status(LED_OPEN,1);
+	dooya_set_led_r_status(LED_CLOSE,1);
  #ifdef EN_COMBO_NET
     if (awss_running) {
         awss_success_notify();
@@ -215,6 +216,7 @@ static void linkkit_event_monitor(int event)
             else
             {
                 dooya_set_led_g_status(LED_TAGGLE,1);
+				dooya_set_led_r_status(LED_CLOSE,1);
             }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
@@ -232,7 +234,7 @@ static void linkkit_event_monitor(int event)
             LOG("IOTX_CONN_CLOUD_SUC");
             // operate led to indicate user
 			dooya_set_led_r_status(LED_CLOSE,1);
-			dooya_set_led_g_status(LED_OPEN,1);
+			dooya_set_led_g_status(LED_CLOSE,1);
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
                          // cloud without any other operation)

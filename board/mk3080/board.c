@@ -29,6 +29,7 @@ static void key_poll_func(void *arg)
 			 if(dooya_fac_check()!=1)
         	{
 				 dooya_set_led_g_status(LED_TAGGLE,10);
+				 dooya_set_led_r_status(LED_CLOSE,1);
 
         	}
 
