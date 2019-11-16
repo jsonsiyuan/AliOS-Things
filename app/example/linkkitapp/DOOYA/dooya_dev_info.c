@@ -88,6 +88,7 @@ void dooya_set_dev_CurtainPosition(int data)
 	if(CurtainPosition_tmp!=data)
 	{
 		CurtainPosition_tmp=data;
+		CurtainPosition_number=0;
 	}
 	else if(CurtainPosition_tmp==data)
 	{
