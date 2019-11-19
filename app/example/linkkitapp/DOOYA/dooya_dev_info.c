@@ -230,6 +230,8 @@ void dooya_user_property_parse(char *data)
 	cJSON_Delete(root);
 }
 
+
+/*
 #define linkkit_product_key    "linkkit_product_key"
 #define linkkit_product_secret "linkkit_product_secret"
 
@@ -362,3 +364,4 @@ uint8_t dooya_show_three_array_info(void)
 	res=dooya_set_three_array_info();
 	return res;
 }
+*/

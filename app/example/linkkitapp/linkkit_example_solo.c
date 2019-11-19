@@ -33,6 +33,8 @@ uint8_t DEVICE_NAME[]=     "device1";
 uint8_t DEVICE_SECRET[]=   "B1kcFwTRNnEd0dxo6hE4N2KQMDf3K9co";
 */
 /*sun change */
+
+/*
 #define D_PRODUCT_KEY_LEN          (20 + 1)
 #define D_PRODUCT_SECRET_LEN       (64 + 1)
 #define D_DEVICE_NAME_LEN          (32 + 1)
@@ -43,7 +45,7 @@ extern uint8_t PRODUCT_KEY[D_PRODUCT_KEY_LEN];
 extern uint8_t PRODUCT_SECRET[D_PRODUCT_SECRET_LEN];
 extern uint8_t DEVICE_NAME[D_DEVICE_NAME_LEN];
 extern uint8_t DEVICE_SECRET[D_DEVICE_SECRET_LEN];
-
+*/
 #endif
 /*end */
 #if USE_CUSTOME_DOMAIN
@@ -545,7 +547,7 @@ static int user_master_dev_available(void)
 void set_iotx_info()
 {
 
-    /*sun add*/
+ /*  
     printf("#############set_iotx_info\r\n");
 
     dooya_set_three_array_info();
@@ -557,7 +559,42 @@ void set_iotx_info()
 	printf("\r\n product_key is [%s]\r\n",PRODUCT_KEY);
 	printf("\r\n product_secret is [%s]\r\n",PRODUCT_SECRET);
 	printf("\r\n device_name is [%s]\r\n",DEVICE_NAME);
-	printf("\r\n device_secret is [%s]\r\n",DEVICE_SECRET);
+	printf("\r\n device_secret is [%s]\r\n",DEVICE_SECRET);*/
+	
+	// HAL_SetProductKey(PRODUCT_KEY);
+    // HAL_SetProductSecret(PRODUCT_SECRET);
+    // HAL_SetDeviceName(DEVICE_NAME);
+    // HAL_SetDeviceSecret(DEVICE_SECRET);
+    int len = 0;
+    char product_key[PRODUCT_KEY_LEN + 1] = { 0 };
+    char product_secret[PRODUCT_SECRET_LEN + 1] = { 0 };
+    char device_name[DEVICE_NAME_LEN + 1] = { 0 };
+    char device_secret[DEVICE_SECRET_LEN + 1] = { 0 };
+
+    len = PRODUCT_KEY_LEN + 1;
+    aos_kv_get("linkkit_product_key", product_key, &len);
+    HAL_SetProductKey(product_key);
+
+    len = PRODUCT_SECRET_LEN + 1;
+    aos_kv_get("linkkit_product_secret", product_secret, &len);
+    HAL_SetProductSecret(product_secret);
+
+    len = DEVICE_NAME_LEN + 1;
+    aos_kv_get("linkkit_device_name", device_name, &len);
+    HAL_SetDeviceName(device_name);
+
+    len = DEVICE_SECRET_LEN + 1;
+    aos_kv_get("linkkit_device_secret", device_secret, &len);
+    HAL_SetDeviceSecret(device_secret);
+
+    EXAMPLE_TRACE("pk[%s]\r\n", product_key);
+    EXAMPLE_TRACE("ps[%s]\r\n", product_secret);
+    EXAMPLE_TRACE("dn[%s]\r\n", device_name);
+    EXAMPLE_TRACE("ds[%s]\r\n", device_secret);
+
+    if ((strlen(device_secret) == 0) || (strlen(product_secret) == 0) || (strlen(device_name) == 0) || (strlen(device_secret) == 0)) {
+        return -1;
+    }
 
 }
 extern uint8_t dooya_post_flag;
@@ -611,11 +648,16 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_FOTA, user_fota_event_handler);
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
 
-    memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
-    memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
-    memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
-    memcpy(master_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
-    memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
+	// memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
+	// memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
+	// memcpy(master_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
+	// memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
+	
+	HAL_GetProductKey(master_meta_info.product_key);
+	HAL_GetDeviceName(master_meta_info.device_name);
+	HAL_GetDeviceSecret(master_meta_info.device_secret);
+	HAL_GetProductSecret(master_meta_info.product_secret);
+
 
     /* Choose Login Server, domain should be configured before IOT_Linkkit_Open() */
 #if USE_CUSTOME_DOMAIN

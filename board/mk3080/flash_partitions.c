@@ -45,8 +45,8 @@ const hal_logic_partition_t hal_partitions[] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER2",
-        .partition_start_addr       = 0xFE000,
-        .partition_length           = 0x2000, // 8k bytes
+        .partition_start_addr       = 0xCC000,
+        .partition_length           = 0x4000, // 8k bytes
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_PARAMETER_3] =
@@ -70,7 +70,7 @@ const hal_logic_partition_t hal_partitions[] =
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "Application",
 	    .partition_start_addr       = 0x19000,
-	    .partition_length           = 0xE5000, //904k bytes
+	    .partition_length           = 0xB0000, //704k bytes
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
 	},
     [HAL_PARTITION_OTA_TEMP] =

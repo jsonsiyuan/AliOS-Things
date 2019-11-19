@@ -478,7 +478,7 @@ int application_start(int argc, char **argv)
 	
     dooya_create_led_thread();
     dooya_create_wdg_thread();
-    if(0==dooya_show_three_array_info())
+//    if(0==dooya_show_three_array_info())
     {
         dooya_create_uart_thread();
         dooya_create_wifi_check_thread();
