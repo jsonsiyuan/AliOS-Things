@@ -8,6 +8,8 @@
 #include "network/hal/wifi.h"
 #include "CheckSumUtils.h"
 #include "platform_toolchain.h"
+#include <wifi/wifi_conf.h>
+
 #define PRODUCT_KEY_LEN     (20)
 #define DEVICE_NAME_LEN     (32)
 #define DEVICE_ID_LEN       (64)
@@ -70,18 +72,30 @@ static const hal_wifi_event_cb_t g_wifi_hal_event = {
     .fatal_err           = NULL,
 };
 
+static rtw_result_t app_scan_result_handler_qc( rtw_scan_handler_result_t* malloced_scan_result )
+{
+	
+	if (malloced_scan_result->scan_complete != RTW_TRUE) {
+		rtw_scan_result_t* record = &malloced_scan_result->ap_details;
+		record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */
+		qc_printf("  SSID: %s, RSSI: %d\r\n", record->SSID.val, record->signal_strength);
+	} 
+	return RTW_SUCCESS;
+}
+
 static void qc_scan(void)
 {
-    hal_wifi_module_t *module;
-    uint8_t mac[6];
-    
-    module = hal_wifi_get_default_module();
-    hal_wifi_install_event(module, &g_wifi_hal_event);
+	hal_wifi_module_t *module;
+	uint8_t mac[6];
+	
+	module = hal_wifi_get_default_module();
+	
+	hal_wifi_get_mac_addr(module, mac );
+	qc_printf( "MAC:%02X-%02X-%02X-%02X-%02X-%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5] );
 
-    
-    hal_wifi_get_mac_addr(module, mac );
-    qc_printf( "MAC:%02X-%02X-%02X-%02X-%02X-%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5] );
-    hal_wifi_start_scan(module);
+
+	wifi_scan_networks(app_scan_result_handler_qc, NULL );
+
 }
 
 static char *get_bootloader_ver(void)
@@ -114,6 +128,7 @@ static uint16_t qc_crc(void)
         CRC16_Update( &contex, data, len );
     }
     CRC16_Final( &contex, &crc );
+	return crc;
 }
 
 void qc_test(void)
