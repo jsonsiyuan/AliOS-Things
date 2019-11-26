@@ -141,7 +141,7 @@ void qc_test(void)
     uint8_t mac[6];
     uint32_t prov_res, ret;
     
-    qc_uart.port                = 0;
+    qc_uart.port                = 1;
     qc_uart.config.baud_rate    = 921600;
     qc_uart.config.data_width   = DATA_WIDTH_8BIT;
     qc_uart.config.parity       = NO_PARITY;
