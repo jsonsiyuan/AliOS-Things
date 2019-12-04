@@ -8,11 +8,16 @@
 #include "network/hal/wifi.h"
 #include "CheckSumUtils.h"
 #include "platform_toolchain.h"
+#define PRODUCT_KEY_LEN     (20)
+#define DEVICE_NAME_LEN     (32)
+#define DEVICE_ID_LEN       (64)
+#define DEVICE_SECRET_LEN   (64)
+#define PRODUCT_SECRET_LEN  (64)
 
 static uart_dev_t qc_uart;
 
 #ifndef SERIAL_NUMBER
-#define SERIAL_NUMBER       "UNDF.0000.0000"
+#define SERIAL_NUMBER       "0533.CL01.QM01"
 #endif
 
 #ifndef BOOT_VERSION
@@ -113,6 +118,26 @@ static uint16_t qc_crc(void)
 
 void qc_test(void)
 {
+	int vlen = 0;
+		char product_key[PRODUCT_KEY_LEN + 1] = { 0 };
+		char product_secret[PRODUCT_SECRET_LEN + 1] = { 0 };
+		char device_name[DEVICE_NAME_LEN + 1] = { 0 };
+		char device_secret[DEVICE_SECRET_LEN + 1] = { 0 };
+		char buffer[256] = {0};
+	
+		vlen = PRODUCT_KEY_LEN + 1;
+		aos_kv_get("linkkit_product_key", product_key, &vlen);
+	
+		vlen = PRODUCT_SECRET_LEN + 1;
+		aos_kv_get("linkkit_product_secret", product_secret, &vlen);
+	
+		vlen = DEVICE_NAME_LEN + 1;
+		aos_kv_get("linkkit_device_name", device_name, &vlen);
+	
+		vlen = DEVICE_SECRET_LEN + 1;
+		aos_kv_get("linkkit_device_secret", device_secret, &vlen);
+
+
     uint8_t mac[6];
     uint32_t prov_res, ret;
     
@@ -129,6 +154,7 @@ void qc_test(void)
     qc_printf( "Serial Number: %s\r\n", get_sn() );
     qc_printf( "App CRC: %04X\r\n", qc_crc() );
     qc_printf( "Bootloader Version: %s\r\n", get_bootloader_ver() );
+	qc_printf( "ID List:\r\n  ILOP: %s,%s,%s,%s\r\n", product_key, product_secret, device_secret, device_name);
 
     qc_scan();
 

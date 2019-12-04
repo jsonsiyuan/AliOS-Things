@@ -149,12 +149,12 @@ void sys_init_func(void)
 
         
     board_cli_init();
-
+	aos_components_init(&kinit);
 #ifdef USE_MX1290
     board_mode_check();
 #endif
 
-    aos_components_init(&kinit);
+    
 #ifndef AOS_BINS
     application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
 #endif
