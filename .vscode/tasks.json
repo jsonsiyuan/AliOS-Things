@@ -7,7 +7,7 @@
       "command": "aos",
       "args": [
         "make",
-        "helloworld@developerkit",
+        "linkkitapp@mk3080",
         "-c",
         "config"
       ],
@@ -32,7 +32,7 @@
       "command": "aos",
       "args": [
         "upload",
-        "helloworld@developerkit"
+        "linkkitapp@mk3080"
       ],
       "presentation": {
         "focus": true
@@ -44,7 +44,7 @@
       "command": "aos",
       "args": [
         "debug",
-        "helloworld@developerkit"
+        "linkkitapp@mk3080"
       ],
       "presentation": {
         "focus": true
@@ -82,7 +82,7 @@
       "command": "aos",
       "args": [
         "ota",
-        "helloworld@developerkit",
+        "linkkitapp@mk3080",
         "-d",
         "",
         "-p",

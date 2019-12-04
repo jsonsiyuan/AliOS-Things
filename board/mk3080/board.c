@@ -6,6 +6,7 @@
 #include "aos/hal/gpio.h"
 #include <aos/kernel.h>
 #include "aos/kernel.h"
+#include "dooya_led.h"
 
 #define KEY_AWSS   12
 
@@ -20,6 +21,12 @@ static void key_poll_func(void *arg)
     hal_gpio_input_get(&gpio_key_awss, &level);
 
     if (level == 0) {
+		diff = aos_now_ms() - awss_time;
+		if (diff > 40)
+		{
+			dooya_set_led_g_status(LED_TAGGLE,10);
+		}
+        
         aos_post_delayed_action(10, key_poll_func, NULL);
     } else {
         diff = aos_now_ms() - awss_time;
