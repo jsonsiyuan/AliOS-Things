@@ -151,7 +151,7 @@ void sys_init_func(void)
     board_cli_init();
 	aos_components_init(&kinit);
 #ifdef USE_MX1290
-    board_mode_check();
+    //board_mode_check();
 #endif
 
     
