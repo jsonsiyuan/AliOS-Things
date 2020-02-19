@@ -207,6 +207,8 @@ void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 		break;
 		case NOTICE_TO_SMART_MODEL:
 			dooya_set_wifi_smartconfig();
+			dooya_notic_smart_return();
+			aos_msleep(1000);
 			aos_reboot();
 		break;
 		case NOTICE_RESET_FAC_MODEL:

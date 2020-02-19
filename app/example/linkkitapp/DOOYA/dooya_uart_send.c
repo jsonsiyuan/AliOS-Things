@@ -216,6 +216,23 @@ void dooya_check_all_status(void)
 	dooya_uart_send(data,7);
 
 }
+void dooya_notic_smart_return(void)
+{
+	uint8_t data[10];
+	uint16_t crc16_tmp;
+	data[0]=0x55;
+	data[1]=0xAA;
+	data[2]=0x05;
+	data[3]=NOTICE_CODE;
+	data[4]=NOTICE_TO_SMART_MODEL;
+	data[5]=1;
+	crc16_tmp= CRC16_MODBUS(data,6);
+	data[6]=crc16_tmp/256;
+	data[7]=crc16_tmp%256;
+	dooya_uart_send(data,8);
+
+}
+
 void dooya_notic_net_status(uint8_t status)
 {
 	uint8_t data[10];
