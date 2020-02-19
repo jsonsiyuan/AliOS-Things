@@ -80,8 +80,10 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         dooya_fac_wifi_model_ok();
         return;
     }
-    dooya_set_led_g_status(LED_OPEN,1);
-	dooya_set_led_r_status(LED_CLOSE,1);
+	//连上路由器
+	dooya_set_net_status(2);
+    //dooya_set_led_g_status(LED_OPEN,1);
+	//dooya_set_led_r_status(LED_CLOSE,1);
  #ifdef EN_COMBO_NET
     if (awss_running) {
         awss_success_notify();
@@ -190,8 +192,9 @@ static void linkkit_event_monitor(int event)
 				awss_running = 0;
 				dooya_set_wifi_STA();
 			}
-			dooya_set_led_r_status(LED_CLOSE,1);
-            dooya_set_led_g_status(LED_OPEN,1);
+			dooya_set_net_status(2);
+			/*dooya_set_led_r_status(LED_CLOSE,1);
+            dooya_set_led_g_status(LED_OPEN,1);*/
             break;
         case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
                                    // sucess)
@@ -215,8 +218,9 @@ static void linkkit_event_monitor(int event)
             }
             else
             {
-                dooya_set_led_g_status(LED_TAGGLE,1);
-				dooya_set_led_r_status(LED_CLOSE,1);
+            	dooya_set_net_status(0);
+                /*dooya_set_led_g_status(LED_TAGGLE,1);
+				dooya_set_led_r_status(LED_CLOSE,1);*/
             }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
@@ -226,15 +230,17 @@ static void linkkit_event_monitor(int event)
         case IOTX_CONN_CLOUD_FAIL: // Device fails to connect cloud, refer to
                                    // net_sockets.h for error code
             LOG("IOTX_CONN_CLOUD_FAIL");
+			dooya_set_net_status(0);
             // operate led to indicate user
-			dooya_set_led_r_status(LED_CLOSE,1);
-			dooya_set_led_g_status(LED_OPEN,1);
+			/*dooya_set_led_r_status(LED_CLOSE,1);
+			dooya_set_led_g_status(LED_OPEN,1);*/
             break;
         case IOTX_CONN_CLOUD_SUC: // Device connects cloud successfully
             LOG("IOTX_CONN_CLOUD_SUC");
+			dooya_set_net_status(1);
             // operate led to indicate user
-			dooya_set_led_r_status(LED_CLOSE,1);
-			dooya_set_led_g_status(LED_CLOSE,1);
+			/*dooya_set_led_r_status(LED_CLOSE,1);
+			dooya_set_led_g_status(LED_CLOSE,1);*/
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
                          // cloud without any other operation)
@@ -341,9 +347,9 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 
             //if(awss_running==0)
 			{
-				dooya_set_wifi_smartconfig();
+				/*dooya_set_wifi_smartconfig();
 				aos_msleep(100);
-				do_awss_reset();
+				do_awss_reset();*/
 				//aos_msleep(100);
 				//aos_reboot();
 			} 
@@ -444,7 +450,7 @@ int application_start(int argc, char **argv)
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
-    aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
+    //aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
     IOT_RegisterCallback(ITE_MQTT_CONNECT_SUCC,mqtt_connected_event_handler);
@@ -476,7 +482,7 @@ int application_start(int argc, char **argv)
     printf("###code## is [%s]\r\n",A_version);
 	iotx_event_regist_cb(linkkit_event_monitor);
 	
-    dooya_create_led_thread();
+    //dooya_create_led_thread();
     dooya_create_wdg_thread();
 //    if(0==dooya_show_three_array_info())
     {

@@ -92,8 +92,9 @@ static int user_connected_event_handler(void)
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
     printf("#############user_connected_event_handler\r\n");
-    dooya_set_led_g_status(LED_CLOSE,1);
-    dooya_set_led_r_status(LED_CLOSE,1);
+	dooya_set_net_status(ONLINE);
+    //dooya_set_led_g_status(LED_CLOSE,1);
+    //dooya_set_led_r_status(LED_CLOSE,1);
     dooya_set_wifi_STA();
     return 0;
 }
@@ -109,8 +110,9 @@ static int user_disconnected_event_handler(void)
 
 	if(netmgr_get_ip_state()==1)
 	{
-		dooya_set_led_r_status(LED_CLOSE,1);
-		dooya_set_led_g_status(LED_OPEN,1);
+		dooya_set_net_status(OFFLINE);
+		//dooya_set_led_r_status(LED_CLOSE,1);
+		//dooya_set_led_g_status(LED_OPEN,1);
 	}
     return 0;
 }

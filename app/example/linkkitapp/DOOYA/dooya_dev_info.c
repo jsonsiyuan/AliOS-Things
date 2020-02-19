@@ -230,6 +230,16 @@ void dooya_user_property_parse(char *data)
 	cJSON_Delete(root);
 }
 
+/**/
+static uint8_t net_status;
+void dooya_set_net_status(uint8_t status)
+{
+	net_status=status;
+}
+uint8_t dooya_get_net_status(void)
+{
+	return net_status;
+}
 
 /*
 #define linkkit_product_key    "linkkit_product_key"

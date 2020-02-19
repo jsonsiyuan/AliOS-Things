@@ -51,14 +51,14 @@ static void uart_timer_handler(void * p_context)
 		retry_num++;
 		if(retry_num>5)
 		{
-			dooya_set_led_g_status(LED_CLOSE,1);
-			dooya_set_led_r_status(LED_TAGGLE,10);
+			//dooya_set_led_g_status(LED_CLOSE,1);
+			//dooya_set_led_r_status(LED_TAGGLE,10);
 			retry_over_flag=1;
 		}
 		else if(retry_over_flag)
 		{
 			retry_over_flag=0;
-			dooya_set_led_r_status(LED_CLOSE,1);
+			//dooya_set_led_r_status(LED_CLOSE,1);
 		}
 		if(dooya_fac_check()==1)
 		{

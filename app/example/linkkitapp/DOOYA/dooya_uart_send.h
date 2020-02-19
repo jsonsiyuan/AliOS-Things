@@ -22,6 +22,7 @@ void dooya_check_run_boundary(void);
 
 void dooya_start_motor_check(void);
 
+void dooya_notic_net_status(uint8_t status);
 
 
 #endif

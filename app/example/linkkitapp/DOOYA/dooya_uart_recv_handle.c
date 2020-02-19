@@ -2,6 +2,7 @@
 #include "dooya_uart.h"
 #include "dooya_dev_info.h"
 #include "dooya_fac.h"
+#include "netmgr.h"
 
 
 
@@ -203,6 +204,17 @@ void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 			dooya_check_motor_dir(payload_msg[6]);
 			*//*上报*/
 			
+		break;
+		case NOTICE_TO_SMART_MODEL:
+			dooya_set_wifi_smartconfig();
+			aos_reboot();
+		break;
+		case NOTICE_RESET_FAC_MODEL:
+			netmgr_clear_ap_config();
+    		aos_reboot();
+		break;
+		case NOTICE_CHECK_NET_STATUS:
+			dooya_notic_net_status(dooya_get_net_status());
 		break;
 		case NOTICE_TO_FAC_MODEL:
 			dooya_fac_set();

@@ -28,6 +28,16 @@ typedef struct _user_dev_status_t{
 
 }user_dev_status_t;
 
+typedef enum	
+{
+     OFFLINE=0,
+     ONLINE,
+     JOINING,
+     LEAVING,
+}user_net_status_t;
+
+
+
 user_dev_status_t *  dooya_get_dev_info(void);
 CurtainOperation_T dooya_get_dev_CurtainOperation(void  );
 int dooya_get_dev_SetDir(void  );
