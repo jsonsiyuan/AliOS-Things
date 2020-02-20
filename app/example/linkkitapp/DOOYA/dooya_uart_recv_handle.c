@@ -103,11 +103,11 @@ static void dooya_control_motor(uint8_t data)
 	{
 		case 0x01:/*打开*/
 			dooya_set_dev_CurtainOperation(MOTOR_OPEN);
-			dooya_set_dev_CurtainPosition_dec(100);
+			//dooya_set_dev_CurtainPosition_dec(100);
 		break;
 		case 0x02:/*关闭*/
 			dooya_set_dev_CurtainOperation(MOTOR_CLOSE);
-			dooya_set_dev_CurtainPosition_dec(0);
+			//dooya_set_dev_CurtainPosition_dec(0);
 		break;
 		case 0x03:/*暂停*/
 			dooya_set_dev_CurtainOperation(MOTOR_STOP);
@@ -135,9 +135,9 @@ void dooya_check_handle(uint8_t *payload_msg,uint8_t msg_len)
 	{
 		case CHECK_MOTOR_INFO:
 			dooya_check_motor(payload_msg[1]);
-			dooya_check_motor_zone_percent(payload_msg[2]);
+			/*dooya_check_motor_zone_percent(payload_msg[2]);
 			dooya_check_motor_run_boundary(payload_msg[4]);
-			dooya_check_motor_dir(payload_msg[6]);
+			dooya_check_motor_dir(payload_msg[6]);*/
 		break;
 		case CHECK_MOTOR_STATUS:
 			//dooya_check_motor(payload_msg[1]);
@@ -184,7 +184,7 @@ void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 		case NOTICE_MOTOR_INFO:
 			
 			dooya_check_motor(payload_msg[1]);
-			if(payload_msg[1]==0x03)
+			/*if(payload_msg[1]==0x03)
 			{
 				if(dooya_CurtainPosition_data!=0xff)
 				{
@@ -200,15 +200,15 @@ void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 				}
 				
 			}
-		/*	dooya_check_motor_run_boundary(payload_msg[4]);
+			dooya_check_motor_run_boundary(payload_msg[4]);
 			dooya_check_motor_dir(payload_msg[6]);
 			*//*上报*/
 			
 		break;
 		case NOTICE_TO_SMART_MODEL:
 			dooya_set_wifi_smartconfig();
-			dooya_notic_smart_return();
-			aos_msleep(1000);
+			
+			aos_msleep(500);
 			aos_reboot();
 		break;
 		case NOTICE_RESET_FAC_MODEL:

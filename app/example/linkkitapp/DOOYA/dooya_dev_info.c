@@ -134,15 +134,15 @@ void dooya_set_dev_error(int data)
 }
 
 
-#define dev_property_json "{\"curtainPosition\":%d,\"curtainConrtol\":%d,\"mode\":%d} "
+#define dev_property_json "{\"ActuatorOperationMode\":%d} "
 void dooya_dev_property_update(char *data)
 {
-	sprintf(data,dev_property_json, _g_pDEVMgr->CurtainPosition,
-			_g_pDEVMgr->CurtainOperation,_g_pDEVMgr->SetDir);
+	sprintf(data,dev_property_json, 
+			_g_pDEVMgr->CurtainOperation);
 }
 
 
-#define dev_curtainConrtol_json "{\"curtainConrtol\":%d} "
+#define dev_curtainConrtol_json "{\"ActuatorOperationMode\":%d} "
 void dooya_dev_property_update_motor_status(char *data)
 {
 	sprintf(data,dev_curtainConrtol_json,
@@ -168,6 +168,7 @@ void dooya_user_property_parse(char *data)
 	{
 		return ;
 	}
+	/*
 	item_CurtainPosition = cJSON_GetObjectItem(root, "curtainPosition");
 	if (item_CurtainPosition != NULL || cJSON_IsNumber(item_CurtainPosition))
 	{
@@ -178,11 +179,11 @@ void dooya_user_property_parse(char *data)
 		dooya_CurtainPosition_data=item_CurtainPosition->valueint;
 
 	}
-
-	item_CurtainOperation = cJSON_GetObjectItem(root, "curtainConrtol");
+	*/
+	item_CurtainOperation = cJSON_GetObjectItem(root, "ActuatorOperationMode");
 	if (item_CurtainOperation != NULL || cJSON_IsNumber(item_CurtainOperation))
 	{
-		printf("##########curtainConrtol is [%d]\r\n",item_CurtainOperation->valueint);
+		printf("##########ActuatorOperationMode is [%d]\r\n",item_CurtainOperation->valueint);
 		//dooya_set_dev_CurtainOperation(item_CurtainOperation->valueint);
 		
 		dooya_CurtainPosition_data=0xff;
@@ -203,7 +204,7 @@ void dooya_user_property_parse(char *data)
 
 
 	}
-
+	/*
 	item_SetDir = cJSON_GetObjectItem(root, "mode");
 	if (item_SetDir != NULL || cJSON_IsNumber(item_SetDir))
 	{
@@ -225,7 +226,7 @@ void dooya_user_property_parse(char *data)
 
 
 	}
-
+	*/
 	
 	cJSON_Delete(root);
 }

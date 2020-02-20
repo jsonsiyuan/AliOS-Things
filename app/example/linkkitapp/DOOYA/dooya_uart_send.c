@@ -10,7 +10,7 @@ void dooya_response_fac(uint8_t rec_data,uint8_t rssi_data)
 	uint16_t crc16_tmp;
 	data[0]=0x55;
 	data[1]=0xAA;
-	data[2]=0x05;
+	data[2]=0x06;
 	data[3]=NOTICE_CODE;
 	data[4]=NOTICE_TO_FAC_MODEL;
 	data[5]=rec_data;
@@ -216,7 +216,7 @@ void dooya_check_all_status(void)
 	dooya_uart_send(data,7);
 
 }
-void dooya_notic_smart_return(void)
+void dooya_notic_smart_return(uint8_t flag)
 {
 	uint8_t data[10];
 	uint16_t crc16_tmp;
@@ -225,7 +225,7 @@ void dooya_notic_smart_return(void)
 	data[2]=0x05;
 	data[3]=NOTICE_CODE;
 	data[4]=NOTICE_TO_SMART_MODEL;
-	data[5]=1;
+	data[5]=flag;
 	crc16_tmp= CRC16_MODBUS(data,6);
 	data[6]=crc16_tmp/256;
 	data[7]=crc16_tmp%256;

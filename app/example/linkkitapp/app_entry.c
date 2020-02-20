@@ -25,6 +25,7 @@
 #include "dooya_fac.h"
 #include "dooya_dev_info.h"
 #include "dooya_wdg.h"
+#include "dooya_uart_send.h"
 
 #ifdef CSP_LINUXHOST
 #include <signal.h>
@@ -190,6 +191,7 @@ static void linkkit_event_monitor(int event)
             if(awss_running)
 			{
 				awss_running = 0;
+				dooya_notic_smart_return(1);
 				dooya_set_wifi_STA();
 			}
 			dooya_set_net_status(2);
@@ -211,9 +213,12 @@ static void linkkit_event_monitor(int event)
             LOG("IOTX_AWSS_ENALBE_TIMEOUT");
             // operate led to indicate user
             awss_running=0;
+			dooya_notic_smart_return(0);
             if(netmgr_wifi_check_ssid()==0)
             {
                 dooya_set_wifi_STA();
+				
+				aos_msleep(1000);
                 aos_reboot();
             }
             else
