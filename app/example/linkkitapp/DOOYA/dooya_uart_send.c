@@ -10,7 +10,7 @@ void dooya_response_fac(uint8_t rec_data,uint8_t rssi_data)
 	uint16_t crc16_tmp;
 	data[0]=0x55;
 	data[1]=0xAA;
-	data[2]=0x05;
+	data[2]=0x06;
 	data[3]=NOTICE_CODE;
 	data[4]=NOTICE_TO_FAC_MODEL;
 	data[5]=rec_data;
