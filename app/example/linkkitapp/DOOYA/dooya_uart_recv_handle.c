@@ -177,6 +177,8 @@ void dooya_check_handle(uint8_t *payload_msg,uint8_t msg_len)
 	}
 }
 
+extern int  awss_report_reset();
+
 void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 {
 	switch(payload_msg[0])
@@ -208,7 +210,8 @@ void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 		case NOTICE_TO_SMART_MODEL:
 			dooya_set_wifi_smartconfig();
 			
-			aos_msleep(500);
+			awss_report_reset();
+			aos_msleep(1000);
 			aos_reboot();
 		break;
 		case NOTICE_RESET_FAC_MODEL:
