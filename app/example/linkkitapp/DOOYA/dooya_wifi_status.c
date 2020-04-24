@@ -4,7 +4,7 @@
 #include "dooya_led.h"
 #include "dooya_fac.h"
 
-#define dooya_fac_ssid "chanxiancheck"
+#define dooya_fac_ssid "suntest"
 #define dooya_fac_key "12345678"
 
 
@@ -64,8 +64,9 @@ static void dooya_wifi_check_handle(void *paras)
 	int ret;
 	D_WIFI_STATUS_T d_wifi_status;
 	int tmp=sizeof(D_WIFI_STATUS_T);
-	ret=aos_kv_get(dooya_wifi_kv, (void *)&d_wifi_status, &tmp);
-	if(0==ret)
+	//ret=aos_kv_get(dooya_wifi_kv, (void *)&d_wifi_status, &tmp);
+	dooya_start_fac();
+	/*if(0==ret)
 	{	
 		printf("##sun read is ok wifi_status is [%d]\r\n",d_wifi_status);
 		if(d_wifi_status==D_WIFI_FAC)
@@ -89,6 +90,7 @@ static void dooya_wifi_check_handle(void *paras)
 		dooya_start_sta();
 
 	}
+	*/
 	aos_task_exit(0);
 }
 uint8_t dooya_create_wifi_check_thread(void)

@@ -70,7 +70,16 @@ int dooya_fac_handle(void *paras)
 	while(1)
 	{
 
-		if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==0))
+	if(dooya_fac_wifi_model_check()==1)
+	{
+		hal_wifi_get_link_stat(NULL, &out_info);
+		printf("test ressi is (%d)\r\n",out_info.wifi_strength);
+	}
+	else
+	{
+		printf("wait chect\r\n");
+	}
+		/*if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==0))
 		{
 			count_tmp= 0;		
 			hal_wifi_get_link_stat(NULL, &out_info);
@@ -85,8 +94,7 @@ int dooya_fac_handle(void *paras)
 		else if((dooya_fac_wifi_model_check()==1)&&(dooya_fac_led_model==1))
 		{
 			count_tmp= 0;
-			/*dooya_set_led_g_status(LED_CLOSE ,1);
-			dooya_set_led_r_status( LED_TAGGLE,1);*/
+			
 			dooya_fac_stop();
 			while(1)
 			{
@@ -109,7 +117,7 @@ int dooya_fac_handle(void *paras)
 				
 				
 			}
-		}
+		}*/
 		aos_msleep(1000);
 		
 	}	
