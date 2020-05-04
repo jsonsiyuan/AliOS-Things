@@ -23,7 +23,8 @@ static uart_dev_t uart_use={
 	.config.stop_bits    = STOP_BITS_1,
 	.config.flow_control = FLOW_CONTROL_DISABLED,
 	.config.mode         = MODE_TX_RX,
-};
+};
+
 
 static aos_mutex_t  dooya_uart_mutex ;
 	
@@ -68,7 +69,7 @@ static void uart_timer_handler(void * p_context)
 		{
 			dooya_start_motor_check();
 		}
-		aos_msleep(10000);
+		aos_msleep(1000);
 	}
 }
 
@@ -94,57 +95,62 @@ static void dooya_uart_handle(void *paras)
 {
 	aos_msleep(100);
 	int rx_size ;
+	uint8_t uart_data_tmp;
+	uint8_t f_index=0;
+	uint8_t b_index=0;
 	uint8_t uart_data_buf[256];
 	uint16_t crc_tmp;
 	int32_t ret = -1;
-	printf("####sun# dooya_led_r_handle start\r\n");
+	uint8_t recv_length;
+	uint8_t i;
+	printf("####sun# dooya_uart_handle start\r\n");
 	while(1)
 	{
-		rx_size=0;
-		ret = -1;
 		memset(uart_data_buf,0,sizeof(uart_data_buf));
-		ret=hal_uart_recv_II(&uart_use, uart_data_buf, 3,&rx_size, 500);
+		ret=hal_uart_recv_II(&uart_use, uart_data_buf, 5,&rx_size, 100);
 		if ((ret == 0))
 		{
-			if(uart_data_buf[0]==0x55&&uart_data_buf[1]==0xAA)
+			if(uart_data_buf[0]==0x55&&uart_data_buf[1]==0x00&&uart_data_buf[2]==0x00)
 			{
 				rx_size=0;
 				ret = -1;
-				ret =hal_uart_recv_II(&uart_use, uart_data_buf+3, uart_data_buf[2],&rx_size, 5*uart_data_buf[2]);
+				ret =hal_uart_recv_II(&uart_use, uart_data_buf+5, uart_data_buf[4]+2,&rx_size, 500);
 				if((ret == 0))
 				{
-					crc_tmp=CRC16_MODBUS(uart_data_buf, uart_data_buf[2]+1);
-					if((uart_data_buf[uart_data_buf[2]+1]==(crc_tmp/256))
-							&&(uart_data_buf[uart_data_buf[2]+2]==(crc_tmp%256)))
+					printf("##sun ok\r\n");
+					printf("recv data is ");
+					for (i=0;i<uart_data_buf[4]+7;i++)
+					{
+						printf(" %x ",uart_data_buf[i]);								
+					}
+					printf("\r\n");
+					crc_tmp=qioucrc16(dooya,uart_data_buf, uart_data_buf[4]+5);
+					if((uart_data_buf[uart_data_buf[4]+5]==(crc_tmp%256))
+							&&(uart_data_buf[uart_data_buf[4]+6]==(crc_tmp/256)))
 						{
+							printf("recive crc is ok\r\n");
 							retry_num=0;
 							switch(uart_data_buf[3])
 							{
-								case CONTROL_CODE:
-									dooya_control_handle(uart_data_buf+4,uart_data_buf[2]-2);
+								case MOTOR_SEND:
+									dooya_motor_send_handle(uart_data_buf+5,uart_data_buf[4]);
 								break;
-								case CHECK_CODE:
-									dooya_check_handle(uart_data_buf+4,uart_data_buf[2]-2);
+								case MOTOR_RESPONSE:
+									dooya_motor_response_handle(uart_data_buf+5,uart_data_buf[4]);
 								break;
-								case NOTICE_CODE:
-									dooya_notice_handle(uart_data_buf+4,uart_data_buf[2]-2);
-								break;
-								case OTA:
-								break;
+
 							}
 
 						}
 
-
-					
 				}
-				
 			}
-		}
-		
-		
+		}		
 	}	
 }
+
+
+
 
 
 
@@ -167,31 +173,44 @@ void dooya_uart_send( uint8_t *src, uint32_t size)
 	dooya_uart_unlock_mutex();
 }
 
-uint16_t CRC16_MODBUS(uint8_t *puchMsg, uint16_t usDataLen)
+/*------------------------------------------------
+函数说明：求出数据的CRC校验码crc为初始校验码，*buf为初始地址，x为所求的个数
+--------------------------------------------------*/
+unsigned int qioucrc16(unsigned int crc,unsigned char *buf,unsigned int x)
 {
-	uint16_t wCRCin = UUID;
-
-	int16_t wCPoly = 0x8005;
-	uint8_t wChar = 0;
-	uint8_t i = 0;
-	while (usDataLen--)
+	unsigned char hi,lo;
+	unsigned int i;
+	for (i=0;i<x;i++)
 	{
-		wChar = *(puchMsg++);
-		wCRCin ^= (wChar << 8);
-		for(i = 0; i < 8; i++)
-		{
-			if(wCRCin & 0x8000)
-			{
-				wCRCin = (wCRCin << 1) ^ wCPoly;
-			}
-			else
-			{
-				wCRCin = wCRCin << 1;
-			}
-		}
+	   crc=calccrc(*buf,crc);
+	   buf++;
 	}
-	return (wCRCin);
+	hi=crc%256;
+	lo=crc/256;
+	crc=(hi<<8)|lo;
+	return crc;
 }
+/*-------------------------------------------------
+调用方式：unsigned int calccrc(uchar crcbuf,uint crc)
+函数说明：在crc的基础上求出数CRCBUF的CRC码
+--------------------------------------------------*/
+unsigned int calccrc(unsigned char crcbuf,unsigned int crc)
+{
+	unsigned char i; 
+	unsigned char chk;
+	crc=crc ^ crcbuf;
+	for(i=0;i<8;i++)
+	{
+	  chk=crc&1;
+	  crc=crc>>1;
+	  crc=crc&0x7fff;
+	  if (chk==1)
+	  crc=crc^0xa001;
+	  crc=crc&0xffff;
+	}
+	return crc; 
+}
+
 
 
 

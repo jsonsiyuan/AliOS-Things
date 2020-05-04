@@ -134,15 +134,15 @@ void dooya_set_dev_error(int data)
 }
 
 
-#define dev_property_json "{\"curtainPosition\":%d,\"curtainConrtol\":%d,\"mode\":%d} "
+#define dev_property_json "{\"CurtainPosition\":%d,\"CurtainOperation\":%d} "
 void dooya_dev_property_update(char *data)
 {
 	sprintf(data,dev_property_json, _g_pDEVMgr->CurtainPosition,
-			_g_pDEVMgr->CurtainOperation,_g_pDEVMgr->SetDir);
+			_g_pDEVMgr->CurtainOperation);
 }
 
 
-#define dev_curtainConrtol_json "{\"curtainConrtol\":%d} "
+#define dev_curtainConrtol_json "{\"CurtainOperation\":%d} "
 void dooya_dev_property_update_motor_status(char *data)
 {
 	sprintf(data,dev_curtainConrtol_json,
@@ -168,18 +168,18 @@ void dooya_user_property_parse(char *data)
 	{
 		return ;
 	}
-	item_CurtainPosition = cJSON_GetObjectItem(root, "curtainPosition");
+	item_CurtainPosition = cJSON_GetObjectItem(root, "CurtainPosition");
 	if (item_CurtainPosition != NULL || cJSON_IsNumber(item_CurtainPosition))
 	{
 		printf("#######CurtainPosition is [%d]\r\n",item_CurtainPosition->valueint);
 		dooya_set_dev_CurtainPosition_dec(item_CurtainPosition->valueint);
-		dooya_control_percent(item_CurtainPosition->valueint,0xff); 
+		dooya_control_percent(item_CurtainPosition->valueint); 
 		
 		dooya_CurtainPosition_data=item_CurtainPosition->valueint;
 
 	}
 
-	item_CurtainOperation = cJSON_GetObjectItem(root, "curtainConrtol");
+	item_CurtainOperation = cJSON_GetObjectItem(root, "CurtainOperation");
 	if (item_CurtainOperation != NULL || cJSON_IsNumber(item_CurtainOperation))
 	{
 		printf("##########curtainConrtol is [%d]\r\n",item_CurtainOperation->valueint);
@@ -204,22 +204,23 @@ void dooya_user_property_parse(char *data)
 
 	}
 
-	item_SetDir = cJSON_GetObjectItem(root, "mode");
+	item_SetDir = cJSON_GetObjectItem(root, "CurtainMode");
 	if (item_SetDir != NULL || cJSON_IsNumber(item_SetDir))
 	{
 		printf("mode is [%d]\r\n",item_SetDir->valueint);
 		dooya_set_dev_SetDir(item_SetDir->valueint);
 		switch(item_SetDir->valueint)
 		{
-			case DIR_POSITIVE:
-				dooya_control_positine_dir();
+			case 0:
+				
 			break;
-			case DIR_REVERSE:
-				dooya_control_reverse_dir();
+			case 1:
+				dooya_control_change_dir();
 			break;
-			case 352:
-				dooya_control_del_all_boundary();
+			case 2:
+				dooya_control_motor_clear();
 			break;
+
 			
 		}
 

@@ -733,7 +733,7 @@ int linkkit_main(void *paras)
 			user_post_property_motor_status();
 			dooya_post_flag_motor_status=0;
 		}
-        else if (time_now_sec % 60 == 0 && user_master_dev_available()) {
+        else if (time_now_sec % 30 == 0 && user_master_dev_available()) {
         user_post_property();
         }
         /* Post Event Example */

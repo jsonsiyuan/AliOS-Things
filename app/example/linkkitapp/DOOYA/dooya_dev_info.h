@@ -16,8 +16,8 @@ typedef enum
 }CurtainOperation_T;
 	
 
-#define DIR_POSITIVE 353
-#define DIR_REVERSE 351
+#define DIR_POSITIVE 0
+#define DIR_REVERSE 1
 
 typedef struct _user_dev_status_t{
 

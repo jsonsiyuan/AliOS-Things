@@ -227,8 +227,8 @@ static void linkkit_event_monitor(int event)
                                    // net_sockets.h for error code
             LOG("IOTX_CONN_CLOUD_FAIL");
             // operate led to indicate user
-			dooya_set_led_r_status(LED_CLOSE,1);
-			dooya_set_led_g_status(LED_OPEN,1);
+			//dooya_set_led_r_status(LED_CLOSE,1);
+			//dooya_set_led_g_status(LED_OPEN,1);
             break;
         case IOTX_CONN_CLOUD_SUC: // Device connects cloud successfully
             LOG("IOTX_CONN_CLOUD_SUC");
