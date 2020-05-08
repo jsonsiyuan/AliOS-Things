@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := linkkit gateway examples
 
-$(NAME)_SOURCES := app_entry.c 
+$(NAME)_SOURCES := app_entry.c ./DOOYA/*.c
 
 $(NAME)_COMPONENTS := netmgr cjson
 $(NAME)_COMPONENTS += linkkit_sdk_c
@@ -44,5 +44,5 @@ $(NAME)_SOURCES += simulate_subdev/testcmd.c simulate_subdev/testcmd_lock.c
 endif
 #end
 
-GLOBAL_INCLUDES += ./
+GLOBAL_INCLUDES += ./ ./DOOYA
 

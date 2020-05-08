@@ -24,10 +24,10 @@
 #endif
 
 // for demo only
-#define PRODUCT_KEY      "a1RIsMLz2BJ"
-#define PRODUCT_SECRET   "fSAF0hle6xL0oRWd"
-#define DEVICE_NAME      "example1"
-#define DEVICE_SECRET    "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE"
+#define PRODUCT_KEY      "a1j9Szjr2fy"
+#define PRODUCT_SECRET   "HNay260fm8Lw1fj7"
+#define DEVICE_NAME      "rCLnQSr9yTQnDZI6zkQx"
+#define DEVICE_SECRET    "6MwPNpWRFJST72rOscx4XmEK1esgwPns"
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
 
@@ -42,10 +42,10 @@
 #define EXAMPLE_SUBDEV_MAX_NUM          20
 const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
     {
-        "a1YRfb9bepk",
-        "PKbZL7baK8pBso94",
-        "test_01",
-        "qHLwZxOH5hwm0ApWVRXZbSxFzRUUddFc"
+        "a1u7rHR65eL",
+        "tJucS7dPpYldhN6y",
+        "CqjYWm2Z3r1sg6LHTFYg",
+        "2r6JewCccM5yQzPf0AFJgI16bVRkozyr"
     },
     {
         "a1YRfb9bepk",
@@ -427,6 +427,7 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
 
+
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
     memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
@@ -481,10 +482,12 @@ int linkkit_main(void *paras)
         }
 
         /* Add subdev */
+        
         if (user_example_ctx->master_initialized && user_example_ctx->subdev_index >= 0 &&
-            (user_example_ctx->auto_add_subdev == 1 || user_example_ctx->permit_join != 0)) {
+            (user_example_ctx->auto_add_subdev == 1 || user_example_ctx->permit_join != 0)) 
+        {
             if (user_example_ctx->subdev_index < EXAMPLE_SUBDEV_ADD_NUM) {
-                /* Add next subdev */
+                // Add next subdev 
                 if (example_add_subdev((iotx_linkkit_dev_meta_info_t *)&subdevArr[user_example_ctx->subdev_index]) == SUCCESS_RETURN) {
                     EXAMPLE_TRACE("subdev %s add succeed", subdevArr[user_example_ctx->subdev_index].device_name);
                 } else {
@@ -494,22 +497,27 @@ int linkkit_main(void *paras)
                 user_example_ctx->permit_join = 0;
             }
         }
+		
 
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {
-            user_post_property();
+            //user_post_property();
         }
 
         /* Device Info Update Example */
         if (time_now_sec % 23 == 0 && user_master_dev_available()) {
-            user_deviceinfo_update();
+            //user_deviceinfo_update();
         }
 
         /* Device Info Delete Example */
         if (time_now_sec % 29 == 0 && user_master_dev_available()) {
-            user_deviceinfo_delete();
+            //user_deviceinfo_delete();
         }
-
+		if (time_now_sec % 60 == 0 && user_master_dev_available()) {
+			EXAMPLE_TRACE("ITE_TIMESTAMP_REPLY");
+            IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TIMESTAMP, NULL, 0);
+        }
+	
         time_prev_sec = time_now_sec;
     }
 

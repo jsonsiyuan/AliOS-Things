@@ -15,6 +15,16 @@
 #include "netmgr.h"
 #include "iot_export.h"
 #include "iot_import.h"
+#include "app_entry.h"
+
+/*@sun change*/
+#include "dooya_led.h"
+#include "dooya_uart.h"
+#include "dooya_flash.h"
+#include "dooya_wifi_status.h"
+#include "dooya_fac.h"
+#include "dooya_dev_info.h"
+#include "dooya_wdg.h"
 
 #ifdef CSP_LINUXHOST
 #include <signal.h>
@@ -33,7 +43,6 @@
 static char linkkit_started = 0;
 static char awss_running    = 0;
 
-void linkkit_main(void *p);
 void set_iotx_info();
 void do_awss_active();
 
@@ -162,6 +171,13 @@ static void linkkit_event_monitor(int event)
                                // ip address
             LOG("IOTX_AWSS_GOT_IP");
             // operate led to indicate user
+            if(awss_running)
+			{
+				awss_running = 0;
+				dooya_set_wifi_STA();
+			}
+			dooya_set_led_r_status(LED_CLOSE,1);
+            dooya_set_led_g_status(LED_OPEN,1);
             break;
         case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
                                    // sucess)
@@ -177,6 +193,17 @@ static void linkkit_event_monitor(int event)
                                        // user needs to enable awss again to support get ssid & passwd of router
             LOG("IOTX_AWSS_ENALBE_TIMEOUT");
             // operate led to indicate user
+            awss_running=0;
+            if(netmgr_wifi_check_ssid()==0)
+            {
+                dooya_set_wifi_STA();
+                aos_reboot();
+            }
+            else
+            {
+                dooya_set_led_g_status(LED_TAGGLE,1);
+				dooya_set_led_r_status(LED_CLOSE,1);
+            }
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
             LOG("IOTX_CONN_CLOUD");
@@ -204,6 +231,8 @@ static void linkkit_event_monitor(int event)
 static void start_netmgr(void *p)
 {
     iotx_event_regist_cb(linkkit_event_monitor);
+    LOG("%s\n", __func__);
+    aos_msleep(2000);
     netmgr_start(true);
     aos_task_exit(0);
 }
@@ -242,12 +271,17 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 
     if (eventinfo->code == CODE_BOOT) {
         if (eventinfo->value == VALUE_KEY_CLICK) {
-            do_awss_active();
+            //do_awss_active();
+			dooya_set_wifi_smartconfig();
+			aos_msleep(100);
+			do_awss_reset();
         } else if (eventinfo->value == VALUE_KEY_LTCLICK) {
-            do_awss_reset();
+            //do_awss_reset();
         }
     }
 }
+
+
 #ifdef AOS_COMP_CLI
 static void handle_gw_mm_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
@@ -363,6 +397,7 @@ int application_start(int argc, char **argv)
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
     IOT_RegisterCallback(ITE_MQTT_CONNECT_SUCC,mqtt_connected_event_handler);
 
+
 #ifdef AOS_COMP_CLI
     aos_cli_register_command(&resetcmd);
     aos_cli_register_command(&ncmd);
@@ -375,7 +410,15 @@ int application_start(int argc, char **argv)
 #endif
     set_iotx_info();
     IOT_SetLogLevel(IOT_LOG_DEBUG);
-    aos_task_new("netmgr", start_netmgr, NULL, 4096);
+    //aos_task_new("netmgr", start_netmgr, NULL, 4096);
+    char *A_version="1.0.0";
+    printf("###code## is [%s]\r\n",A_version);
+	iotx_event_regist_cb(linkkit_event_monitor);
+	
+
+
+        dooya_create_wifi_check_thread();
+
 
     aos_loop_run();
 
