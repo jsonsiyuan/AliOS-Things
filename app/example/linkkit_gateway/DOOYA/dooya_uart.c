@@ -5,7 +5,7 @@
 #include "dooya_led.h"
 
 #define UART_PORT_NUM  1
-#define UART_baud_rate 9600
+#define UART_baud_rate 115200
 
 #define UART_BUF_SIZE   10
 #define UART_TX_TIMEOUT 10
@@ -48,7 +48,7 @@ static void uart_timer_handler(void * p_context)
 {
 	while(1)
 	{
-		retry_num++;
+		/*retry_num++;
 		if(retry_num>5)
 		{
 			dooya_set_led_g_status(LED_CLOSE,1);
@@ -64,7 +64,7 @@ static void uart_timer_handler(void * p_context)
 		{
 			retry_num=0;
 		}
-		else
+		else*/
 		{
 			dooya_start_motor_check();
 		}
@@ -97,7 +97,7 @@ static void dooya_uart_handle(void *paras)
 	uint8_t uart_data_buf[256];
 	uint16_t crc_tmp;
 	int32_t ret = -1;
-	printf("####sun# dooya_led_r_handle start\r\n");
+	printf("####sun# dooya_uart_handle start\r\n");
 	while(1)
 	{
 		rx_size=0;
@@ -117,17 +117,19 @@ static void dooya_uart_handle(void *paras)
 					if((uart_data_buf[uart_data_buf[2]+1]==(crc_tmp/256))
 							&&(uart_data_buf[uart_data_buf[2]+2]==(crc_tmp%256)))
 						{
-							retry_num=0;
+							//retry_num=0;
+							printf("CRC16_MODBUS crc ok\r\n");
 							switch(uart_data_buf[3])
 							{
 								case CONTROL_CODE:
-									dooya_control_handle(uart_data_buf+4,uart_data_buf[2]-2);
+									//dooya_control_handle(uart_data_buf+4,uart_data_buf[2]-1);
 								break;
 								case CHECK_CODE:
-									dooya_check_handle(uart_data_buf+4,uart_data_buf[2]-2);
+									//dooya_check_handle(uart_data_buf+4,uart_data_buf[2]-1);
 								break;
 								case NOTICE_CODE:
-									dooya_notice_handle(uart_data_buf+4,uart_data_buf[2]-2);
+									printf("NOTICE_CODE\r\n");
+									dooya_notice_handle(uart_data_buf+4,uart_data_buf[2]-1);
 								break;
 								case OTA:
 								break;
@@ -154,8 +156,8 @@ uint8_t dooya_create_uart_thread(void)
 {
 	dooya_uart_init();
 	printf("do dooya_create_uart_thread\r\n");	
-	aos_task_new("uart", (void (*)(void *))dooya_uart_handle, NULL, 1024);
-	aos_task_new("uart_time", (void (*)(void *))uart_timer_handler, NULL, 1024);
+	aos_task_new("uart", (void (*)(void *))dooya_uart_handle, NULL, 1024*5);
+	//aos_task_new("uart_time", (void (*)(void *))uart_timer_handler, NULL, 1024);
 	return 0;
 
 }

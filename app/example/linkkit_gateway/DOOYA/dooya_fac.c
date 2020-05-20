@@ -78,7 +78,7 @@ int dooya_fac_handle(void *paras)
 			printf("test ressi is (%d)\r\n",out_info.wifi_strength);
 			wifi_rssi_int=(char)out_info.wifi_strength;
 			printf("test ressi is (%d)\r\n",wifi_rssi_int);
-			dooya_response_fac(1,wifi_rssi_int);	
+//			dooya_response_fac(1,wifi_rssi_int);	
 
 			
 		}
@@ -101,7 +101,7 @@ int dooya_fac_handle(void *paras)
 		}		
 		if(count_tmp>FAC_TIME_OUT)
 		{
-			dooya_response_fac(0,0);
+			//dooya_response_fac(0,0);
 			dooya_fac_stop();
 			while(1)
 			{

@@ -59,6 +59,9 @@ typedef enum
 /*NOTICE_CODE*/
 
 #define NOTICE_MOTOR_INFO           0x01
+#define NOTICE_ZIGBEE_NET           0x02
+#define NOTICE_ZIGBEE_RESET         0x03
+
 #define NOTICE_TO_FAC_MODEL         0X05
 
 /*OTA*/

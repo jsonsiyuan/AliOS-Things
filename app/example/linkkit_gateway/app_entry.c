@@ -25,6 +25,7 @@
 #include "dooya_fac.h"
 #include "dooya_dev_info.h"
 #include "dooya_wdg.h"
+#include "dooya_sub_dev.h"
 
 #ifdef CSP_LINUXHOST
 #include <signal.h>
@@ -213,10 +214,14 @@ static void linkkit_event_monitor(int event)
                                    // net_sockets.h for error code
             LOG("IOTX_CONN_CLOUD_FAIL");
             // operate led to indicate user
+			dooya_set_led_r_status(LED_CLOSE,1);
+			dooya_set_led_g_status(LED_OPEN,1);
             break;
         case IOTX_CONN_CLOUD_SUC: // Device connects cloud successfully
             LOG("IOTX_CONN_CLOUD_SUC");
             // operate led to indicate user
+			dooya_set_led_r_status(LED_CLOSE,1);
+			dooya_set_led_g_status(LED_CLOSE,1);
             break;
         case IOTX_RESET: // Linkkit reset success (just got reset response from
                          // cloud without any other operation)
@@ -413,12 +418,16 @@ int application_start(int argc, char **argv)
     //aos_task_new("netmgr", start_netmgr, NULL, 4096);
     char *A_version="1.0.0";
     printf("###code## is [%s]\r\n",A_version);
+	
 	iotx_event_regist_cb(linkkit_event_monitor);
 	
+	dooya_sub_dev_init();
 
-
-        dooya_create_wifi_check_thread();
-
+	
+	dooya_create_led_thread();
+	dooya_create_wdg_thread();
+	dooya_create_uart_thread();
+	dooya_create_wifi_check_thread();
 
     aos_loop_run();
 

@@ -3,24 +3,10 @@
 
 #include <stdint.h>
 
-void dooya_response_fac(uint8_t rec_data,uint8_t rssi_data);
+void dooya_zigbee_add_sub(void);
+void dooya_zigbee_del_sub(uint16_t address);
+void dooya_zigbee_send_control(uint16_t address,uint16_t cluse,uint8_t endpoint,uint8_t *data_array,uint8_t len);
 
-void dooya_control_motor_open(void);
-void dooya_control_motor_close(void);
-void dooya_control_motor_stop(void);
-void dooya_control_percent(uint8_t p_flag,uint8_t a_flag);
-
-void dooya_control_positine_dir(void);
-void dooya_control_reverse_dir(void);
-void dooya_control_change_dir(void);
-
-void dooya_control_del_all_boundary(void);
-
-void dooya_check_motor_status(void);
-void dooya_check_zone_percent(void);
-void dooya_check_run_boundary(void);
-
-void dooya_start_motor_check(void);
 
 
 

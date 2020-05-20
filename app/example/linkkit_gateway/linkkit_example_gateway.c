@@ -23,6 +23,13 @@
 #include "ota/ota_service.h"
 #endif
 
+
+#include "dooya_led.h"
+#include "dooya_uart_send.h"
+#include "dooya_sub_dev.h"
+
+
+
 // for demo only
 #define PRODUCT_KEY      "a1j9Szjr2fy"
 #define PRODUCT_SECRET   "HNay260fm8Lw1fj7"
@@ -48,16 +55,16 @@ const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
         "2r6JewCccM5yQzPf0AFJgI16bVRkozyr"
     },
     {
-        "a1YRfb9bepk",
-        "PKbZL7baK8pBso94",
-        "test_02",
-        "jFsErM3uA7UfbS6J0hm0QaEXsQbmO6Pa"
+        "a1u7rHR65eL",
+        "tJucS7dPpYldhN6y",
+        "klrqxTzco7sQiE8NzT2u",
+        "SIWJq9UjBdThaZJGq9ZLmGHIBzOZCLHD"
     },
     {
-        "a1YRfb9bepk",
-        "PKbZL7baK8pBso94",
-        "test_03",
-        "MjWMvCLBcuZyqUswryBbgypN8uOgJGVD"
+        "a1u7rHR65eL",
+        "tJucS7dPpYldhN6y",
+        "lDUUvds5c3EbZGpjCDjp",
+        "Zjra54laBsYopivvqsALkVwz3wu28d1j"
     },
     {
         "a1YRfb9bepk",
@@ -197,7 +204,11 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
 
-    user_example_ctx->cloud_connected = 1;
+
+    user_example_ctx->cloud_connected = 1; 
+	printf("#############user_connected_event_handler\r\n");
+    dooya_set_led_g_status(LED_CLOSE,1);
+    dooya_set_led_r_status(LED_CLOSE,1);
     return 0;
 }
 
@@ -208,6 +219,13 @@ static int user_disconnected_event_handler(void)
     EXAMPLE_TRACE("Cloud Disconnected");
 
     user_example_ctx->cloud_connected = 0;
+    printf("#############user_disconnected_event_handler\r\n");
+
+	if(netmgr_get_ip_state()==1)
+	{
+		dooya_set_led_r_status(LED_CLOSE,1);
+		dooya_set_led_g_status(LED_OPEN,1);
+	}
 
     return 0;
 }
@@ -217,7 +235,11 @@ static int user_property_set_event_handler(const int devid, const char *request,
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     EXAMPLE_TRACE("Property Set Received, Devid: %d, Request: %s", devid, request);
-
+	/*
+	sun code
+	*/
+	dooya_sub_zigbee_deal(devid,request);
+	
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
@@ -228,6 +250,7 @@ static int user_property_set_event_handler(const int devid, const char *request,
 static int user_report_reply_event_handler(const int devid, const int msgid, const int code, const char *reply,
         const int reply_len)
 {
+	EXAMPLE_TRACE("user_report_reply_event_handler");
     const char *reply_value = (reply == NULL) ? ("NULL") : (reply);
     const int reply_value_len = (reply_len == 0) ? (strlen("NULL")) : (reply_len);
 
@@ -243,6 +266,8 @@ static int user_timestamp_reply_event_handler(const char *timestamp)
 
     return 0;
 }
+
+
 
 static int user_initialized(const int devid)
 {
@@ -320,7 +345,7 @@ void set_iotx_info()
     HAL_SetDeviceSecret(DEVICE_SECRET);
 }
 
-static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
+ int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
 {
     int res = 0, devid = -1;
 
@@ -354,7 +379,7 @@ static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
         return res;
     }
     EXAMPLE_TRACE("subdev login success: devid = %d\n", devid);
-    return res;
+    return devid;
 }
 
 int user_permit_join_event_handler(const char *product_key, const int time)
@@ -362,8 +387,9 @@ int user_permit_join_event_handler(const char *product_key, const int time)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
 
     EXAMPLE_TRACE("Product Key: %s, Time: %d", product_key, time);
+	dooya_zigbee_add_sub();
 
-    user_example_ctx->permit_join = 1;
+    //user_example_ctx->permit_join = 1;
 
     return 0;
 }
@@ -379,7 +405,26 @@ void *user_dispatch_yield(void *args)
     return NULL;
 }
 
+
+/* 子设备topoList接收处理函数, devid默认为主设备ID, topo_data指向json数组字符串 */
+int user_topolist_received_event_handler(const int devid, const int msgid, const int code, const char *topo_data, const int topo_datalen)
+{
+	printf(" devid = %d\r\n msgid = %d\r\n code = %d\r\n topo list = %.*s\r\n", devid, msgid, code, topo_datalen, topo_data);
+
+	dooya_sub_zigbee_number(topo_data);
+	return 0;
+}
+
 static int max_running_seconds = 0;
+uint8_t dev_property_json[]= "{\"CurtainPosition\":20} ";
+static int user_down_raw_data_arrived_event_handler(const int devid, const unsigned char *payload,
+                                                                     const int payload_len)
+{
+    EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
+
+    return 0;
+}
+
 int linkkit_main(void *paras)
 {
     int res = 0;
@@ -426,7 +471,10 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, user_timestamp_reply_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
-
+	
+	IOT_RegisterCallback(ITE_TOPOLIST_REPLY, user_topolist_received_event_handler);
+	IOT_RegisterCallback(ITE_TRIGGER_EVENT_REPLY, user_report_reply_event_handler);
+	IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
@@ -488,11 +536,12 @@ int linkkit_main(void *paras)
         {
             if (user_example_ctx->subdev_index < EXAMPLE_SUBDEV_ADD_NUM) {
                 // Add next subdev 
+                /*
                 if (example_add_subdev((iotx_linkkit_dev_meta_info_t *)&subdevArr[user_example_ctx->subdev_index]) == SUCCESS_RETURN) {
                     EXAMPLE_TRACE("subdev %s add succeed", subdevArr[user_example_ctx->subdev_index].device_name);
                 } else {
                     EXAMPLE_TRACE("subdev %s add failed", subdevArr[user_example_ctx->subdev_index].device_name);
-                }
+                }*/
                 user_example_ctx->subdev_index++;
                 user_example_ctx->permit_join = 0;
             }
@@ -514,10 +563,17 @@ int linkkit_main(void *paras)
             //user_deviceinfo_delete();
         }
 		if (time_now_sec % 60 == 0 && user_master_dev_available()) {
-			EXAMPLE_TRACE("ITE_TIMESTAMP_REPLY");
-            IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TIMESTAMP, NULL, 0);
+			//EXAMPLE_TRACE("ITE_TIMESTAMP_REPLY");
+			EXAMPLE_TRACE("ITM_MSG_QUERY_TOPOLIST");
+           // IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TIMESTAMP, NULL, 0);
+           IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TOPOLIST, NULL, 0);
         }
-	
+		if (time_now_sec % 60 == 0 && user_master_dev_available()) {
+			//EXAMPLE_TRACE("ITM_MSG_POST_PROPERTY");
+           // IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TIMESTAMP, NULL, 0);
+
+           //IOT_Linkkit_Report(2, ITM_MSG_POST_PROPERTY, dev_property_json,22);
+        }
         time_prev_sec = time_now_sec;
     }
 
