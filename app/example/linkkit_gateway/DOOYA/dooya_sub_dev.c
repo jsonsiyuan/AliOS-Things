@@ -79,6 +79,17 @@ int dooya_get_sub_dev_na(uint8_t *string_tmp,int *len,uint8_t index)
 }
 
 
+int dooya_del_sub_all(void)
+{
+	uint8_t i;
+	for(i=0;i<data_len;i++)
+	{
+		dooya_del_sub_flash( i);
+	}
+	all_number=0;
+	dooya_all_number_change();
+
+}
 
 int dooya_del_sub_flash(uint8_t index)
 {
@@ -115,6 +126,14 @@ int dooya_find_sub_from_flash(user_sub_dev_t *data_tmp,uint8_t index)
 	return aos_kv_get(kv_string, (void *)data_tmp, &len);
 }
 
+void dooya_sub_dev_init_mini(void)
+{
+	int ret=1;
+	int len= sizeof(uint8_t);
+	ret=aos_kv_get(dooya_sub_all_member_kv, (void *)&all_number, &len);
+	printf("###########number_bit_flag1 0x%x\r\n",number_bit_flag);
+}
+
 
 void dooya_sub_dev_init(void)
 {
@@ -122,14 +141,20 @@ void dooya_sub_dev_init(void)
 	uint8_t kv_array_tmp[30]={0};
 	uint8_t i=0;
 	user_sub_dev_t data_tmp;
+	iotx_linkkit_dev_meta_info_t ali_tmp;
 	int len= sizeof(uint8_t);
+	uint8_t all_number_tmp;
+
+	int index_tmp;
+		
 	ret=aos_kv_get(dooya_sub_all_member_kv, (void *)&all_number, &len);
+	all_number_tmp=all_number;
 	number_bit_flag=0;
 	printf("###########number_bit_flag1 0x%x\r\n",number_bit_flag);
 	if(0==ret)
 	{
-		printf("###########all_number %d\r\n",all_number);
-		while(all_number>0)
+		printf("###########all_number %d\r\n",all_number_tmp);
+		while(all_number_tmp>0)
 		{
 			memset(kv_array_tmp,0,sizeof(kv_array_tmp));
 			sprintf(kv_array_tmp,dooya_sub_kv,i);
@@ -145,11 +170,51 @@ void dooya_sub_dev_init(void)
 				
 				if(data_tmp.enable_flag==1)
 				{
-					all_number--;
+					all_number_tmp--;
 					number_bit_flag|=(1<<i);
 					printf("data_tmp.address is 0x%x,data_tmp.all_point is 0x%x ,data_tmp.cluse is 0x%x,data_tmp.index is 0x%x\r\n",
 						data_tmp.address,data_tmp.all_point,data_tmp.cluse,data_tmp.index);
-					printf("###########number_bit_flag 0x%x\r\n",number_bit_flag);
+
+					//上电注册
+					//pro_na
+					memset(kv_array_tmp,0,sizeof(kv_array_tmp));
+					memset(ali_tmp.product_key,0,sizeof(ali_tmp.product_key));
+					sprintf(kv_array_tmp,dooya_pro_na,i);
+					len=sizeof(ali_tmp.product_key);
+					aos_kv_get(kv_array_tmp, (void *)ali_tmp.product_key, &len);
+
+					printf("###########product_key %s\r\n",ali_tmp.product_key);
+					//pro_se
+					memset(kv_array_tmp,0,sizeof(kv_array_tmp));
+					memset(ali_tmp.product_secret,0,sizeof(ali_tmp.product_secret));
+					sprintf(kv_array_tmp,dooya_pro_se,i);
+					len=sizeof(ali_tmp.product_secret);
+					aos_kv_get(kv_array_tmp, (void *)ali_tmp.product_secret, &len);
+					printf("###########product_secret %s\r\n",ali_tmp.product_secret);
+
+					//dev_na
+					memset(kv_array_tmp,0,sizeof(kv_array_tmp));
+					memset(ali_tmp.device_name,0,sizeof(ali_tmp.device_name));
+					sprintf(kv_array_tmp,dooya_dev_na,i);
+					len=sizeof(ali_tmp.device_name);
+					aos_kv_get(kv_array_tmp, (void *)ali_tmp.device_name, &len);
+				
+
+					//dev_se
+					memset(kv_array_tmp,0,sizeof(kv_array_tmp));
+					memset(ali_tmp.device_secret,0,sizeof(ali_tmp.device_secret));
+					sprintf(kv_array_tmp,dooya_dev_se,i);
+					len=sizeof(ali_tmp.device_secret);
+					aos_kv_get(kv_array_tmp, (void *)ali_tmp.device_secret, &len);
+
+					index_tmp=example_add_subdev(&ali_tmp);
+					
+					if(index_tmp !=-1)
+					{
+						data_tmp.index=ret;
+						dooya_add_sub_flash(&data_tmp,i);
+					}
+					
 				}
 			}
 			printf("###########number_bit_flag 0x%x\r\n",number_bit_flag);
@@ -245,6 +310,7 @@ void dooya_zigbee_net_deal(uint8_t *payload_msg,uint8_t msg_len)
 	int ret;
 	user_sub_dev_t data_tmp;
 	uint8_t index_tmp=0;
+	int len;
 	memset(&data_tmp,0,sizeof(user_sub_dev_t));
 
 	data_tmp.address=payload_msg[0]*256+payload_msg[1];
@@ -259,16 +325,17 @@ void dooya_zigbee_net_deal(uint8_t *payload_msg,uint8_t msg_len)
 		data_tmp.index=ret;
 		data_tmp.enable_flag=1;
 		
-		
-		
+		len=sizeof(uint8_t);
+		aos_kv_get(dooya_sub_all_member_kv, (void *)&all_number, &len);
 		all_number++;
 		printf("all_number is [%d]\r\n",all_number);
 		dooya_all_number_change();
 		
 		index_tmp=dooya_find_no_sub_index_from_flash();
-		printf("index_tmp is [%d]\r\n",index_tmp);
+		
+		printf("dooya_zigbee_net_deal index_tmp is [%d]\r\n",index_tmp);
 		ret=dooya_add_sub_flash(&data_tmp,index_tmp);
-		printf("ret is [%d]\r\n",ret);
+		printf("dooya_zigbee_net_deal ret is [%d]\r\n",ret);
 
 		memset(ali_tree_array,0,sizeof(ali_tree_array));
 		memcpy(ali_tree_array,payload_msg+5,11);
@@ -286,6 +353,8 @@ void dooya_zigbee_net_deal(uint8_t *payload_msg,uint8_t msg_len)
 		memcpy(ali_tree_array,payload_msg+52,32);
 		dooya_add_sub_dev_se(ali_tree_array, index_tmp);
 		number_bit_flag|=(1<<index_tmp);
+		
+		printf("dooya_zigbee_net_deal number_bit_flag is [%x]\r\n",number_bit_flag);
 	}
 
 }
@@ -452,9 +521,20 @@ void dooya_zigbee_window_position(uint16_t address,uint16_t cluse,uint8_t data_t
 
 void dooya_sub_zigbee_del(int devid,int8_t index)
 {
+	int len=sizeof(uint8_t);
+	uint16_t number_bit_flag_tmp=1<<index;
+	printf("number_bit_flag_tmp is 0x%x\r\n",number_bit_flag_tmp);
+	aos_kv_get(dooya_sub_all_member_kv, (void *)&all_number, &len);
+	all_number--;
+	dooya_all_number_change();
+
 	dooya_del_sub_flash(index);
 	IOT_Linkkit_Close(devid);
 	
+	
+	number_bit_flag &=(~number_bit_flag_tmp);
+	
+	printf("number_bit_flag2 is 0x%x\r\n",number_bit_flag);
 }
 
 void dooya_sub_zigbee_number(char *data)
@@ -476,8 +556,10 @@ void dooya_sub_zigbee_number(char *data)
 	}
 	
 	arrySize=cJSON_GetArraySize(root);//数组大小
+	len=sizeof(uint8_t);
+	aos_kv_get(dooya_sub_all_member_kv, (void *)&all_number, &len);
 	printf("################dooya_sub_zigbee_number {%d}[%d]\r\n",arrySize,all_number);
-	if(arrySize!=all_number)
+	if(arrySize<all_number)
 	{
 		
 		for(i=0;i<data_len;i++)
@@ -495,22 +577,32 @@ void dooya_sub_zigbee_number(char *data)
 				len=sizeof(dev_name);
 				dooya_get_sub_dev_na(dev_name,&len, index_tmp);
 				printf("vn deviceName is %s\r\n",dev_name);
-
-				for(k=0;k<arrySize;k++)
+				if(arrySize==0)
 				{
-					item_tmp = cJSON_GetArrayItem(root, k);
-					item_tmp1 = cJSON_GetObjectItem(item_tmp, "deviceName");
-					if (item_tmp1 != NULL || cJSON_IsString(item_tmp1))
+					/*删除*/
+					dooya_find_sub_from_flash(&data_t_tmp,i);
+							
+					dooya_sub_zigbee_del(data_t_tmp.index,index_tmp);
+				}
+				else
+				{
+					for(k=0;k<arrySize;k++)
+
 					{
-						printf("deviceName is %s\r\n",item_tmp1->string);
-						if(!strcmp(item_tmp1->string,dev_name))
+						item_tmp = cJSON_GetArrayItem(root, k);
+						item_tmp1 = cJSON_GetObjectItem(item_tmp, "deviceName");
+						if (item_tmp1 != NULL || cJSON_IsString(item_tmp1))
 						{
-							break;
+							printf("deviceName is %s\r\n",item_tmp1->valuestring);
+							if(!strcmp(item_tmp1->string,dev_name))
+							{
+								break;
+							}
+							/*删除*/
+							dooya_find_sub_from_flash(&data_t_tmp,i);
+							
+							dooya_sub_zigbee_del(data_t_tmp.index,index_tmp);
 						}
-						/*删除*/
-						dooya_find_sub_from_flash(&data_t_tmp,i);
-						
-						dooya_sub_zigbee_del(data_t_tmp.index,index_tmp);
 					}
 				}
 			}
@@ -519,20 +611,21 @@ void dooya_sub_zigbee_number(char *data)
 
 
 	
-	for(i=0;i<arrySize;k++)
+	/*for(k=0;k<arrySize;k++)
 	{
 		item_tmp = cJSON_GetArrayItem(root, k);
 		item_tmp1 = cJSON_GetObjectItem(item_tmp, "deviceName");
 		if (item_tmp1 != NULL || cJSON_IsString(item_tmp1))
 		{
-			printf("deviceName is %s\r\n",item_tmp1->string);
+			printf("deviceName is %s\r\n",item_tmp1->valuestring);
+			memset(dev_name,0,sizeof(dev_name));
 			len=sizeof(dev_name);
-			dooya_get_sub_dev_na(dev_name,&len, 1);
+			dooya_get_sub_dev_na(dev_name,&len, 0);
 			printf("vn deviceName is %s\r\n",dev_name);
 			
 		}
 
-	}
+	}*/
 	cJSON_Delete(root);
 }
 

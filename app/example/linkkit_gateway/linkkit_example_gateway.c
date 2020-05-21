@@ -420,6 +420,8 @@ uint8_t dev_property_json[]= "{\"CurtainPosition\":20} ";
 static int user_down_raw_data_arrived_event_handler(const int devid, const unsigned char *payload,
                                                                      const int payload_len)
 {
+	EXAMPLE_TRACE("###############Down Raw Message");
+
     EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
 
     return 0;
@@ -517,6 +519,11 @@ int linkkit_main(void *paras)
     }
 
     time_begin_sec = user_update_sec();
+	
+	HAL_SleepMs(5000);
+	printf("dooya_sub_dev_init\r\n");
+	dooya_sub_dev_init();
+	
     while (1) {
         HAL_SleepMs(200);
 

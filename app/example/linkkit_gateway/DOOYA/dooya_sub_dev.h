@@ -24,9 +24,11 @@ int dooya_add_sub_pro_se(uint8_t *string_tmp,uint8_t index);
 int dooya_add_sub_dev_na(uint8_t *string_tmp,uint8_t index);
 int dooya_add_sub_dev_se(uint8_t *string_tmp,uint8_t index);
 int dooya_get_sub_dev_na(uint8_t *string_tmp,int *len,uint8_t index);
+int dooya_del_sub_all(void);
 
 int dooya_del_sub_flash(uint8_t index);
 int dooya_find_sub_from_flash(user_sub_dev_t *data_tmp,uint8_t index);
+void dooya_sub_dev_init_mini(void);
 
 void dooya_sub_dev_init(void);
 int dooya_add_sub(    uint8_t * product_key,uint8_t *product_secret,uint8_t *device_name,uint8_t *device_secret);

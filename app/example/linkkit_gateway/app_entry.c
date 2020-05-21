@@ -278,7 +278,8 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
         if (eventinfo->value == VALUE_KEY_CLICK) {
             //do_awss_active();
 			dooya_set_wifi_smartconfig();
-			aos_msleep(100);
+			dooya_del_sub_all();
+			aos_msleep(1000);
 			do_awss_reset();
         } else if (eventinfo->value == VALUE_KEY_LTCLICK) {
             //do_awss_reset();
@@ -421,7 +422,7 @@ int application_start(int argc, char **argv)
 	
 	iotx_event_regist_cb(linkkit_event_monitor);
 	
-	dooya_sub_dev_init();
+	dooya_sub_dev_init_mini();
 
 	
 	dooya_create_led_thread();
