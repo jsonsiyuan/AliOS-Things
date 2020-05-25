@@ -1371,6 +1371,8 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
             || iotx_mc_is_topic_matched((char *)h->topic_filter, topicName)) {
 #else
     /* we have to find the right message handler - indexed by topic */
+	
+
     HAL_MutexLock(c->lock_generic);
     iotx_mc_topic_handle_t *h;
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
@@ -1378,7 +1380,8 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
             || iotx_mc_is_topic_matched((char *)h->topic_filter, topicName)) {
 #endif
             mqtt_debug("topic be matched");
-
+			mqtt_info("################ topic be matched");
+			
             iotx_mc_topic_handle_t *msg_handle = h;
             HAL_MutexUnlock(c->lock_generic);
 
@@ -1398,12 +1401,16 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 
     if (0 == flag_matched) {
         mqtt_debug("NO matching any topic, call default handle function");
+		mqtt_info("################ NO matching any topic, call default handle function");
 
         if (NULL != c->handle_event.h_fp) {
+			mqtt_info("################ handle_event is ok");
             iotx_mqtt_event_msg_t msg;
 
             msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
             msg.msg = topic_msg;
+
+			mqtt_info("################ msg.msg is [%s]",msg.msg);
             _handle_event(&c->handle_event, c, &msg);
         }
     }
@@ -1671,6 +1678,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     topic_msg.topic_len = 0;
 
     mqtt_debug("delivering msg ...");
+	
 
 #if WITH_MQTT_FLOW_CTRL
     {
@@ -1694,6 +1702,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         }
     }
 #endif
+	
 
     iotx_mc_deliver_message(c, &topicName, &topic_msg);
 
@@ -1707,6 +1716,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         mqtt_err("Invalid QOS, QOSvalue = %d", topic_msg.qos);
         return MQTT_PUBLISH_QOS_ERROR;
     }
+
 
     return result;
 }

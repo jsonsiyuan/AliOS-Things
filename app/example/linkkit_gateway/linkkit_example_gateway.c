@@ -474,9 +474,10 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
 	
-	IOT_RegisterCallback(ITE_TOPOLIST_REPLY, user_topolist_received_event_handler);
-	IOT_RegisterCallback(ITE_TRIGGER_EVENT_REPLY, user_report_reply_event_handler);
-	IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
+	//IOT_RegisterCallback(ITE_TOPOLIST_REPLY, user_topolist_received_event_handler);
+	
+	//IOT_RegisterCallback(ITE_TRIGGER_EVENT_REPLY, user_report_reply_event_handler);
+	//IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
@@ -487,6 +488,7 @@ int linkkit_main(void *paras)
     /* Create Master Device Resources */
     user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
     if (user_example_ctx->master_devid < 0) {
+		aos_reboot();
         EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
         return -1;
     }
@@ -506,6 +508,7 @@ int linkkit_main(void *paras)
     /* Start Connect Aliyun Server */
     res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
     if (res < 0) {
+		aos_reboot();
         EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
         return -1;
     }
@@ -538,21 +541,21 @@ int linkkit_main(void *paras)
 
         /* Add subdev */
         
-        if (user_example_ctx->master_initialized && user_example_ctx->subdev_index >= 0 &&
+         /*if (user_example_ctx->master_initialized && user_example_ctx->subdev_index >= 0 &&
             (user_example_ctx->auto_add_subdev == 1 || user_example_ctx->permit_join != 0)) 
         {
             if (user_example_ctx->subdev_index < EXAMPLE_SUBDEV_ADD_NUM) {
                 // Add next subdev 
-                /*
+               
                 if (example_add_subdev((iotx_linkkit_dev_meta_info_t *)&subdevArr[user_example_ctx->subdev_index]) == SUCCESS_RETURN) {
                     EXAMPLE_TRACE("subdev %s add succeed", subdevArr[user_example_ctx->subdev_index].device_name);
                 } else {
                     EXAMPLE_TRACE("subdev %s add failed", subdevArr[user_example_ctx->subdev_index].device_name);
-                }*/
+                }
                 user_example_ctx->subdev_index++;
                 user_example_ctx->permit_join = 0;
             }
-        }
+        }*/
 		
 
         /* Post Proprety Example */
@@ -571,8 +574,10 @@ int linkkit_main(void *paras)
         }
 		if (time_now_sec % 60 == 0 && user_master_dev_available()) {
 			//EXAMPLE_TRACE("ITE_TIMESTAMP_REPLY");
+			// IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TIMESTAMP, NULL, 0);
+
 			EXAMPLE_TRACE("ITM_MSG_QUERY_TOPOLIST");
-           // IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TIMESTAMP, NULL, 0);
+           
            IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TOPOLIST, NULL, 0);
         }
 		if (time_now_sec % 60 == 0 && user_master_dev_available()) {

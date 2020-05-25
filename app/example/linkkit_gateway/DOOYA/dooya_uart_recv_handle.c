@@ -23,7 +23,7 @@ void dooya_check_handle(uint8_t *payload_msg,uint8_t msg_len)
 
 void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 {
-
+	uint16_t address_tmp;
 	switch(payload_msg[0])
 	{
 		case NOTICE_MOTOR_INFO:
@@ -35,7 +35,8 @@ void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 			dooya_zigbee_net_deal(payload_msg+1,msg_len-1);
 		break;
 		case NOTICE_ZIGBEE_RESET:
-			
+			address_tmp=payload_msg[1]*256+payload_msg[2];
+			dooya_sub_zigbee_leave_net(address_tmp);
 		break;
 		case NOTICE_TO_FAC_MODEL:
 			

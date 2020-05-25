@@ -9,10 +9,11 @@
 #include "iot_import.h"
 
 
-#define data_len 16
+#define data_len 32
+#define sun_type uint32_t
 
 uint8_t   all_number=0;
-uint16_t  number_bit_flag=0;
+sun_type  number_bit_flag=0;
 
 
 
@@ -150,12 +151,13 @@ void dooya_sub_dev_init(void)
 	ret=aos_kv_get(dooya_sub_all_member_kv, (void *)&all_number, &len);
 	all_number_tmp=all_number;
 	number_bit_flag=0;
-	printf("###########number_bit_flag1 0x%x\r\n",number_bit_flag);
+	
 	if(0==ret)
 	{
 		printf("###########all_number %d\r\n",all_number_tmp);
 		while(all_number_tmp>0)
 		{
+		HAL_SleepMs(5000);
 			memset(kv_array_tmp,0,sizeof(kv_array_tmp));
 			sprintf(kv_array_tmp,dooya_sub_kv,i);
 			printf("###########dooya_sub_dev_init %s\r\n",kv_array_tmp);
@@ -253,7 +255,7 @@ int dooya_add_sub(    uint8_t * product_key,uint8_t *product_secret,uint8_t *dev
 uint8_t  dooya_find_no_sub_index_from_flash(void)
 {
 	uint8_t i;
-	uint64_t  number_bit_flag_tmp=0;
+	sun_type  number_bit_flag_tmp=0;
 	for(i=0;i<data_len;i++)
 	{
 		number_bit_flag_tmp=0;
@@ -269,8 +271,8 @@ uint8_t  dooya_find_no_sub_index_from_flash(void)
 int8_t  dooya_find_sub_index_from_flash(uint8_t start)
 {
 	uint8_t i;
-	uint16_t  number_bit_flag_tmp=0;
-	uint16_t  number_bit_flag_tmp1=0;
+	sun_type  number_bit_flag_tmp=0;
+	sun_type  number_bit_flag_tmp1=0;
 	if(start<data_len)
 	{
 	
@@ -352,6 +354,7 @@ void dooya_zigbee_net_deal(uint8_t *payload_msg,uint8_t msg_len)
 		memset(ali_tree_array,0,sizeof(ali_tree_array));
 		memcpy(ali_tree_array,payload_msg+52,32);
 		dooya_add_sub_dev_se(ali_tree_array, index_tmp);
+
 		number_bit_flag|=(1<<index_tmp);
 		
 		printf("dooya_zigbee_net_deal number_bit_flag is [%x]\r\n",number_bit_flag);
@@ -411,6 +414,10 @@ void dooya_zigbee_report(uint8_t *payload_msg,uint8_t msg_len)
 					}
 				}
 			}
+			else
+			{
+				break;
+			}
 		}
 		
 	}
@@ -425,7 +432,7 @@ void dooya_sub_zigbee_deal(int devid,char *data)
 	
 	uint8_t i;
 	int8_t index_tmp;
-	user_sub_dev_t data_t_tmp;
+	user_sub_dev_t data_t_tmp={0};
 
 	root = cJSON_Parse(data);
 	if (root == NULL || !cJSON_IsObject(root)) 
@@ -455,6 +462,10 @@ void dooya_sub_zigbee_deal(int devid,char *data)
 					break;
 				}
 			}
+		}
+		else
+		{
+			break;
 		}
 	}
 
@@ -522,7 +533,7 @@ void dooya_zigbee_window_position(uint16_t address,uint16_t cluse,uint8_t data_t
 void dooya_sub_zigbee_del(int devid,int8_t index)
 {
 	int len=sizeof(uint8_t);
-	uint16_t number_bit_flag_tmp=1<<index;
+	sun_type number_bit_flag_tmp=1<<index;
 	printf("number_bit_flag_tmp is 0x%x\r\n",number_bit_flag_tmp);
 	aos_kv_get(dooya_sub_all_member_kv, (void *)&all_number, &len);
 	all_number--;
@@ -580,9 +591,11 @@ void dooya_sub_zigbee_number(char *data)
 				if(arrySize==0)
 				{
 					/*删除*/
-					dooya_find_sub_from_flash(&data_t_tmp,i);
 							
+					dooya_find_sub_from_flash(&data_t_tmp,i);
+					dooya_zigbee_del_sub(data_t_tmp.address);
 					dooya_sub_zigbee_del(data_t_tmp.index,index_tmp);
+					
 				}
 				else
 				{
@@ -600,33 +613,60 @@ void dooya_sub_zigbee_number(char *data)
 							}
 							/*删除*/
 							dooya_find_sub_from_flash(&data_t_tmp,i);
-							
+							dooya_zigbee_del_sub(data_t_tmp.address);
 							dooya_sub_zigbee_del(data_t_tmp.index,index_tmp);
 						}
 					}
 				}
 			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	cJSON_Delete(root);
+}
+
+void dooya_sub_zigbee_leave_net(uint16_t address)
+{
+
+	uint8_t i,k;
+	int8_t index_tmp;
+	user_sub_dev_t data_t_tmp;
+	int arrySize=0;
+	uint8_t dev_name[20]={0};
+	int len;
+	
+	for(i=0;i<data_len;i++)
+	{
+		index_tmp=-1;
+		index_tmp=dooya_find_sub_index_from_flash(i);
+		printf("index_tmp is [%d]\r\n",index_tmp);
+		if(index_tmp >=0)
+		{
+			
+			memset(&data_t_tmp,0,sizeof(user_sub_dev_t));
+			dooya_find_sub_from_flash(&data_t_tmp,index_tmp);
+
+			if(data_t_tmp.address==address)
+			{
+				printf("data_t_tmp.address==address_tmp\r\n");
+				IOT_Linkkit_Report(data_t_tmp.index, ITM_MSG_LOGOUT, NULL, 0);
+				dooya_sub_zigbee_del(data_t_tmp.index,index_tmp);
+				
+				return ;
+			}
+		}
+		else
+		{
+			break;
 		}
 	}
 
 
 	
-	/*for(k=0;k<arrySize;k++)
-	{
-		item_tmp = cJSON_GetArrayItem(root, k);
-		item_tmp1 = cJSON_GetObjectItem(item_tmp, "deviceName");
-		if (item_tmp1 != NULL || cJSON_IsString(item_tmp1))
-		{
-			printf("deviceName is %s\r\n",item_tmp1->valuestring);
-			memset(dev_name,0,sizeof(dev_name));
-			len=sizeof(dev_name);
-			dooya_get_sub_dev_na(dev_name,&len, 0);
-			printf("vn deviceName is %s\r\n",dev_name);
-			
-		}
-
-	}*/
-	cJSON_Delete(root);
+	
 }
 
 
