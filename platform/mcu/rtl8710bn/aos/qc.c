@@ -19,7 +19,7 @@
 static uart_dev_t qc_uart;
 
 #ifndef SERIAL_NUMBER
-#define SERIAL_NUMBER       "0533.CL01.QM01"
+#define SERIAL_NUMBER       "0533.TC01.FY01"
 #endif
 
 #ifndef BOOT_VERSION
