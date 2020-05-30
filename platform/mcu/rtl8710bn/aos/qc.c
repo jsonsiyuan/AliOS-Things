@@ -85,7 +85,7 @@ static rtw_result_t app_scan_result_handler_qc( rtw_scan_handler_result_t* mallo
 
 static void qc_scan(void)
 {
-	hal_wifi_module_t *module;
+/*	hal_wifi_module_t *module;
 	uint8_t mac[6];
 	
 	module = hal_wifi_get_default_module();
@@ -94,7 +94,15 @@ static void qc_scan(void)
 	qc_printf( "MAC:%02X-%02X-%02X-%02X-%02X-%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5] );
 
 
-	wifi_scan_networks(app_scan_result_handler_qc, NULL );
+	wifi_scan_networks(app_scan_result_handler_qc, NULL );*/
+	if (wifi_scan_networks(app_scan_result_handler_qc, NULL ) != RTW_SUCCESS)
+	{
+		qc_printf("Scan AP Fail\r\n");
+	}
+	else
+	{
+		qc_printf("Scan AP Success:\r\n");
+	}
 
 }
 
@@ -131,8 +139,19 @@ static uint16_t qc_crc(void)
 	return crc;
 }
 
+static char *chip_mac(void)
+{
+    uint8_t mac[6];
+    static char macstr[18];
+    hal_wifi_get_mac_addr(NULL, mac);
+    sprintf(macstr, "%02X-%02X-%02X-%02X-%02X-%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    return macstr;
+}
+
 void qc_test(void)
 {
+	aos_msleep(3000);
+
 	int vlen = 0;
 		char product_key[PRODUCT_KEY_LEN + 1] = { 0 };
 		char product_secret[PRODUCT_SECRET_LEN + 1] = { 0 };
@@ -167,8 +186,11 @@ void qc_test(void)
 
     qc_printf( "==== MXCHIP Manufacture Test ====\r\n" );
     qc_printf( "Serial Number: %s\r\n", get_sn() );
+	qc_printf( "Bootloader Version: %s\r\n", get_bootloader_ver() );
+	qc_printf("Library Version: %s\r\n", "v1.0");
+    qc_printf("APP Version: %s\r\n", "v1.0");
     qc_printf( "App CRC: %04X\r\n", qc_crc() );
-    qc_printf( "Bootloader Version: %s\r\n", get_bootloader_ver() );
+	qc_printf("MAC: %s\r\n", chip_mac());
 	qc_printf( "ID List:\r\n  ILOP: %s,%s,%s,%s\r\n", product_key, product_secret, device_secret, device_name);
 
     qc_scan();
