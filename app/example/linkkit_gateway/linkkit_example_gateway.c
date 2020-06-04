@@ -411,12 +411,12 @@ int user_topolist_received_event_handler(const int devid, const int msgid, const
 {
 	printf(" devid = %d\r\n msgid = %d\r\n code = %d\r\n topo list = %.*s\r\n", devid, msgid, code, topo_datalen, topo_data);
 
-	dooya_sub_zigbee_number(topo_data);
+	//dooya_sub_zigbee_number(topo_data);
 	return 0;
 }
 
 static int max_running_seconds = 0;
-uint8_t dev_property_json[]= "{\"CurtainPosition\":20} ";
+
 static int user_down_raw_data_arrived_event_handler(const int devid, const unsigned char *payload,
                                                                      const int payload_len)
 {
@@ -573,18 +573,17 @@ int linkkit_main(void *paras)
             //user_deviceinfo_delete();
         }
 		if (time_now_sec % 60 == 0 && user_master_dev_available()) {
+			//test
 			//EXAMPLE_TRACE("ITE_TIMESTAMP_REPLY");
 			// IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TIMESTAMP, NULL, 0);
 
-			EXAMPLE_TRACE("ITM_MSG_QUERY_TOPOLIST");
-           
-           IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TOPOLIST, NULL, 0);
+			//EXAMPLE_TRACE("ITM_MSG_QUERY_TOPOLIST");
+           //IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TOPOLIST, NULL, 0);
         }
 		if (time_now_sec % 60 == 0 && user_master_dev_available()) {
 			//EXAMPLE_TRACE("ITM_MSG_POST_PROPERTY");
            // IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_TIMESTAMP, NULL, 0);
-
-           //IOT_Linkkit_Report(2, ITM_MSG_POST_PROPERTY, dev_property_json,22);
+           //IOT_Linkkit_Report(2, ITM_MSG_POST_PROPERTY, xx,xx);
         }
         time_prev_sec = time_now_sec;
     }

@@ -131,7 +131,7 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
         DM_free(uri);
     }
     local_sub = 1;
-    HAL_Kv_Set(device_key, &local_sub, 1, 1);
+    //HAL_Kv_Set(device_key, &local_sub, 1, 1);
 
     return SUCCESS_RETURN;
 }

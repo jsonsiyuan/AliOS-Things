@@ -44,11 +44,12 @@ static int dooya_uart_unlock_mutex(void)
 	return	aos_mutex_unlock(&dooya_uart_mutex);
 }
 
+/*
 static void uart_timer_handler(void * p_context)
 {
 	while(1)
 	{
-		/*retry_num++;
+		retry_num++;
 		if(retry_num>5)
 		{
 			dooya_set_led_g_status(LED_CLOSE,1);
@@ -64,13 +65,13 @@ static void uart_timer_handler(void * p_context)
 		{
 			retry_num=0;
 		}
-		else*/
+		else
 		{
 			dooya_start_motor_check();
 		}
 		aos_msleep(10000);
 	}
-}
+}*/
 
 static void dooya_uart_time_init(void)
 {

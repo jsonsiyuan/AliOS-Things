@@ -63,7 +63,25 @@ void dooya_zigbee_send_control(uint16_t address,uint16_t cluse,uint8_t endpoint,
 
 }
 
+/**/
+void dooya_zigbee_get_info(uint16_t address)
+{
+	uint8_t data[10];
+	uint16_t crc16_tmp;
+	data[0]=0x55;
+	data[1]=0xAA;
+	data[2]=0x06;
+	data[3]=CHECK_CODE;
+	data[4]=CHECK_MOTOR_INFO;
+	data[5]=address/256;
+	data[6]=address%256;
+	crc16_tmp= CRC16_MODBUS(data,7);
+	data[7]=crc16_tmp/256;
+	data[8]=crc16_tmp%256;
+	dooya_uart_send(data,9);
 
+
+}
 
 
 

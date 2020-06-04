@@ -99,7 +99,7 @@ int dooya_del_sub_flash(uint8_t index)
 	memset(kv_string,0,sizeof(kv_string));
 	sprintf(kv_string,dooya_sub_kv,index);
 	aos_kv_del(kv_string);
-
+/*
 	memset(kv_string,0,sizeof(kv_string));
 	sprintf(kv_string,dooya_pro_na,index);
 	aos_kv_del(kv_string);
@@ -114,7 +114,7 @@ int dooya_del_sub_flash(uint8_t index)
 
 	memset(kv_string,0,sizeof(kv_string));
 	sprintf(kv_string,dooya_dev_se,index);
-	aos_kv_del(kv_string);
+	aos_kv_del(kv_string);*/
 	
 }
 
@@ -157,7 +157,7 @@ void dooya_sub_dev_init(void)
 		printf("###########all_number %d\r\n",all_number_tmp);
 		while(all_number_tmp>0)
 		{
-		HAL_SleepMs(5000);
+			HAL_SleepMs(5000);
 			memset(kv_array_tmp,0,sizeof(kv_array_tmp));
 			sprintf(kv_array_tmp,dooya_sub_kv,i);
 			printf("###########dooya_sub_dev_init %s\r\n",kv_array_tmp);
@@ -177,7 +177,11 @@ void dooya_sub_dev_init(void)
 					printf("data_tmp.address is 0x%x,data_tmp.all_point is 0x%x ,data_tmp.cluse is 0x%x,data_tmp.index is 0x%x\r\n",
 						data_tmp.address,data_tmp.all_point,data_tmp.cluse,data_tmp.index);
 
+
+					dooya_zigbee_get_info(data_tmp.address);
+					/*
 					//上电注册
+					//向特备节点发送命令
 					//pro_na
 					memset(kv_array_tmp,0,sizeof(kv_array_tmp));
 					memset(ali_tmp.product_key,0,sizeof(ali_tmp.product_key));
@@ -215,7 +219,7 @@ void dooya_sub_dev_init(void)
 					{
 						data_tmp.index=ret;
 						dooya_add_sub_flash(&data_tmp,i);
-					}
+					}*/
 					
 				}
 			}
@@ -288,7 +292,7 @@ int8_t  dooya_find_sub_index_from_flash(uint8_t start)
 				number_bit_flag_tmp1=0;
 				number_bit_flag_tmp1 |=(1<<i);
 				
-				if(number_bit_flag_tmp1&number_bit_flag_tmp)
+				if(number_bit_flag_tmp1&number_bit_flag)
 				{
 					return i;
 				}
@@ -327,6 +331,7 @@ void dooya_zigbee_net_deal(uint8_t *payload_msg,uint8_t msg_len)
 		data_tmp.index=ret;
 		data_tmp.enable_flag=1;
 		
+		//保存总数目
 		len=sizeof(uint8_t);
 		aos_kv_get(dooya_sub_all_member_kv, (void *)&all_number, &len);
 		all_number++;
@@ -339,6 +344,7 @@ void dooya_zigbee_net_deal(uint8_t *payload_msg,uint8_t msg_len)
 		ret=dooya_add_sub_flash(&data_tmp,index_tmp);
 		printf("dooya_zigbee_net_deal ret is [%d]\r\n",ret);
 
+        /* //保存三元组
 		memset(ali_tree_array,0,sizeof(ali_tree_array));
 		memcpy(ali_tree_array,payload_msg+5,11);
 		dooya_add_sub_pro_na(ali_tree_array, index_tmp);
@@ -354,7 +360,8 @@ void dooya_zigbee_net_deal(uint8_t *payload_msg,uint8_t msg_len)
 		memset(ali_tree_array,0,sizeof(ali_tree_array));
 		memcpy(ali_tree_array,payload_msg+52,32);
 		dooya_add_sub_dev_se(ali_tree_array, index_tmp);
-
+		*/
+		
 		number_bit_flag|=(1<<index_tmp);
 		
 		printf("dooya_zigbee_net_deal number_bit_flag is [%x]\r\n",number_bit_flag);
@@ -415,7 +422,8 @@ void dooya_zigbee_report(uint8_t *payload_msg,uint8_t msg_len)
 				}
 			}
 			else
-			{
+			{	
+				dooya_zigbee_get_info(address_tmp);
 				break;
 			}
 		}
