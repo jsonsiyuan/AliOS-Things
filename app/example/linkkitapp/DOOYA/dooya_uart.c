@@ -68,7 +68,7 @@ static void uart_timer_handler(void * p_context)
 		{
 			dooya_start_motor_check();
 		}
-		aos_msleep(10000);
+		aos_msleep(5000);
 	}
 }
 

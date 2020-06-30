@@ -97,7 +97,7 @@ void dooya_set_dev_CurtainPosition(int data)
 		{
 			CurtainPosition_number=0;
 			//if(dev_tmp->CurtainPosition!=data)
-			if(abs(dev_tmp->CurtainPosition-data)>3)
+			if(abs(dev_tmp->CurtainPosition-data)>2)
 			{
 				dooya_post_flag=1;
 				dooya_CurtainPosition_data=0xff;
@@ -117,8 +117,6 @@ void dooya_set_dev_CurtainPosition(int data)
 void dooya_set_dev_CurtainPosition_dec(int data)
 {
 	user_dev_status_t *dev_tmp=dooya_get_dev_info();
-	if(abs(dev_tmp->CurtainPosition-data)>3)
-	//if(dev_tmp->CurtainPosition!=data)
 	{
 		dooya_post_flag=1;
 		CurtainPosition_tmp=0xff;

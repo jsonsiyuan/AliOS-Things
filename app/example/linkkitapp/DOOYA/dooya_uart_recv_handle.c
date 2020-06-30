@@ -136,7 +136,7 @@ void dooya_check_handle(uint8_t *payload_msg,uint8_t msg_len)
 			dooya_check_motor(payload_msg[1]);
 			dooya_check_motor_zone_percent(payload_msg[2]);
 			dooya_check_motor_run_boundary(payload_msg[4]);
-			dooya_check_motor_dir(payload_msg[6]);
+			//dooya_check_motor_dir(payload_msg[6]);
 		break;
 		case CHECK_MOTOR_STATUS:
 			//dooya_check_motor(payload_msg[1]);
@@ -187,7 +187,7 @@ void dooya_notice_handle(uint8_t *payload_msg,uint8_t msg_len)
 			{
 				if(dooya_CurtainPosition_data!=0xff)
 				{
-					if(abs(dooya_CurtainPosition_data-payload_msg[2])<3)
+					if(abs(dooya_CurtainPosition_data-payload_msg[2])>2)
 					{
 						dooya_check_motor_zone_percent_dec(payload_msg[2]);
 					}
