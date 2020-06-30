@@ -206,7 +206,7 @@ void dooya_user_property_parse(char *data)
 	if (item_SetDir != NULL || cJSON_IsNumber(item_SetDir))
 	{
 		printf("mode is [%d]\r\n",item_SetDir->valueint);
-		dooya_set_dev_SetDir(item_SetDir->valueint);
+		//dooya_set_dev_SetDir(item_SetDir->valueint);
 		switch(item_SetDir->valueint)
 		{
 			case DIR_POSITIVE:
