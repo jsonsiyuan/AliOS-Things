@@ -213,7 +213,8 @@ void dooya_user_property_parse(char *data)
 				dooya_control_positine_dir();
 			break;
 			case DIR_REVERSE:
-				dooya_control_reverse_dir();
+				//dooya_control_reverse_dir();
+				dooya_control_change_dir();
 			break;
 			case 352:
 				dooya_control_del_all_boundary();
